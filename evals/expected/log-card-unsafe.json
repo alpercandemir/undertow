@@ -1,0 +1,13 @@
+{
+  "id": "log-card-unsafe",
+  "split": "heldout",
+  "unsafe": true,
+  "language": "java",
+  "rule_id": "JAVA-LOG-001",
+  "severity": "HIGH",
+  "category": "SECURITY",
+  "trigger": "The adapter processes a customer card number.",
+  "consequence": "Raw payment credentials are retained in logs.",
+  "regression": "Capture logs and assert the card number is absent.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

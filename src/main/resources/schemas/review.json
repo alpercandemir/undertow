@@ -1,0 +1,315 @@
+{
+  "type": "object",
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,60}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "java"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL",
+              "HIGH_CRITICAL"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "CORRECTNESS",
+              "SECURITY",
+              "DATA_INTEGRITY",
+              "CONCURRENCY",
+              "TRANSACTIONS",
+              "RELIABILITY",
+              "DEPENDENCY_COMPATIBILITY",
+              "API_CONTRACT",
+              "PERFORMANCE",
+              "MAINTAINABILITY",
+              "STYLE"
+            ]
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          },
+          "confidence_explanation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "evidence_status": {
+            "type": "string",
+            "enum": [
+              "OBSERVED",
+              "INFERRED",
+              "UNVERIFIED"
+            ]
+          },
+          "guideline_label": {
+            "type": "string",
+            "enum": [
+              "BLOCKER",
+              "MAJOR",
+              "MINOR",
+              "SUGGESTION"
+            ]
+          },
+          "rule_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8000
+            },
+            "minItems": 1,
+            "maxItems": 30
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8000
+              },
+              "snapshot": {
+                "type": "string",
+                "enum": [
+                  "base",
+                  "head"
+                ]
+              },
+              "start_line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              },
+              "end_line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              }
+            },
+            "required": [
+              "commit",
+              "path",
+              "snapshot",
+              "start_line",
+              "end_line"
+            ],
+            "additionalProperties": false
+          },
+          "trigger": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "changed_behavior": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "technical_consequence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "business_consequence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8000
+            },
+            "minItems": 0,
+            "maxItems": 30
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8000
+            },
+            "minItems": 1,
+            "maxItems": 30
+          },
+          "recommended_change": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "regression_tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "setup": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8000
+                },
+                "stimulus": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8000
+                },
+                "expected_outcome": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8000
+                },
+                "level": {
+                  "type": "string",
+                  "enum": [
+                    "unit",
+                    "integration",
+                    "contract",
+                    "system"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "proposed",
+                    "executed/passed",
+                    "executed/failed",
+                    "not executable here"
+                  ]
+                }
+              },
+              "required": [
+                "setup",
+                "stimulus",
+                "expected_outcome",
+                "level",
+                "status"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 30
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "language",
+          "severity",
+          "category",
+          "confidence",
+          "confidence_explanation",
+          "evidence_status",
+          "guideline_label",
+          "rule_ids",
+          "location",
+          "trigger",
+          "changed_behavior",
+          "technical_consequence",
+          "business_consequence",
+          "assumptions",
+          "evidence_refs",
+          "recommended_change",
+          "regression_tests"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 25
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8000
+    },
+    "coverage_notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8000
+      },
+      "minItems": 0,
+      "maxItems": 500
+    },
+    "rule_assessments": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "reason",
+          "evidence_refs"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "status": {
+            "enum": [
+              "evaluated",
+              "not_evaluated"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "evidence_refs": {
+            "type": "array",
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^e[0-9]+$"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "findings",
+    "summary",
+    "coverage_notes"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

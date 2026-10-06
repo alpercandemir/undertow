@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Undertow reviews</title><link rel="stylesheet" href="/app.css"><script defer src="/app.js"></script></head>
+<body><main>
+<header><p class="eyebrow">UNDERTOW · INTERNAL SERVICE PREVIEW</p><h1>Reviews with evidence.</h1><p>Connect selected GitHub repositories, choose your rules, and control review usage.</p><a href="/auth/login">Sign in with GitHub</a><button id="logout" hidden>Sign out</button></header>
+<p class="notice">External pilot gates remain open. Collection and authored replay are labeled; they do not establish live review quality.</p>
+<p id="status" role="status"></p>
+<section id="workspace" hidden>
+<p class="notice">Enabling reviews authorizes Undertow to fetch repository source. Live inference submits bounded source to the approved Gemini account. Verified usage may consume credits even for partial results; unknown usage stays in reconciliation. Reports are private and expire after seven days. Check the operator-approved data arrangement before enabling proprietary source.</p>
+<label>Organization <select id="tenant"></select></label>
+<form id="connect"><h2>Connect an installation</h2><p>Your GitHub account must have authority to administer the installation. Installation alone does not enable spending.</p><label>Installation ID <input name="installationId" inputmode="numeric" required></label><button>Connect</button></form>
+<div class="grid"><section><h2>Repositories</h2><form id="register"><label>GitHub numeric repository ID <input name="repositoryId" inputmode="numeric" required></label><button>Add selected repository</button></form><div id="repositories"></div></section>
+<section><h2>Credits and usage</h2><p>Operator grants are internal units. Verified live model usage may be charged for partial reviews. Publication retries add no inference charge.</p><button id="usage-refresh">Refresh usage</button><pre id="credits"></pre><pre id="usage"></pre></section></div>
+<section><h2>Validate a rule package</h2><p>Upload files from your .undertow directory. Guidelines, rules, and optional business context are immutable after validation. Activate the returned package ID in repository settings.</p><form id="package"><label>Policy files <input name="files" type="file" multiple required></label><button>Validate package</button></form><pre id="package-result"></pre></section>
+<section><h2>Review detail</h2><form id="detail"><label>Review ID <input name="review" required></label><button>Open review</button></form><pre id="review"></pre><button id="evidence" hidden>Open authorized report and evidence</button><pre id="artifact"></pre><form id="feedback" hidden><label>Finding ID <input name="finding" required></label><label>Assessment <select name="assessment"><option>useful</option><option>false_positive</option><option>incorrect_severity</option><option>correction</option></select></label><label>Feedback <textarea name="note" maxlength="2000"></textarea></label><button>Record feedback</button></form></section>
+</section></main></body></html>

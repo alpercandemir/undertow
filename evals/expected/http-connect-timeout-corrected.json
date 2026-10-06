@@ -1,0 +1,13 @@
+{
+  "id": "http-connect-timeout-corrected",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-HTTP-001",
+  "severity": "HIGH",
+  "category": "RELIABILITY",
+  "trigger": "A new connection to the payment upstream cannot complete.",
+  "consequence": "Removing the explicit connection budget makes completion depend on unspecified defaults.",
+  "regression": "Exercise a controlled connection stall and assert the configured bound.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

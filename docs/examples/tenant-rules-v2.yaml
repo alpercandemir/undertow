@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "rules": [
+    {
+      "id": "JAVA-TENANT-001",
+      "version": "1.0.0",
+      "owner": "payments-platform",
+      "description": "Keep every order lookup inside the caller tenant.",
+      "wording": "Every order read and update must bind both order identity and authenticated tenant identity; an order ID alone is insufficient.",
+      "strength": "MUST",
+      "label": "BLOCKER",
+      "execution": "contextual",
+      "enabled": true,
+      "languages": [
+        "java"
+      ],
+      "include": [
+        "src/**/*.java"
+      ],
+      "exclude": [],
+      "required_tools": [
+        "get_diff",
+        "read_source",
+        "get_business_context"
+      ],
+      "sections": [
+        23
+      ],
+      "examples": {
+        "unsafe": "orders.find(orderId) can return another tenant order.",
+        "corrected": "orders.find(tenantId, orderId) binds the authenticated tenant.",
+        "benign": "A global public catalogue lookup has no tenant-owned order data."
+      }
+    }
+  ],
+  "exceptions": []
+}

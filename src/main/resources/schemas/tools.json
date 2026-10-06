@@ -1,0 +1,139 @@
+{
+  "get_diff": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "read_source": {
+    "type": "object",
+    "properties": {
+      "snapshot": {
+        "type": "string",
+        "enum": [
+          "base",
+          "head"
+        ]
+      },
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8000
+      },
+      "start_line": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000
+      },
+      "end_line": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000
+      }
+    },
+    "required": [
+      "snapshot",
+      "path",
+      "start_line",
+      "end_line"
+    ],
+    "additionalProperties": false
+  },
+  "find_references": {
+    "type": "object",
+    "properties": {
+      "symbol": {
+        "type": "string",
+        "pattern": "^[a-zA-Z_$][a-zA-Z0-9_$]{0,99}$"
+      },
+      "snapshot": {
+        "type": "string",
+        "enum": [
+          "base",
+          "head"
+        ]
+      }
+    },
+    "required": [
+      "symbol",
+      "snapshot"
+    ],
+    "additionalProperties": false
+  },
+  "get_rule": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8000
+      }
+    },
+    "required": [
+      "id"
+    ],
+    "additionalProperties": false
+  },
+  "get_business_context": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "get_ci_evidence": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "compare_dependencies": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "fetch_migration_evidence": {
+    "type": "object",
+    "properties": {
+      "coordinate": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+$"
+      },
+      "old_version": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8000
+      },
+      "new_version": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8000
+      }
+    },
+    "required": [
+      "coordinate",
+      "old_version",
+      "new_version"
+    ],
+    "additionalProperties": false
+  },
+  "query_vulnerabilities": {
+    "type": "object",
+    "properties": {
+      "coordinate": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+$"
+      },
+      "version": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8000
+      }
+    },
+    "required": [
+      "coordinate",
+      "version"
+    ],
+    "additionalProperties": false
+  }
+}

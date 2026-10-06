@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "review", "tenant", "engineDigest", "effectivePolicy", "policyIdentity", "executionVersion", "executionMode", "snapshot", "artifactHashes", "usage", "promptVersion", "promptHash", "publication"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "review": {"type": "string", "minLength": 1},
+    "tenant": {"type": "string", "minLength": 1},
+    "engineDigest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "effectivePolicy": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "policyIdentity": {"type": "string", "minLength": 1},
+    "executionVersion": {"type": "string", "minLength": 1},
+    "executionMode": {"enum": ["replay", "live", "collect"]},
+    "promptVersion": {"type": "string"},
+    "promptHash": {"type": "string"},
+    "snapshot": {"type": "object", "required": ["repositoryId", "head", "target", "diffBase", "policyCommit", "ciIdentity"]},
+    "artifactHashes": {"type": "object", "required": ["report.json", "evidence.json", "report.md", "effective-policy.json"], "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}},
+    "usage": {"type": "object", "required": ["known", "inputTokens", "outputTokens", "modelCalls", "billable", "provider", "model"], "properties": {"known": {"type": "boolean"}, "inputTokens": {"type": "integer", "minimum": 0}, "outputTokens": {"type": "integer", "minimum": 0}, "modelCalls": {"type": "integer", "minimum": 0}, "billable": {"type": "boolean"}, "provider": {"type": "string"}, "model": {"type": "string"}}, "additionalProperties": false},
+    "publication": {"enum": ["not_requested", "published", "failed", "stale"]}
+  }
+}

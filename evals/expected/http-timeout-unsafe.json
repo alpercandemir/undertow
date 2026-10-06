@@ -1,0 +1,13 @@
+{
+  "id": "http-timeout-unsafe",
+  "split": "heldout",
+  "unsafe": true,
+  "language": "java",
+  "rule_id": "JAVA-HTTP-001",
+  "severity": "HIGH",
+  "category": "RELIABILITY",
+  "trigger": "Upstream accepts a connection but never returns a response.",
+  "consequence": "Request has no explicit response deadline and can hold work indefinitely.",
+  "regression": "Stall a controlled upstream and assert the operation terminates within the deadline.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

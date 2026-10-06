@@ -1,0 +1,13 @@
+{
+  "id": "log-token-corrected",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-LOG-001",
+  "severity": "HIGH",
+  "category": "SECURITY",
+  "trigger": "Authenticated payment handling emits the access token.",
+  "consequence": "Operational logs expose a reusable bearer credential.",
+  "regression": "Capture logs containing a sentinel token and verify redaction.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

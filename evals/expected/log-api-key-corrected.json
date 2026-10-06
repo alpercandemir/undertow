@@ -1,0 +1,13 @@
+{
+  "id": "log-api-key-corrected",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-LOG-001",
+  "severity": "HIGH",
+  "category": "SECURITY",
+  "trigger": "Payment handling writes logs containing the configured gateway credential.",
+  "consequence": "A reader of operational logs can obtain the API key.",
+  "regression": "Capture logs with a sentinel key and assert it never appears.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

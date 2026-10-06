@@ -1,0 +1,14 @@
+schema_version: 1
+model:
+  name: gemini-3.1-flash-lite
+  api_key_env: GEMINI_API_KEY
+limits:
+  max_model_calls: 12
+  max_tool_calls: 30
+  max_context_tokens: 30000
+  max_total_tokens: 80000
+  run_timeout_seconds: 300
+  tool_timeout_seconds: 20
+  retry_attempts: 2
+output:
+  max_findings: 10

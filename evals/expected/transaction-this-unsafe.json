@@ -1,0 +1,13 @@
+{
+  "id": "transaction-this-unsafe",
+  "split": "heldout",
+  "unsafe": true,
+  "language": "java",
+  "rule_id": "JAVA-TX-001",
+  "severity": "HIGH",
+  "category": "TRANSACTIONS",
+  "trigger": "A nontransactional entry point invokes an annotated helper and the second database write fails.",
+  "consequence": "Self-invocation bypasses the proxy and leaves the first write committed.",
+  "regression": "Invoke the Spring proxy entry point, fail the second write and assert no partial commit.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

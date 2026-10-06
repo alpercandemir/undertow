@@ -1,0 +1,13 @@
+{
+  "id": "transaction-private-corrected",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-TX-001",
+  "severity": "HIGH",
+  "category": "TRANSACTIONS",
+  "trigger": "Private annotated helper is called from the nontransactional use case.",
+  "consequence": "The private helper cannot establish the intended proxy transaction.",
+  "regression": "Verify both writes roll back on second-write failure.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

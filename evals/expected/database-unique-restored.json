@@ -1,0 +1,15 @@
+{
+  "id": "database-unique-restored",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-DATA-001",
+  "severity": "CRITICAL",
+  "category": "DATA_INTEGRITY",
+  "source_path": "db/migration/V1__orders.sql",
+  "finding_line": 3,
+  "trigger": "Apply a benign refactor or investigate a dependency version change.",
+  "consequence": "No verified regression is asserted.",
+  "regression": "Preserve the existing behavior; do not invent migration claims.",
+  "kind": "synthetic schema/Java/dependency fixture; dependency versions are investigation inputs, not migration claims"
+}

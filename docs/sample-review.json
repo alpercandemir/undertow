@@ -1,0 +1,62 @@
+{
+  "schema_version" : 1,
+  "run_id" : "ab85842f-3479-4c92-b49d-37f16d64efee",
+  "status" : "partial",
+  "base_sha" : "c80301580713505d2025b27fec0370b9f10ec515",
+  "head_sha" : "1533b438ed88a9c7add667305e4f333b1bd760ea",
+  "model_identity" : "offline-replay-v1",
+  "prompt_version" : "undertow-review-v1",
+  "prompt_hash" : "eac891f08881957a532d418acf0ed7b2d4a29380938bc26004d2176556b40a03",
+  "policy_hashes" : {
+    "config/business-context.yaml" : "97e44e301f191355f741f00838b0f2871e84d21f31f2060873d09f77c741a5ca",
+    "config/review.yaml" : "9de7553f6c0855001eac849aa5c3f7c4f7eccd0e8a4917ff1e3fde4fa119db60",
+    "config/dependency-sources.yaml" : "08270c52b241d8686c0da7e3b6806ebbabc3a496e95de72ec6655573458c00a7",
+    "config/languages/java/rules.yaml" : "73ab4c08931117bc5d995973f15740f62f70aeb504fc71ad831ddba7be05b378",
+    "CODING-SKILL.md" : "1789443463546e793191941f98319fbfe9a9f6d632f788fde8b7d54879a02eef"
+  },
+  "summary" : "Authored offline replay for retry-key-unsafe; live model quality is not measured.",
+  "findings" : [ {
+    "id" : "retry-key-unsafe",
+    "title" : "JAVA-RETRY-001: retry-key-unsafe",
+    "language" : "java",
+    "severity" : "CRITICAL",
+    "category" : "DATA_INTEGRITY",
+    "confidence" : "HIGH",
+    "confidence_explanation" : "The designed fixture has an explicit contract and a causal edit. This is authored replay output.",
+    "evidence_status" : "INFERRED",
+    "guideline_label" : "BLOCKER",
+    "rule_ids" : [ "JAVA-RETRY-001" ],
+    "location" : {
+      "commit" : "1533b438ed88a9c7add667305e4f333b1bd760ea",
+      "path" : "src/Subject.java",
+      "snapshot" : "head",
+      "start_line" : 6,
+      "end_line" : 6
+    },
+    "trigger" : "Gateway commits a payment, loses the response and the caller retries.",
+    "changed_behavior" : "The changed expression replaces the baseline contract-preserving behavior.",
+    "technical_consequence" : "A new key represents a new charge and can duplicate customer debit.",
+    "business_consequence" : "The declared order/payment invariant may fail.",
+    "assumptions" : [ "Collaborators obey the fixture contract; symbol resolution is unavailable." ],
+    "evidence_refs" : [ "e1", "e2", "e3", "e4", "e5" ],
+    "recommended_change" : "Restore the contract-preserving baseline behavior.",
+    "regression_tests" : [ {
+      "setup" : "Controlled gateway/repository and explicit decimal strings.",
+      "stimulus" : "Gateway commits a payment, loses the response and the caller retries.",
+      "expected_outcome" : "Drop the first response; assert equal keys and one charge.",
+      "level" : "integration",
+      "status" : "proposed"
+    } ]
+  } ],
+  "coverage_gaps" : [ "Classpath symbols in this synthetic fixture are unresolved." ],
+  "changed_files" : [ "src/Subject.java" ],
+  "inspected_sources" : [ "base:src/Subject.java", "head:src/Subject.java" ],
+  "tool_failures" : [ ],
+  "model_calls" : 2,
+  "tool_calls" : 5,
+  "input_tokens" : 0,
+  "output_tokens" : 0,
+  "estimated_input_tokens" : 6560,
+  "elapsed_millis" : 152,
+  "evidence_hash" : "70b3a19d86c3b41837545a7fb1ad87aeecce9bdfd789726f9e98a67b5df300af"
+}

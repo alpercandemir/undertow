@@ -1,0 +1,13 @@
+{
+  "id": "transaction-unqualified-corrected",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-TX-001",
+  "severity": "HIGH",
+  "category": "TRANSACTIONS",
+  "trigger": "An unqualified same-instance helper call follows a nontransactional entry point.",
+  "consequence": "Calling the annotated method on the same bean bypasses transaction interception.",
+  "regression": "Fail after the first write through the real proxied entry point and assert rollback.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "retry-scope-key-corrected",
+  "split": "tuning",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-RETRY-001",
+  "severity": "CRITICAL",
+  "category": "DATA_INTEGRITY",
+  "trigger": "Retry callback runs after an accepted charge with a lost response.",
+  "consequence": "Key generation inside the callback bypasses payment deduplication.",
+  "regression": "Execute callback twice after an ambiguous response and count debits.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

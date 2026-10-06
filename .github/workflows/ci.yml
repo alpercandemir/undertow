@@ -1,0 +1,92 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  public-content:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check English content and export publishable files
+        run: python3 scripts/public-check.py --export "$RUNNER_TEMP/public-source"
+      - name: Install checksum-pinned Gitleaks
+        env:
+          GITLEAKS_VERSION: '8.30.1'
+          GITLEAKS_SHA256: '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb'
+        run: |
+          set -eu
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          curl --fail --location --silent --show-error --output "$archive" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          printf '%s  %s\n' "$GITLEAKS_SHA256" "$archive" | sha256sum --check --status
+          tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+      - name: Scan candidate files and full available history
+        run: |
+          set -eu
+          "$RUNNER_TEMP/gitleaks" dir "$RUNNER_TEMP/public-source" --redact --no-banner
+          "$RUNNER_TEMP/gitleaks" git . --log-opts=--all --redact --no-banner
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '25'
+      - run: mvn --batch-mode --no-transfer-progress verify
+      - name: Verify workflow helpers
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Collect harness dependency inventory (unprivileged)
+        run: mvn --batch-mode --no-transfer-progress org.apache.maven.plugins:maven-dependency-plugin:3.8.1:tree -DoutputType=json -DoutputFile=target/dependency-tree.json
+      - name: Set up Java 21 for the unchanged demo
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: mvn --batch-mode --no-transfer-progress -f demo/order-service/pom.xml verify
+      - name: Verify the customer-only application
+        run: mvn --batch-mode --no-transfer-progress -f demo/customer-service/pom.xml verify
+      - name: Collect demo dependency inventory (unprivileged)
+        run: mvn --batch-mode --no-transfer-progress -f demo/order-service/pom.xml org.apache.maven.plugins:maven-dependency-plugin:3.8.1:tree -DoutputType=json -DoutputFile=target/dependency-tree.json
+      - name: Restore Java 25 for the harness CLI
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Exercise offline corpus
+        run: python3 scripts/evaluate.py --split all --output .undertow/ci-evals
+      - name: Exercise the packaged hosted worker without credentials
+        run: python3 scripts/phase3-demo.py --output .undertow/phase3-ci-demo
+      - name: Retain single-module evidence for explicit trusted import
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: single-module-evidence
+          path: |
+            target/surefire-reports/TEST-*.xml
+            target/spotbugsXml.xml
+            target/dependency-tree.json
+          retention-days: 7
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: deterministic-evidence
+          path: |
+            target/surefire-reports/
+            target/spotbugsXml.xml
+            target/dependency-tree.json
+            demo/order-service/target/surefire-reports/
+            demo/order-service/target/failsafe-reports/
+            demo/order-service/target/dependency-tree.json
+            .undertow/ci-evals/evaluation.json
+          retention-days: 7

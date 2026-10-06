@@ -1,0 +1,38 @@
+schema_version: 2
+rules:
+  - id: COMPANY-PAYMENT-001
+    version: "1"
+    owner: payments engineering
+    description: Preserve payment operation identity across retries.
+    strength: MUST
+    label: BLOCKER
+    wording: Reuse the persisted order operation key for every payment attempt.
+    execution: contextual
+    enabled: true
+    languages: [java]
+    include: ["src/main/java/**"]
+    exclude: []
+    sections: [1]
+    required_tools: [get_diff, read_source, get_business_context]
+    examples:
+      unsafe: "gateway.charge(UUID.randomUUID().toString(), order.amount());"
+      corrected: "gateway.charge(order.operationKey(), order.amount());"
+      benign: Rename a local variable without changing the operation key.
+  - id: COMPANY-TENANT-001
+    version: "1"
+    owner: application security
+    description: Scope order lookup and cache identity to the authenticated tenant.
+    strength: MUST
+    label: BLOCKER
+    wording: Read orders using both the authenticated tenant and order ID.
+    execution: contextual
+    enabled: true
+    languages: [java]
+    include: ["src/main/java/**"]
+    exclude: []
+    sections: [2]
+    required_tools: [get_diff, read_source, get_rule]
+    examples:
+      unsafe: "orders.get(orderId);"
+      corrected: "orders.get(new ScopedId(authenticatedTenant, orderId));"
+      benign: Change formatting while preserving the scoped key.

@@ -1,0 +1,11 @@
+# Exact coordinate registry. URLs are trusted configuration, never supplied by the model.
+sources:
+  com.fasterxml.jackson.core:jackson-databind:
+    - https://raw.githubusercontent.com/FasterXML/jackson-databind/refs/tags/jackson-databind-{version}/release-notes/VERSION-{major}.x
+  org.springframework:spring-web:
+    - https://github.com/spring-projects/spring-framework/releases/tag/v{version}
+  org.springframework.boot:spring-boot:
+    - https://github.com/spring-projects/spring-boot/releases/tag/v{version}
+  com.squareup.okhttp3:okhttp:
+    - https://square.github.io/okhttp/changelogs/changelog/
+allowed_hosts: [github.com, raw.githubusercontent.com, square.github.io]

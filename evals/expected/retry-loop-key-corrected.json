@@ -1,0 +1,13 @@
+{
+  "id": "retry-loop-key-corrected",
+  "split": "tuning",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-RETRY-001",
+  "severity": "CRITICAL",
+  "category": "DATA_INTEGRITY",
+  "trigger": "Two attempts reach a gateway that deduplicates only by operation key.",
+  "consequence": "Each attempt is a distinct payment, violating at-most-one charge.",
+  "regression": "Assert both attempts use the caller key and a single debit.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

@@ -1,0 +1,10 @@
+service: order-payments
+critical_components: [OrderService, PaymentGatewayAdapter]
+invariants:
+  - id: PAYMENT-ONE-CHARGE
+    statement: An operation key may create at most one payment.
+  - id: ORDER-ATOMIC-STATE
+    statement: A failed placement must not leave a successful order record.
+impact_context:
+  payment_failure: Customer funds and reconciliation are affected.
+catastrophic_scope: ''
