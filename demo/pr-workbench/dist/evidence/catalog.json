@@ -1,0 +1,30 @@
+{
+  "repository": "alpercandemir/undertow-showcase",
+  "policyCommit": "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+  "workflowId": "405623956",
+  "capturedAt": "2026-11-03T11:34:47.696851+00:00",
+  "verifierSource": "4dff3a5bb0b283580ba4f31b1cf5e2179b0790e7",
+  "cases": {
+    "broken": {
+      "pr": "https://github.com/alpercandemir/undertow-showcase/pull/1",
+      "number": 1,
+      "head": "04b896ba3a6eab70371e5ad266e4288f652a9507",
+      "base": "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+      "run": "41628184609"
+    },
+    "fixed": {
+      "pr": "https://github.com/alpercandemir/undertow-showcase/pull/2",
+      "number": 2,
+      "head": "59903f7b13a4ef5fe6164d38d34e6c302e7ec72c",
+      "base": "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+      "run": "41628213752"
+    },
+    "missing": {
+      "pr": "https://github.com/alpercandemir/undertow-showcase/pull/1",
+      "number": 1,
+      "head": "04b896ba3a6eab70371e5ad266e4288f652a9507",
+      "base": "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+      "run": null
+    }
+  }
+}

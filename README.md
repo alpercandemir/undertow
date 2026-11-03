@@ -51,6 +51,14 @@ The showcase uses offline Maven after the harness build prepares its pinned depe
 
 ![Evidence gallery: six distinct cases with observable consequences](docs/assets/assurance-gallery.png)
 
+Try the [editable contract playground](demo/pr-workbench/README.md): a chat preview accidentally accepts a ticket transfer. Compare [the real failing PR](https://github.com/alpercandemir/undertow-showcase/pull/1) with [its passing alternative](https://github.com/alpercandemir/undertow-showcase/pull/2), change the local business flow, and propose a different intent or check. The UI keeps simulated edits separate from archived, head-bound JUnit results.
+
+```sh
+python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist
+```
+
+Open [localhost:8773](http://127.0.0.1:8773). The [next-step plan](docs/next-pilot-and-public-playground.md) covers the public-page rules, evidence reproduction, contract-only CI integration, and owner-backed pilot. Arbitrary public PR links currently provide metadata exploration, without a contract verdict.
+
 ## Examples
 
 ### 1. See a payment defect, its correction, and missing evidence

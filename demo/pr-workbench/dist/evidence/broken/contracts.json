@@ -1,0 +1,62 @@
+{
+  "schema_version" : 1,
+  "base_sha" : "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+  "head_sha" : "04b896ba3a6eab70371e5ad266e4288f652a9507",
+  "target_head" : "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+  "mode" : "shadow",
+  "release_decision" : "not_evaluated",
+  "policy" : {
+    "repository" : "alpercandemir/undertow-showcase",
+    "policy_commit" : "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+    "manifest_path" : ".undertow/contracts.yaml",
+    "manifest_sha256" : "26e3cf8de7599a391b05caf21bc4e8b01d3518ad7de580f67507d885b8c64be5",
+    "oracle_sha256" : "a0971f7b54044a5a5ad7f880a2c6dbe33c465c8ed39d8af86fda2b10ed6bb6f6"
+  },
+  "evidence_gaps" : [ ],
+  "evidence_provenance" : "GitHub API artifact source verified by trusted importer",
+  "evidence_origin" : {
+    "archive_digest" : "sha256:2509a3556b20157c9c669c92733e8dd1c8f784f3b700fbdc55fa0d9c1d5ad775",
+    "workflow_url" : "https://github.com/alpercandemir/undertow-showcase/actions/runs/41628184609"
+  },
+  "evidence_source" : {
+    "repository" : "alpercandemir/undertow-showcase",
+    "run_id" : "41628184609",
+    "workflow_id" : "405623956",
+    "artifact_id" : "13226971890",
+    "bundle_sha256" : "0aa91fa35a775850eb79c26fe605f0779c6612c65673ba837ddc39d190b8a818"
+  },
+  "contracts" : [ {
+    "id" : "PREVIEW-IS-READ-ONLY",
+    "version" : "1",
+    "owner" : "Undertow showcase maintainer",
+    "expectation" : "Opening a ticket-transfer preview leaves ownership unchanged and the invitation usable by the named recipient.",
+    "scope" : [ "src/main/java/example/tickets/TicketTransfer.java" ],
+    "assumptions" : [ "This in-memory fixture models a link unfurler; no real email, HTTP, ticket provider, or deployment is exercised." ],
+    "checks" : [ {
+      "test_id" : "example.tickets.TransferContractTest.linkPreviewDoesNotAcceptTransfer",
+      "matches" : 1,
+      "reported_status" : "failed",
+      "status" : "unsatisfied",
+      "next_action" : "Inspect the assertion failure and correct the contract violation",
+      "evidence_strength" : "approved_verifier_result"
+    } ],
+    "status" : "unsatisfied"
+  }, {
+    "id" : "RECIPIENT-BOUND",
+    "version" : "1",
+    "owner" : "Undertow showcase maintainer",
+    "expectation" : "An account other than the named recipient cannot accept a ticket transfer or change its owner.",
+    "scope" : [ "src/main/java/example/tickets/TicketTransfer.java" ],
+    "assumptions" : [ "Account identity is supplied by the fixture; production authentication is outside this check." ],
+    "checks" : [ {
+      "test_id" : "example.tickets.TransferContractTest.anotherAccountCannotAcceptTransfer",
+      "matches" : 1,
+      "reported_status" : "passed",
+      "status" : "satisfied",
+      "next_action" : "No action required",
+      "evidence_strength" : "approved_verifier_result"
+    } ],
+    "status" : "satisfied"
+  } ],
+  "verification" : "unsatisfied"
+}

@@ -1,0 +1,28 @@
+schema_version: 1
+repository: alpercandemir/undertow-showcase
+oracle_paths:
+  - pom.xml
+  - .github/workflows/contracts.yml
+contracts:
+  - id: PREVIEW-IS-READ-ONLY
+    version: '1'
+    owner: Undertow showcase maintainer
+    expectation: Opening a ticket-transfer preview leaves ownership unchanged and the invitation usable by the named recipient.
+    assumptions:
+      - This in-memory fixture models a link unfurler; no real email, HTTP, ticket provider, or deployment is exercised.
+    scope: [src/main/java/example/tickets/TicketTransfer.java]
+    verifier: junit
+    tests:
+      - id: example.tickets.TransferContractTest.linkPreviewDoesNotAcceptTransfer
+        sources: [src/test/java/example/tickets/TransferContractTest.java]
+  - id: RECIPIENT-BOUND
+    version: '1'
+    owner: Undertow showcase maintainer
+    expectation: An account other than the named recipient cannot accept a ticket transfer or change its owner.
+    assumptions:
+      - Account identity is supplied by the fixture; production authentication is outside this check.
+    scope: [src/main/java/example/tickets/TicketTransfer.java]
+    verifier: junit
+    tests:
+      - id: example.tickets.TransferContractTest.anotherAccountCannotAcceptTransfer
+        sources: [src/test/java/example/tickets/TransferContractTest.java]
