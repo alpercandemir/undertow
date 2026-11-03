@@ -4,11 +4,13 @@
 
 # Undertow
 
-**Connect engineering intent to evidence for a specific change.**
+**Preserve behavior when implementations change.**
 
-Undertow verifies owner-declared contracts against exact, independently executed checks. It tells engineers and coding agents what passed, what failed, what remains unverified, and what to do next. Optional Gemini investigation helps explain risks; deterministic verification works without a model key.
+Undertow connects standing business contracts, proposed changes, and independently executed checks. Keep obligations such as **total refunds ≤ captured payment** across refactors, regenerated modules, and monolith extractions. New-feature tests and existing-contract checks remain separate.
 
-Start with payment retries, tenant isolation, order integrity, or a public API you need to preserve. Keep the tests and delivery systems you already use. Undertow connects their evidence to approved expectations and pinned Git identities.
+Contracts live in versioned YAML/JSON with ownership, assumptions, and exact verifier bindings. Change intention and architectural rationale can remain free text. Undertow reports what passed, what failed, and what lacks evidence; contract verification works without a model key. Optional Gemini investigation remains advisory.
+
+Contract discovery starts with source-linked candidates for owner review. The current workspace inventories test descriptions; general semantic extraction from arbitrary monoliths remains future work. See the [behavior-preservation and discovery design](docs/behavior-preservation-and-monoliths.md).
 
 ```mermaid
 flowchart LR
@@ -22,7 +24,27 @@ flowchart LR
 
 **Scope:** Java/Maven; Java 21 source analysis; JDK 25 harness. Local previews, read-only MCP, approved regression plans, SARIF, optional gates, artifact attestations, and monitoring-export evaluation are implemented. The hosted service remains an internal preview. Synthetic exercises do not establish live-model accuracy, independent customer acceptance, or production readiness. See [current evidence and roadmap status](docs/ai-era-implementation-status.md).
 
-[Quick start](#quick-start) · [Examples](#examples) · [Commands](#commands-and-exit-codes) · [CI and trust](docs/contracts.md) · [Advanced assurance](docs/assurance.md) · [Architecture](docs/architecture.md)
+[Interactive demo](#interactive-demo) · [Quick start](#quick-start) · [Examples](#examples) · [Commands](#commands-and-exit-codes) · [CI and trust](docs/contracts.md) · [Advanced assurance](docs/assurance.md) · [Architecture](docs/architecture.md)
+
+## Interactive demo
+
+The entry page demonstrates one invariant across three implementations. No Java setup or model key is needed to try it locally:
+
+```sh
+python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist
+```
+
+Open [the interactive demo](http://127.0.0.1:8773/).
+
+1. **Broken extraction:** 8,000 + 3,000 refunds settle against a 10,000 capture. Partial refunds work; the standing cap breaks.
+2. Select **Corrected:** the second refund is rejected and the cap holds.
+3. Edit the JSON trace or try **Same-key retry** and **Exact balance**. Evaluate edited inputs and share the scenario through a URL fragment.
+
+The demo runs a bounded browser model. Its expandable evidence section contains actual recorded local JUnit executions and a temporary candidate probe; clicking an implementation does not run fresh Java or CI. The [full engineering workspace](http://127.0.0.1:8773/workspace.html) provides contract/intent editors, source and verifier inspection, editable traces, and discovery proposals. [Source and run instructions](demo/pr-workbench/README.md).
+
+![Interactive refund demo: preserve a standing invariant across implementations](docs/assets/interactive-refund-demo.jpg)
+
+The page is ready for static hosting; there is currently no public deployment URL. It executes no submitted repositories and does not verify arbitrary public PRs. The [owned ticket PR regression](https://github.com/alpercandemir/undertow-showcase/pull/1) and [correction](https://github.com/alpercandemir/undertow-showcase/pull/2) remain a separate trusted-imported GitHub CI reference.
 
 ## Quick start
 
@@ -51,13 +73,6 @@ The showcase uses offline Maven after the harness build prepares its pinned depe
 
 ![Evidence gallery: six distinct cases with observable consequences](docs/assets/assurance-gallery.png)
 
-Try the [behavior contract workspace](demo/pr-workbench/README.md): extract refunds from a monolith while adding partial refunds. Edit contract JSON, change intention, and replay cases; compare standing invariants with proposed behavior across legacy and replacement implementations. Recorded JUnit and temporary-probe results show why a passing new-feature test cannot excuse an existing refund-cap regression. The earlier [public failing PR](https://github.com/alpercandemir/undertow-showcase/pull/1) and [correction](https://github.com/alpercandemir/undertow-showcase/pull/2) remain a secondary CI reference.
-
-```sh
-python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist
-```
-
-Open [localhost:8773](http://127.0.0.1:8773). The [next-step plan](docs/next-pilot-and-public-playground.md) covers the public-page rules, evidence reproduction, contract-only CI integration, and owner-backed pilot. Arbitrary public PR links currently provide metadata exploration, without a contract verdict.
 
 ## Examples
 

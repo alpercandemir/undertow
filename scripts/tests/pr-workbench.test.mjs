@@ -4,6 +4,32 @@ import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {parsePrUrl, validateMetadata, currentSnapshotState} from '../../demo/pr-workbench/dist/model.mjs';
 import {parseCases, replay, parseManifest, testStatus, discoveryDraft} from '../../demo/pr-workbench/dist/refund.mjs';
+import {PRESETS, evaluateTrace, encodeScenario, decodeScenario} from '../../demo/pr-workbench/dist/demo-state.mjs';
+
+test('demo presets distinguish a preserved invariant from delivered new behavior', () => {
+  const legacy = evaluateTrace(JSON.stringify(PRESETS.overflow),'legacy');
+  const broken = evaluateTrace(JSON.stringify(PRESETS.overflow),'broken');
+  const fixed = evaluateTrace(JSON.stringify(PRESETS.overflow),'fixed');
+  assert.equal(legacy.cap_holds,true); assert.equal(legacy.partial,'not accepted');
+  assert.equal(broken.cap_holds,false); assert.equal(broken.partial,'accepted');
+  assert.equal(fixed.cap_holds,true); assert.equal(fixed.refunded_minor,8000);
+  assert.equal(evaluateTrace(JSON.stringify(PRESETS.retry),'fixed').effects,1);
+  assert.equal(evaluateTrace(JSON.stringify(PRESETS.boundary),'fixed').refunded_minor,10000);
+  const full = {...PRESETS.boundary,operations:[{key:'one',amount_minor:10000}]};
+  assert.equal(evaluateTrace(JSON.stringify(full),'fixed').partial,'not exercised');
+});
+
+test('shared demo links roundtrip data without accepting executable or oversized state', () => {
+  const trace = {...PRESETS.retry,operations:[{key:'refund-\u03bb',amount_minor:2500},{key:'refund-\u03bb',amount_minor:2500}]};
+  const encoded = encodeScenario('fixed',JSON.stringify(trace));
+  assert.match(encoded,/^[A-Za-z0-9_-]+$/);
+  assert.deepEqual(decodeScenario(encoded),{v:1,subject:'fixed',trace});
+  for (const invalid of ['', '!bad', 'a'.repeat(8001),btoa(JSON.stringify({v:1,subject:'execute',trace:PRESETS.retry})),btoa(JSON.stringify({v:1,subject:'fixed',trace:PRESETS.retry,command:'run'}))]) assert.throws(() => decodeScenario(invalid));
+  const large = {...PRESETS.retry,operations:Array.from({length:100},(_,i)=>({key:'x'.repeat(96)+String(i).padStart(4,'0'),amount_minor:1}))};
+  assert.doesNotThrow(() => evaluateTrace(JSON.stringify(large),'fixed'));
+  assert.throws(() => encodeScenario('fixed',JSON.stringify(large)));
+  assert.throws(() => evaluateTrace('{','fixed'));
+});
 
 test('public PR input cannot select another host, credentials, path, or query', () => {
   for (const value of ['http://github.com/a/b/pull/1','https://github.com.evil.test/a/b/pull/1','https://user@github.com/a/b/pull/1','https://github.com:443/a/b/pull/1','https://github.com/a/../pull/1','https://github.com/a/b/pull/1?token=x','https://github.com/a/b/pull/1#x','https://github.com/a/b/pull/0','https://github.com/a/b/pull/1/files','https://github.com/a%2fb/c/pull/1']) assert.throws(() => parsePrUrl(value), value);

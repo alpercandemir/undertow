@@ -134,6 +134,8 @@ try {
   if (!response.ok) throw new Error('Refund capture unavailable.');
   fixture = await response.json();
   if (fixture.kind !== 'recorded-local-junit' || fixture.trusted_ci_import !== false || !fixture.probe) throw new Error('Unexpected evidence kind.');
+  const requestedSubject = new URLSearchParams(window.location.search).get('subject');
+  if (['legacy','broken','fixed'].includes(requestedSubject)) $('subject').value = requestedSubject;
   originals = {contracts:fixture.contracts,proposed:fixture.proposed,intent:fixture.intent,cases:fixture.cases,discoveryDraft:''}; drafts = {...originals};
   discovery(); openFile('contracts'); $('compare').disabled = false; compare();
 } catch(error) {$('comparison-summary').textContent = `Evidence unavailable: ${error.message}`; $('file-name').textContent = 'Fixture unavailable';}

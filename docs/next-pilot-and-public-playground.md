@@ -6,6 +6,8 @@ The product direction is contract management, discovery, and verification across
 
 ## What exists now
 
+The entry page is a focused interactive refund demo: change implementation, edit a JSON trace, compare outcomes, and generate a shareable URL fragment. The full engineering workspace is a separate `workspace.html` route, preserving the selected implementation. Neither route is publicly deployed yet.
+
 The [local engineering workspace](../demo/pr-workbench/README.md) contains editable version 1 contract JSON, free-text change intention, proposed checks, replay input, source/verifier inspection, and legacy test inventory. The primary example extracts refunds while adding partial refunds. Standing refund limits and retry obligations remain independent of that new behavior.
 
 The same six JUnit checks run against legacy, broken, and corrected implementations. Two temporary candidate-probe executions expose cumulative partial-refund overflow. The UI reads these recorded local results and runs edited traces in a separate browser model. It does not compile submitted Java, infer general monolith semantics, authenticate fresh receipts, or approve drafts.
