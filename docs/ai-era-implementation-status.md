@@ -46,3 +46,7 @@ Hosted source, security tests, encrypted-state/accounting boundaries, policy gui
 No new paid/live-model request or production deployment was made. Existing frozen held-out/historical-PR evaluation, independent human assessment, owner agreements, actual exporter authentication, real canary/incident exercises, and the service's own isolation, egress, crash cleanup, revocation, restore, deletion, and incident gates are not supplied by synthetic fixtures. Consult [Phase 2 status](phase2-status.md), [Phase 3 status](phase3-status.md), and [evaluation requirements](phase2-setup.md#evaluation-and-feedback-p2-01-p2-07).
 
 A real organization should review the contracts, run shadow verification on authorized changes, select tolerances from an adequate sample, enable only mature required contracts, and bind the final tested artifact to its actual deployment/monitoring system. The implementation leaves those authority decisions explicit.
+
+## Next product increment
+
+The [public playground and pilot plan](next-pilot-and-public-playground.md) defines the next adoption sequence. Its [local prototype](../demo/pr-workbench/README.md) includes an editable ticket-transfer model, rule proposals, and two owned public PRs with real GitHub-imported JUnit results. It distinguishes archived verification, local simulation, and public metadata. This adds a concrete demonstration; independent adoption and operational acceptance above remain open.

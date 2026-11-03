@@ -7,6 +7,9 @@ target/
 !demo/order-service/.undertow/
 demo/order-service/.undertow/*
 !demo/order-service/.undertow/contracts.yaml
+!demo/ticket-transfer/.undertow/
+demo/ticket-transfer/.undertow/*
+!demo/ticket-transfer/.undertow/contracts.yaml
 !demo/customer-service/.undertow/
 !demo/customer-service/.undertow/**
 .DS_Store

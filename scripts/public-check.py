@@ -21,7 +21,8 @@ PRIVATE_NAMES = {"id_rsa", "id_ed25519", "service.local.json"}
 PRIVATE_DIRECTORIES = {".secrets", ".credentials", ".aws", ".ssh", "service-data", "target"}
 ENV_EXAMPLES = {".env.example", ".env.sample", ".env.template"}
 CUSTOMER_POLICY = "demo/customer-service/.undertow/"
-CONTRACT_MANIFESTS = {".undertow/contracts.yaml", "demo/order-service/.undertow/contracts.yaml"}
+CONTRACT_MANIFESTS = {".undertow/contracts.yaml", "demo/order-service/.undertow/contracts.yaml",
+                      "demo/ticket-transfer/.undertow/contracts.yaml"}
 
 
 def git(*arguments):
