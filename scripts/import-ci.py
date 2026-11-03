@@ -66,7 +66,7 @@ def verify_origin(run, artifact, repository, workflow, head):
 
 
 def normalize_archive(data):
-    tests, bugs, trees = [], [], []
+    tests, bugs, trees, builds, oracles = [], [], [], [], []
     tests_present, bugs_present = False, False
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         if len(archive.infolist()) > 5000 or sum(item.file_size for item in archive.infolist()) > 80_000_000:
@@ -88,9 +88,30 @@ def normalize_archive(data):
                 bugs.extend(formats.spotbugs(content))
             elif path.name == "dependency-tree.json":
                 trees.append(json.loads(content))
+            elif path.name == "build-provenance.json":
+                builds.append(json.loads(content))
+            elif path.name == "oracle-execution.json":
+                oracles.append(json.loads(content))
     if len(trees) > 1:
         raise ValueError("Multiple module dependency trees are outside supported scope")
-    return ([("tests", tests)] if tests_present else []) + ([("spotbugs", bugs)] if bugs_present else []) + ([("dependency_tree", trees[0])] if trees else [])
+    if len(builds) > 1:
+        raise ValueError("Multiple build provenance records are outside supported scope")
+    if len(oracles) > 1:
+        raise ValueError("Multiple oracle execution records are outside supported scope")
+    if oracles:
+        oracle = oracles[0]
+        if (set(oracle) != {'schema_version', 'head_sha', 'oracle_artifacts', 'image'}
+                or oracle['schema_version'] != 1 or not re.fullmatch(r'[0-9a-f]{40}', str(oracle['head_sha']))
+                or not re.fullmatch(r'[A-Za-z0-9./:_-]+@sha256:[0-9a-f]{64}', str(oracle['image']))):
+            raise ValueError('Invalid oracle execution record')
+        validate_oracle_artifacts(oracle['oracle_artifacts'])
+    if builds:
+        build = builds[0]
+        if (set(build) != {"schema_version", "head_sha", "artifact_sha256"} or build["schema_version"] != 1
+                or not re.fullmatch(r"[0-9a-f]{40}", str(build["head_sha"]))
+                or not re.fullmatch(r"[0-9a-f]{64}", str(build["artifact_sha256"]))):
+            raise ValueError("Invalid build provenance record")
+    return ([("tests", tests)] if tests_present else []) + ([("spotbugs", bugs)] if bugs_present else []) + ([("dependency_tree", trees[0])] if trees else []) + ([("build", builds[0])] if builds else []) + ([("oracle", oracles[0])] if oracles else [])
 
 
 def main():
@@ -100,6 +121,8 @@ def main():
     parser.add_argument("--artifact-name", default="single-module-evidence")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
+    parser.add_argument("--contract-policy", type=Path,
+                        help="Trusted contracts export output; retain outside candidate-controlled inputs")
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", args.repository) or ".." in args.repository:
         parser.error("Invalid repository")
@@ -130,16 +153,49 @@ def main():
                   artifact_id=str(artifact["id"]), head_sha=args.head)
     entries = []
     for kind, content in results:
+        if kind in {'build', 'oracle'} and content["head_sha"] != args.head:
+            raise ValueError("Build provenance subject mismatch")
         canonical = json.dumps(content, separators=(",", ":"), ensure_ascii=False)
         entries.append(dict(snapshot="head", kind=kind, content=content,
                             sha256=hashlib.sha256(canonical.encode()).hexdigest()))
     bundle = dict(schema_version=2, base_sha=args.base, artifacts=entries,
                   origin=dict(archive_digest=artifact["digest"], workflow_url=run["html_url"]), **origin)
+    contract = {}
+    if args.contract_policy:
+        binding = json.loads(args.contract_policy.read_text())
+        validate_contract_binding(binding, args.repository)
+        contract = dict(contract_binding=binding, run_conclusion=run.get("conclusion", "unknown"))
+        bundle.update(contract)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(bundle, indent=2) + "\n")
     args.receipt.parent.mkdir(parents=True, exist_ok=True)
     args.receipt.write_text(json.dumps(dict(verified_source="github_actions_api",
-                          bundle_sha256=hashlib.sha256(args.output.read_bytes()).hexdigest(), **origin), indent=2) + "\n")
+                          bundle_sha256=hashlib.sha256(args.output.read_bytes()).hexdigest(), **origin,
+                          **contract), indent=2) + "\n")
+
+
+def validate_contract_binding(binding, repository):
+    keys = {"repository", "policy_commit", "manifest_path", "manifest_sha256", "oracle_sha256"}
+    if not isinstance(binding, dict) or set(binding) not in (keys, keys | {'oracle_artifacts'}) or binding.get("repository") != repository:
+        raise ValueError("Invalid contract policy binding")
+    if not re.fullmatch(r"[0-9a-f]{40}", str(binding.get("policy_commit", ""))):
+        raise ValueError("Contract policy must identify a pinned commit")
+    for key in ("manifest_sha256", "oracle_sha256"):
+        if not re.fullmatch(r"[0-9a-f]{64}", str(binding.get(key, ""))):
+            raise ValueError("Invalid contract policy digest")
+    path = binding.get("manifest_path", "")
+    if not isinstance(path, str) or not path or path.startswith(("/", "-")) or any(
+            part in {"", ".", ".."} for part in path.split("/")) or "\\" in path or ":" in path:
+        raise ValueError("Unsafe contract manifest path")
+    if 'oracle_artifacts' in binding:
+        validate_oracle_artifacts(binding['oracle_artifacts'])
+
+
+def validate_oracle_artifacts(artifacts):
+    if not isinstance(artifacts, dict) or not 1 <= len(artifacts) <= 10 or any(
+            not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', key) or not isinstance(value, str)
+            or not re.fullmatch(r'[0-9a-f]{64}', value) for key, value in artifacts.items()):
+        raise ValueError('Invalid approved oracle artifact inventory')
 
 
 if __name__ == "__main__":

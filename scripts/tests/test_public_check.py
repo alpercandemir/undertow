@@ -18,6 +18,9 @@ class PublicContentCheckTest(unittest.TestCase):
     def test_customer_policy_is_allowed_but_local_artifacts_are_not(self):
         self.assertEqual(CHECK.path_issues("demo/customer-service/.undertow/rules.yaml"), [])
         self.assertIn("local_review_artifact", CHECK.path_issues(".undertow/report.json"))
+        for manifest in (".undertow/contracts.yaml", "demo/order-service/.undertow/contracts.yaml"):
+            self.assertEqual(CHECK.path_issues(manifest), [])
+        self.assertIn("local_review_artifact", CHECK.path_issues("demo/order-service/.undertow/report.json"))
 
     def test_workstation_paths_and_turkish_text_are_rejected(self):
         workstation = "/" + "Users" + "/synthetic-person/review/report.md"

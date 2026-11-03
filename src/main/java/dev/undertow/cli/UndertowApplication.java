@@ -62,6 +62,8 @@ public class UndertowApplication {
                 .addSubcommand(new Undertow.MarkStale())
                 .addSubcommand(new SetupCommands.Doctor())
                 .addSubcommand(new SetupCommands.Rules())
+                .addSubcommand(new ContractCommands.Contracts())
+                .addSubcommand(new ContractCommands.Verify())
                 .addSubcommand(new Undertow.Investigate())
                 .addSubcommand(new dev.undertow.service.ServiceCommands.Serve())
                 .addSubcommand(new dev.undertow.service.ServiceCommands.Worker())

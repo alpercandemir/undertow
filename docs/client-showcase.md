@@ -1,5 +1,7 @@
 # Client showcase and test guide
 
+This guide covers the optional AI-review authored replay corpus. For executable contract, tenant, artifact, and recovery examples, start with the [current evidence gallery](../README.md#quick-start). Replay and deterministic contract execution are separate evidence sets.
+
 Run commands from the repository root. The harness requires JDK 25, Maven 3.9+, Git and Python 3. Check `java -version` and `mvn -version`; both should use JDK 25.
 
 ## Build and showcase

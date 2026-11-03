@@ -26,7 +26,7 @@ import picocli.CommandLine.Spec;
         name = "undertow",
         mixinStandardHelpOptions = true,
         version = "Undertow 0.1.0-alpha.1",
-        description = "Evidence-backed Java change-risk reviewer")
+        description = "Contract verification and evidence-backed Java change assurance")
 public final class Undertow implements Runnable {
     @Spec private CommandSpec command;
 

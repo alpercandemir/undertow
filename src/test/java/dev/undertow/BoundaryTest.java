@@ -66,7 +66,7 @@ class BoundaryTest {
     }
 
     @Test
-    void formattingReviewsUseTheTrustedBaseConvention() throws Exception {
+    void formattingGuidanceRemainsReadableButIsExcludedFromModelAssessment() throws Exception {
         var repo = new TestRepository(temp);
         repo.write("config/languages/java/rules.yaml", "rules: []\n");
         repo.write("CODING-SKILL.md", "# 33. Formatting\nUse two spaces instead.\n");
@@ -88,7 +88,8 @@ class BoundaryTest {
                     public Turn next(
                             String instruction, List<Observation> observations, boolean finalOnly) {
                         assertThat(instruction)
-                                .contains("JAVA-FORMAT-001", "four spaces per Java block");
+                                .doesNotContain("four spaces per Java block")
+                                .contains("Mechanical style belongs to formatter/build checks");
                         return new Turn(List.of(), null, 0, 0, identity());
                     }
 

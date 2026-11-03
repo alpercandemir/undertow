@@ -51,6 +51,32 @@ public final class GitRepository {
         return targetHead;
     }
 
+    public Path root() {
+        return root;
+    }
+
+    public boolean includesTarget() throws IOException {
+        return command(List.of("merge-base", head, targetHead), 256).trim().equals(targetHead);
+    }
+
+    /** Index entries include mode and stage so previews reject symlinks and unresolved merges. */
+    public List<String> indexEntries() throws IOException {
+        return Arrays.stream(
+                        command(List.of("ls-files", "--stage", "-z"), MAX_BYTES).split("\u0000"))
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
+
+    public String indexSource(String path) throws IOException {
+        safePath(path);
+        String entry = command(List.of("ls-files", "--stage", "--", path), 1024);
+        if ((!entry.startsWith("100644 ") && !entry.startsWith("100755 "))
+                || !entry.matches("[^\\n]+ 0\\t[^\\n]+\\n?")) {
+            throw new IOException("Index path is not an unmerged regular blob");
+        }
+        return command(List.of("cat-file", "blob", entry.split(" ", 3)[1]), MAX_BYTES);
+    }
+
     private String pin(String ref) throws IOException {
         if (ref == null || !ref.matches("[a-zA-Z0-9_./~^@{}-]{1,150}") || ref.startsWith("-")) {
             throw new IllegalArgumentException("Invalid Git ref");
@@ -165,6 +191,7 @@ public final class GitRepository {
                         List.of(
                                 "git",
                                 "--no-replace-objects",
+                                "--literal-pathspecs",
                                 "-c",
                                 "core.fsmonitor=false",
                                 "-c",
@@ -200,7 +227,10 @@ public final class GitRepository {
                 if (process.exitValue() != 0) {
                     throw new IOException("Git operation failed (" + args.getFirst() + ")");
                 }
-                return new String(data, StandardCharsets.UTF_8);
+                return StandardCharsets.UTF_8
+                        .newDecoder()
+                        .decode(java.nio.ByteBuffer.wrap(data))
+                        .toString();
             } catch (TimeoutException | ExecutionException e) {
                 throw new IOException("Git read failed", e);
             } catch (InterruptedException e) {

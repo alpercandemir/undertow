@@ -18,6 +18,6 @@ Each successful tool returns `{evidence_id, data}`. Evidence stores kind, origin
 
 Every finding cites diff evidence and a read_source range covering its pinned location in a changed file. Deleted files use base locations. Migration findings additionally cite retrieved documents. Source evidence plus an edit does not by itself prove behavior: findings must explain causation, assumptions and confidence.
 
-CI bundles use `schema_version: 1`, `base_sha`, `head_sha` and `artifacts` with snapshot, kind, content and SHA-256 of compact JSON. Accepted kinds are dependency_tree/compiler/tests/spotbugs. `scripts/capture-ci.py` wraps already-produced Maven dependency trees. The dispatcher never executes a bundle or extracts an archive.
+CI bundles retain `schema_version: 1` compatibility and support trusted-import v2 with repository/run/artifact identity, pinned base/head, and compact-JSON content hashes. Accepted kinds are dependency_tree/compiler/tests/spotbugs/build/oracle. `scripts/capture-ci.py` retains unverified local dependency-tree compatibility; the separate trusted importer checks workflow/artifact origin. Build/oracle records bind exact subjects and approved digests. The dispatcher never executes a bundle or extracts an archive. See [contracts](contracts.md) and [approved regression execution](assurance.md#approved-regression-artifacts) for the separate CI-only boundary.
 
 `compare_library_api` is deferred. Generated regression tests are specifications only. Deterministic project tests run outside the reviewer tool loop.

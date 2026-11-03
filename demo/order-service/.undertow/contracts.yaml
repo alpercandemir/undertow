@@ -1,0 +1,37 @@
+schema_version: 1
+repository: alpercandemir/undertow
+oracle_paths:
+  - demo/order-service/pom.xml
+  - .github/workflows/ci.yml
+  - scripts/capture-build.py
+contracts:
+  - id: PAYMENT-EFFECT
+    version: '1'
+    owner: demo maintainers
+    expectation: An ambiguous payment retry preserves its operation key and produces one observable gateway effect.
+    assumptions:
+      - The gateway deduplicates concurrent and repeated requests by operation key for the relevant retention period.
+      - These controlled gateway tests do not establish a real payment provider's behavior.
+    scope: [demo/order-service/src/main/java/dev/undertow/demo/PaymentGatewayAdapter.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.demo.PaymentBehaviorTest.lostResponseRetriesTheSameLogicalPayment
+        sources: [demo/order-service/src/test/java/dev/undertow/demo/PaymentBehaviorTest.java]
+      - id: dev.undertow.demo.PaymentBehaviorTest.concurrentRetriesProduceOneObservableGatewayEffect
+        sources: [demo/order-service/src/test/java/dev/undertow/demo/PaymentBehaviorTest.java]
+  - id: ORDER-STATE
+    version: '1'
+    owner: demo maintainers
+    expectation: Concurrent requests commit one order/event pair; rejection and failed event persistence cannot leave a successful order.
+    assumptions:
+      - PostgreSQL integration tests must execute; absent Docker evidence remains incomplete.
+      - Database row uniqueness does not prove uniqueness of external payment effects.
+    scope: [demo/order-service/src/main/java/dev/undertow/demo/OrderService.java, demo/order-service/src/main/java/dev/undertow/demo/OrderWriter.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.demo.OrderIntegrityIT.concurrentRequestsCommitOnlyOneOperation
+        sources: [demo/order-service/src/test/java/dev/undertow/demo/OrderIntegrityIT.java]
+      - id: dev.undertow.demo.OrderIntegrityIT.rejectedPaymentCannotCreateSuccessfulOrder
+        sources: [demo/order-service/src/test/java/dev/undertow/demo/OrderIntegrityIT.java]
+      - id: dev.undertow.demo.OrderIntegrityIT.failedSecondWriteRollsBackThroughTheRealProxy
+        sources: [demo/order-service/src/test/java/dev/undertow/demo/OrderIntegrityIT.java]

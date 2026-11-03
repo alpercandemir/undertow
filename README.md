@@ -4,338 +4,353 @@
 
 # Undertow
 
-**Understand the risk behind a Java change.**
+**Connect engineering intent to evidence for a specific change.**
 
-Undertow reviews pinned Git changes and explains what could break, the conditions that trigger it, the technical and business consequences, and the evidence behind each finding. It combines a bounded Gemini investigation loop with repository-owned rules, read-only tools, and validated reports.
+Undertow verifies owner-declared contracts against exact, independently executed checks. It tells engineers and coding agents what passed, what failed, what remains unverified, and what to do next. Optional Gemini investigation helps explain risks; deterministic verification works without a model key.
 
-Use it to investigate payment retries, transaction boundaries, tenant isolation, monetary calculations, secret logging, timeouts, and dependency changes. Findings are advisory; proposed regression tests are specifications for a developer to implement and run.
+Start with payment retries, tenant isolation, order integrity, or a public API you need to preserve. Keep the tests and delivery systems you already use. Undertow connects their evidence to approved expectations and pinned Git identities.
 
-**Current scope:** Java 21 source in single-module Maven projects. The harness builds and runs with JDK 25. A GitHub Actions integration is available, and the Phase 3 central service is an internal implementation with outstanding deployment and live-pilot gates. Live-model accuracy is not yet established.
+```mermaid
+flowchart LR
+    Intent[Owner-approved contracts] --> Verify[Exact CI evidence]
+    Candidate[Pinned candidate and policy] --> Verify
+    Verify --> Result[Satisfied / unsatisfied / incomplete]
+    Result --> Gate[Optional owner-enabled release policy]
+    Gate --> Artifact[CI-tested artifact digest]
+    Artifact --> Observe[Traffic, violations, halt and reconciliation]
+```
 
-[Choose a path](#choose-your-starting-point) · [Quick start](#quick-start) · [Your repository](#review-your-own-repository) · [GitHub](#github-integration) · [Dependencies](#investigate-a-dependency-change) · [Hosted service](#hosted-service-preview)
+**Scope:** Java/Maven; Java 21 source analysis; JDK 25 harness. Local previews, read-only MCP, approved regression plans, SARIF, optional gates, artifact attestations, and monitoring-export evaluation are implemented. The hosted service remains an internal preview. Synthetic exercises do not establish live-model accuracy, independent customer acceptance, or production readiness. See [current evidence and roadmap status](docs/ai-era-implementation-status.md).
 
-## What a finding looks like
-
-> **Retried payment loses its operation key**
->
-> **Risk: Critical · Category: Data integrity · Confidence: High**
->
-> **Trigger:** The gateway accepts a payment, loses the response, and the caller retries.
->
-> **Consequence:** Generating a fresh key for every attempt can charge the customer twice.
->
-> **Recommendation:** Reuse the operation key across attempts.
->
-> **Proposed regression:** Drop the first response; assert identical keys and one charge.
-
-This is a synthetic, authored example. It demonstrates the report structure, not measured live-model detection. See the [sample review](docs/sample-review.md), [evidence](docs/sample-evidence.json), and [offline terminal recording](docs/demo.cast).
-
-## Choose your starting point
-
-| Your goal | Path | What you need | What you get |
-|---|---|---|---|
-| Try Undertow without credentials | [Offline quick start](#quick-start) | Local build tools | An authored replay report with evidence and coverage gaps |
-| Review a change in your own repository | [Local CLI](#review-your-own-repository) | Trusted policy files and a Gemini key | A live review of two committed Git snapshots |
-| Review GitHub PRs in CI | [GitHub Actions](#github-integration) | Trusted workflow/action, repository policy, Gemini secret, and GitHub permissions | Review artifacts and optional bot summary publication |
-| Research a dependency upgrade without a model | [Dependency investigation](#investigate-a-dependency-change) | Repository policy, a committed dependency change, and network access | Literal POM inventory, registered migration notes, and OSV evidence |
-| Explore central management for multiple repositories and tenants | [Hosted service preview](#hosted-service-preview) | Local tools for the worker demo; operator setup and a GitHub App for the service | An internal service implementation with private reports, rules, usage, and feedback |
-
-Start with the offline quick start if you are evaluating the tool. For application adoption, continue with the local CLI or GitHub Actions. The central service still has outstanding deployment and live-pilot gates.
-
-CLI, Actions, and the central service are ways to run Undertow. `tools`, `diff`, and `collect` are [review modes](#review-modes); `--replay` supplies authored responses for offline runs.
+[Quick start](#quick-start) · [Examples](#examples) · [Commands](#commands-and-exit-codes) · [CI and trust](docs/contracts.md) · [Advanced assurance](docs/assurance.md) · [Architecture](docs/architecture.md)
 
 ## Quick start
 
-Requirements: **JDK 25**, **Maven 3.9+**, **Git**, and **Python 3**. The offline example needs no API key, GitHub account, or Docker. The first Maven build needs access to dependency repositories.
-
-Clone the project, or start in the repository root if you already have a checkout:
+Requirements: JDK 25, Maven 3.9+, Git, and Python 3. Check both Java and Maven runtime selection; set `JAVA_HOME` to JDK 25 if they differ. `scripts/undertow` launches the packaged CLI and accepts a separate `UNDERTOW_JAVA_HOME` when an application uses another JDK. Direct `java -jar target/undertow.jar` remains supported.
 
 ```sh
 git clone https://github.com/alpercandemir/undertow.git
 cd undertow
-```
-
-Build the executable JAR and generate your first report:
-
-```sh
 java -version
 mvn -version
-mvn verify
-
-python3 scripts/prepare-demo.py --output .undertow/demo
-java -jar target/undertow.jar review \
-  --repo .undertow/demo --base HEAD~1 --head HEAD \
-  --replay .undertow/demo/replay.json \
-  --output .undertow/demo-review
+mvn --batch-mode --no-transfer-progress verify
+python3 -m unittest discover -s scripts/tests -v
 ```
 
-Open `.undertow/demo-review/report.md`. The default fixture demonstrates a retry-key defect; its authored report contains one finding. A `partial` result is expected when CI, classpath analysis, or explicit rule assessments are missing. Zero findings in an incomplete report is not a safety verdict. The same directory also contains the [structured report and evidence](#reports-and-commands).
-
-Replay feeds authored responses through the real tool dispatch, evidence validation, and reporting pipeline. It does not call Gemini or measure model accuracy. Use a new demo destination for each run; preparation preserves existing evidence.
-
-For a ten-scenario tour, or all 40 scenarios:
+Run the complete local showcase:
 
 ```sh
-python3 scripts/showcase.py --output .undertow/showcase
-python3 scripts/showcase.py --all --output .undertow/showcase-all
+python3 scripts/assurance-showcase.py --output .undertow/assurance-demo
 ```
 
-Open the generated `index.md`. The [showcase guide](docs/client-showcase.md) explains the unsafe/corrected pairs, benign controls, and evaluation commands.
+Open `.undertow/assurance-demo/index.html` for the interactive evidence gallery, or inspect `summary.json` and `results/fixed/contracts.md` directly. The script creates its own sample Git repository with `baseline`, `violation`, and `fixed` tags, builds six independent fixture copies, executes real JUnit assertions, and exercises the packaged CLI. It does not change this checkout's Git history or call a model, GitHub, or production service.
 
-## Run a live review
+**Every external CI/monitoring receipt and owner label in this showcase is simulated.** The real assertions demonstrate the fixture's behavior; simulated receipts exercise trust-boundary handling. The resulting gate and recovery records are test artifacts, not production approvals. Use a new output directory on each run.
 
-After the quick start, you can review the same synthetic change with Gemini. These commands assume `.undertow/demo` and `target/undertow.jar` already exist.
+The showcase uses offline Maven after the harness build prepares its pinned dependency cache. If a required artifact is missing, prepare that dependency through your normal controlled build setup; a missing dependency is an incomplete run, not a detected defect.
 
-The example configuration names `gemini-3.1-flash-lite` and reads `GEMINI_API_KEY`. Verify model access for your account through [Google AI Studio](https://aistudio.google.com/). Provide the key through a secret manager or a hidden terminal prompt. Do not put it in source, command arguments, committed environment files, screenshots, or issues. Undertow reads the process environment; it does not load `.env` files automatically.
+![Evidence gallery: six distinct cases with observable consequences](docs/assets/assurance-gallery.png)
 
-First test access without sending repository source:
+## Examples
 
-```sh
-java -jar target/undertow.jar doctor \
-  --repo .undertow/demo --base HEAD~1 --head HEAD --network
-```
+### 1. See a payment defect, its correction, and missing evidence
 
-Then review the synthetic payment change using real model responses:
+The showcase produces all three outcomes:
 
-```sh
-java -jar target/undertow.jar review \
-  --repo .undertow/demo --base HEAD~1 --head HEAD \
-  --mode tools --output .undertow/live-review
-```
-
-Omitting `--replay` selects the live client in `tools` and `diff` modes. Live reviews send bounded source and evidence to Google and may incur charges. There is no automatic model/provider or paid fallback. Application token limits are not guaranteed provider billing caps.
-
-Open `.undertow/live-review/report.md` and inspect its findings and coverage gaps. A successful model-access check does not guarantee a complete review.
-
-Authentication, quota, model access, timeouts, and invalid output remain visible in retained reports. An `authentication` failure means the configured credential was not accepted; repeating a failed review does not establish code safety. See the [setup and troubleshooting guide](docs/phase2-setup.md).
-
-## Review your own repository
-
-Use this path for a local Java 21, single-module Maven application. Build Undertow once using the quick start; the application does not need an Undertow Maven dependency. Run the commands below from the Undertow checkout, replacing `/path/to/repo`, `main`, and `feature` with your application repository and committed refs.
-
-1. Copy the following policy files from this project into the same relative paths in your application repository. Preserve any existing company policy and merge the templates as needed.
-2. Adapt the guidelines, rule applicability, examples, and business invariants to the application. Set the model and execution limits in `config/review.yaml`; register official dependency sources in `config/dependency-sources.yaml`.
-3. Commit the policy to the trusted base branch before reviewing a feature. Undertow reads policy and source from Git commits, so uncommitted edits are not included. Policy added only on the feature branch is not used by the default review.
-
-```text
-your-application/
-  CODING-SKILL.md
-  config/
-    review.yaml
-    business-context.yaml
-    dependency-sources.yaml
-    languages/
-      java/
-        rules.yaml
-```
-
-All five files are required for local CLI policy loading. Commit any repository files referenced by your rules as well. `config/spotbugs-exclude.xml` belongs to this project's build and is not required for application policy.
-
-Validate the committed rules and check model access using the credential setup in [Run a live review](#run-a-live-review):
-
-```sh
-java -jar target/undertow.jar rules validate --repo /path/to/repo --base main
-java -jar target/undertow.jar doctor \
-  --repo /path/to/repo --base main --head feature --network
-java -jar target/undertow.jar review \
-  --repo /path/to/repo --base main --head feature \
-  --mode tools --output .undertow/my-review
-```
-
-Open `.undertow/my-review/report.md` in the Undertow checkout. Here `main` is both the comparison baseline and trusted policy source. For a PR-style comparison starting at a merge base, set `--base` to that commit and supply the current target commit through both `--policy-commit` and `--target-head`; the [GitHub adapter](#github-integration) prepares those identities.
-
-### Customize rules and limits
-
-Use `rules list --repo /path/to/repo --base main` to discover rule IDs, and `rules explain RULE_ID --repo /path/to/repo --base main` to inspect one. Company-owned rules support path/language applicability, repository references, unsafe/corrected examples, and expiring scoped exceptions. The [rule guide](docs/phase2-setup.md#rules-and-trusted-policy-p2-04) includes a tenant-isolation example and candidate-policy validation.
-
-In `config/review.yaml`, `model` selects the Gemini model and credential environment name; `limits` bounds model/tool calls, context/total tokens, deadlines, and retries; `output.max_findings` bounds findings. Local reviews use the values committed at the trusted policy ref. These application limits do not guarantee a provider billing cap.
-
-### Review modes
-
-| Mode | Behavior | Gemini requests |
+| Example | Expected result | Reason |
 |---|---|---|
-| `tools` | Investigates through permitted tools; default review mode | Yes, unless `--replay` is supplied |
-| `diff` | Diff-and-guidelines baseline without additional source reads or tool investigation | Yes, unless `--replay` is supplied |
-| `collect` | Deterministic diff collection without semantic risk review | No |
+| `results/violation-0/contracts.md` | `unsatisfied` | The approved assertion observes a changed retry key |
+| `results/fixed/contracts.md` | `satisfied` | The exact approved test passes for the corrected commit |
+| `results/tenant-leak/contracts.md` | `unsatisfied` | A different tenant reaches a private receipt |
+| `artifact-drift/attestation.json` | `held` | The supplied binary differs from the tested artifact |
+| `results/missing/contracts.md` | `incomplete` | The required test never ran |
+| `results/skipped/contracts.md` | `incomplete` | A disabled test is not success |
+| `results/unrelated-green/contracts.md` | `incomplete` | Another test's pass cannot satisfy this contract |
+| `results/conflicting/contracts.md` | `incomplete` | Duplicate/conflicting identities require resolution |
+| `results/wrong-head/contracts.md` | `incomplete` | Evidence belongs to another commit |
+| `results/infrastructure-error/contracts.md` | `incomplete` | An execution error does not reproduce a behavioral violation |
 
-Choose a mode with `review --mode tools|diff|collect`. For reproducible offline demonstrations in `tools` or `diff`, add a compatible `--replay FILE`; replay is a response source, not a fourth review mode. `diff` still sends changed code in the diff to Gemini.
-
-### Include existing CI evidence
-
-Undertow can incorporate already-produced JUnit results, SpotBugs findings, and Maven dependency trees. Tests that ran in CI and model-proposed regression tests appear separately in reports; the reviewer does not execute either the application or proposed tests.
-
-Use the [CI evidence guide](docs/phase2-setup.md#ci-evidence-p2-05) to import an administrator-approved GitHub workflow/run for the exact reviewed head. Pass its bundle and trusted importer receipt through `--ci-bundle` and `--ci-receipt`. Missing or unverified evidence stays visible as a coverage gap; a local bundle alone cannot establish verified test success.
-
-## GitHub integration
-
-Choose the integration that matches your repository:
-
-| Integration | Use it for | Setup boundary |
-|---|---|---|
-| Included [agent review workflow](.github/workflows/agent-review.yml) | Running the full review/publication flow in this Undertow repository or a fork containing its engine and scripts | Builds the trusted default-branch harness and uses this repository's helper scripts |
-| Reusable [action](action.yml) | Adding review artifact generation to a separate application repository | Builds its own pinned harness; your trusted workflow prepares source snapshots and handles artifact upload/publication |
-| [Central service](#hosted-service-preview) | Keeping the engine and model credentials out of customer repositories | Requires operator deployment and a registered App; currently an internal preview |
-
-### Try the included workflow
-
-1. Keep the engine, helper scripts, workflow, and policy on the trusted default branch. Configure `GEMINI_API_KEY` as a repository Actions secret.
-2. In **Actions → Undertow agent review → Run workflow**, select the default branch, enter a PR number, keep `replay_case: live`, and leave `publish` disabled for your first run. Maintainer authorization is checked at runtime. Authored replay cases are available for demonstrations.
-3. Download the `trusted-review` artifact and inspect `report.md` and `report.json`. Enable `publish` on a subsequent dispatch to create or update the bot summary; inspect the separate `publication-receipt` artifact for its outcome.
-4. To enable automatic review/publication of trusted internal, non-draft PRs, set the administrator-controlled repository variable `UNDERTOW_AUTO_REVIEW=true`. Fork/external and draft reviews require maintainer dispatch. Set the variable to `false` to return to manual operation.
-
-The workflow builds trusted default-branch source, reads PR Git objects as data, and separates model access from publication. Publication validates artifact provenance, numeric bot ownership, and current head/target commits. Serialized runs update one owned summary; outdated results are rejected or marked stale. Ordinary build/test CI remains independent of AI outcomes.
-
-### Adopt it in a separate application repository
-
-First commit the [local policy files](#review-your-own-repository) to the application's trusted target branch. The included workflow depends on Undertow's engine and scripts, so copying only its YAML into an application repository is insufficient.
-
-Build a trusted workflow around the reusable action:
-
-1. Authorize the trigger and fetch PR metadata and source as Git objects using the trusted `pr-info` command and `scripts/github-snapshots.py`. Obtain these helpers from the same pinned Undertow checkout. Retain the analysis merge base, current target tip, policy commit, and reviewed head.
-2. Invoke `alpercandemir/undertow@FULL_COMMIT_SHA`, replacing the placeholder with a reviewed full commit SHA. Supply `repository-path`, `base`, `head`, `policy-commit`, `target-head`, `api-key` from an Actions secret, and `output-directory`. Optional CI inputs are `ci-bundle` and `ci-receipt`.
-3. Upload the generated report/evidence/trace/publication files with access and retention appropriate for source-bearing artifacts. The action produces files in `output-directory`; it does not upload artifacts or post a PR comment.
-4. If you want a bot summary, add a separate serialized publication job with PR write permissions and validated artifact provenance, following the included workflow. Keep the model step separate from the publication credential and use trusted action/helper definitions.
-
-The [GitHub setup guide](docs/phase2-setup.md#githubcom-workflow-p2-02-p2-06) covers permissions, private Git fetch, trusted CI imports, fork/draft handling, publication recovery, and rollback. With the included workflow, optional CI import requires `UNDERTOW_CI_WORKFLOW_ID` and the manual dispatch's `ci_run_id`.
-
-## Investigate a dependency change
-
-Use `investigate-dependency` when you want upgrade evidence without Gemini. It compares literal POM inventories, fetches registered official notes for the selected versions, and queries OSV for the new version. It makes network requests, requires the same local policy files, and needs no model key.
-
-After building the JAR, prepare the bundled Jackson upgrade fixture:
+Re-run verification directly against the generated sample:
 
 ```sh
-python3 scripts/prepare-demo.py \
-  --case dependency-major-inventory --output .undertow/dependency-demo
-java -jar target/undertow.jar investigate-dependency \
-  --repo .undertow/dependency-demo --base HEAD~1 --head HEAD \
-  --coordinate com.fasterxml.jackson.core:jackson-databind \
-  --old-version 2.18.3 --new-version 3.0.0 \
-  --output .undertow/dependency-investigation.json
+./scripts/undertow verify \
+  --repo .undertow/assurance-demo/repo --base baseline --head fixed \
+  --policy-commit baseline --target-head baseline \
+  --ci-bundle .undertow/assurance-demo/fixtures/fixed.json \
+  --ci-receipt .undertow/assurance-demo/fixtures/fixed-SIMULATED-receipt.json \
+  --output .undertow/my-contract-result
 ```
 
-Open `.undertow/dependency-investigation.json` for inventory, retrieved notes/advisories, and failures. For your own repository, replace the refs, coordinate, and versions with an actual committed dependency change. Migration sources must be registered in trusted `config/dependency-sources.yaml`; arbitrary URLs are not accepted.
+Read `verification`, individual `checks`, and `evidence_gaps` in `contracts.json`. AI review status and release eligibility are separate records.
 
-This command produces evidence rather than a semantic review report and declares partial coverage even when retrieval succeeds. Missing notes or advisories remain explicit failures. It does not establish full dependency resolution, API/runtime compatibility, or reachable exploitation. Use `review --mode tools` to investigate dependency evidence as part of a broader model review.
+### 2. Add your first meaningful contract
 
-## Hosted service preview
-
-Phase 3 wraps the engine in a central service with GitHub OAuth/App integration, tenant-scoped encrypted state, durable jobs and leases, immutable rule packages, integer credit reservations and settlement, and private artifacts. Workers and publishers have separate credentials and permissions.
-
-The administration interface supports sign-in and tenant selection, repository registration and review opt-in, rule-package selection, credits/usage, review details/evidence, and finding feedback. Operators configure and run the service; customer administrators connect repositories and select policy.
-
-### Try the worker demo
-
-After the quick-start build, run the packaged worker without credentials:
+Point the starter at your existing test and supply your own expectation:
 
 ```sh
-python3 scripts/phase3-demo.py --output .undertow/hosted-demo
+./scripts/undertow contracts init \
+  --repo /path/to/shop --repository example/shop --owner 'payments team' \
+  --id PAYMENT-RETRY --expectation 'Retries preserve the logical payment key' \
+  --scope src/main/java/example/PaymentGatewayAdapter.java \
+  --test-id example.PaymentTest.retryPreservesKey \
+  --test-source src/test/java/example/PaymentTest.java \
+  --oracle pom.xml --oracle .github/workflows/ci.yml
 ```
 
-Open `.undertow/hosted-demo/review/report.md` and `.undertow/hosted-demo/review/service-envelope.json`. The script creates a customer-only Git repository, introduces a payment-key defect, and runs the packaged worker with authored replay responses. It makes no GitHub or Gemini calls and does not start the control API or administration interface. Use a new output directory for each run.
+This creates `.undertow/contracts.yaml` without overwriting existing policy. The bundled starter has a version and SHA-256; it supplies structure rather than business intent. Review the declaration, include all relevant helpers/resources/build controls, and commit it to your trusted target branch before using it as authority.
 
-### Set up the service and onboard a customer
+A contract looks like:
 
-An operator follows the [service setup guide](docs/phase3-setup.md) to register a GitHub App, configure protected service credentials and execution limits, start the control API, and run isolated workers and publishers. Once configured, the administration interface is available at the service origin's `/` route.
-
-A customer administrator installs the App, signs in, connects the installation, registers the repository, selects policy, and explicitly enables reviews with consent and limits. An operator supplies pilot credits. The [customer-only application](demo/customer-service/README.md) contains application code, ordinary CI, and `.undertow/` company rules; it has no engine dependency or model credential.
-
-Hosted repository policy uses `.undertow/rules.yaml`, `.undertow/guidelines.md`, optional `.undertow/business-context.yaml`, and package-local references. These files can also be uploaded as an immutable central package. This layout differs from the local CLI's `config/` layout; hosted model settings and execution budgets remain operator-controlled.
-
-**Phase 3 P0 is not complete.** A real deployment needs a registered App, protected credentials, HTTPS, enforced worker isolation, operational supervision, and live pilot evidence. The example configuration deliberately disables live execution and supplies no runner commands. See [service setup](docs/phase3-setup.md) and [delivery status](docs/phase3-status.md).
-
-## How it works
-
-```mermaid
-flowchart LR
-    Input[Commits or PR metadata] --> Snapshot[Pinned source and trusted policy]
-    Snapshot --> Loop[Bounded review loop]
-    Loop --> Model[Gemini or authored replay]
-    Model --> Tools[Validated read-only tool requests]
-    Tools --> Evidence[Evidence IDs, source ranges, and hashes]
-    Evidence --> Loop
-    Model --> Validation[Finding and coverage validation]
-    Validation --> Reports[Private report artifacts]
-    Reports --> Publish[Optional separate GitHub publisher]
+```yaml
+schema_version: 1
+repository: example/shop
+oracle_paths: [pom.xml, .github/workflows/ci.yml]
+oracle_roots: [src/test]
+contracts:
+  - id: PAYMENT-RETRY
+    version: '1'
+    owner: payments team
+    expectation: A lost response cannot cause a retry with a different operation key.
+    assumptions:
+      - The gateway deduplicates this key throughout the retry window.
+    scope: [src/main/java/example/PaymentGatewayAdapter.java]
+    verifier: junit
+    tests:
+      - id: example.PaymentTest.retryPreservesKey
+        sources: [src/test/java/example/PaymentTest.java]
 ```
 
-The model requests investigations; Undertow owns tool permissions, budgets, deadlines, and final validation. Nine tools cover diffs, source reads, syntactic references, rules, business context, CI evidence, Maven dependencies, registered migration sources, and exact-version OSV queries. Reviewed source is read as Git objects; it is never built or executed in the review loop.
+Exact source bindings and optional complete oracle-root inventories detect changed, removed, renamed, or newly introduced execution controls. Maven `.mvn` controls are inventoried even when absent. A structural change requires owner review; Undertow does not assume that a rename weakens behavior.
 
-Each finding must reference diff evidence and source evidence covering its pinned location. Reports separate risk, confidence, evidence status, guideline strength, and rule coverage. Schema and provenance checks make findings traceable; they do not prove every model conclusion correct.
+### 3. Let an agent read the approved intent before coding
 
-Local policy defaults to the trusted base commit. The GitHub integration separates the analysis merge base from the current target tip and target policy. Head-side rule changes cannot silently suppress the current review. See [architecture](docs/architecture.md) and [tool contracts](docs/tool-contracts.md).
+```sh
+./scripts/undertow contracts list --repo /path/to/shop --base main
+./scripts/undertow contracts validate \
+  --repo /path/to/shop --base main --candidate feature
+```
 
-## Reports and commands
+`list` returns structured JSON. Candidate validation checks a proposal without replacing trusted policy. The feature branch's `HEAD` does not become policy authority automatically.
 
-| Artifact | Purpose |
+For an MCP-compatible client, launch:
+
+```sh
+./scripts/undertow contracts mcp \
+  --repo /path/to/shop --base main --head feature --policy-commit main
+```
+
+The stdio server exposes `contracts_read` and `contracts_verify`. The host pins repository, policy, and optional CI paths at startup. Tool requests cannot override those inputs, select credentials, execute code, publish, or enable a gate. Without host-bound CI evidence, verification remains incomplete. See the [MCP example](docs/assurance.md#mcp).
+
+### 4. Check local changes before committing
+
+```sh
+./scripts/undertow contracts preview \
+  --repo /path/to/shop --base main --policy-commit main \
+  --path src/main/java/example/PaymentGatewayAdapter.java \
+  --output .undertow/local-preview.json
+
+./scripts/undertow contracts freshness \
+  --repo /path/to/shop --base main --policy-commit main \
+  --preview .undertow/local-preview.json
+```
+
+Add `--staged` to capture index content. Repeat `--path` for explicit tracked scope, or omit it for the entire index. Untracked files require explicit `--include-untracked PATH`. Previews reject sensitive paths, symlinks, unsupported content, and excessive input. Their manifest stores hashes rather than source content.
+
+A change within the captured scope makes freshness exit `3`. Scope and policy are part of the identity. A preview stays advisory and cannot stand in for CI evidence on the final merge candidate.
+
+### 5. Import actual CI results
+
+Export the approved oracle identity from a trusted harness checkout, then import an administrator-approved workflow/run:
+
+```sh
+./scripts/undertow contracts export \
+  --repo /path/to/shop --base BASE_SHA --head HEAD_SHA \
+  --policy-commit POLICY_SHA --output /tmp/approved-contracts.json
+
+python3 scripts/import-ci.py \
+  --repository example/shop --run-id RUN_ID --workflow-id WORKFLOW_ID \
+  --base BASE_SHA --head HEAD_SHA --contract-policy /tmp/approved-contracts.json \
+  --output /tmp/ci-bundle.json --receipt /tmp/trusted-ci-receipt.json
+
+./scripts/undertow verify \
+  --repo /path/to/shop --base BASE_SHA --head HEAD_SHA --policy-commit POLICY_SHA \
+  --ci-bundle /tmp/ci-bundle.json --ci-receipt /tmp/trusted-ci-receipt.json \
+  --output .undertow/shop-verification
+```
+
+Replace uppercase placeholders with immutable commit SHAs and numeric workflow/run IDs. Import uses the existing `GITHUB_TOKEN` integration and makes explicit GitHub API requests. Verification itself needs no network or model. Keep policy exports and receipts outside candidate-controlled inputs. They are trusted local-runner assertions, not digital signatures.
+
+The included CI retains `single-module-evidence`, `order-contract-evidence`, `customer-contract-evidence`, and corresponding tested builds. Choose the matching artifact with `--artifact-name`; do not import the mixed historical artifact as one module. See [CI setup and trust assumptions](docs/contracts.md).
+
+### 6. Check tenant isolation, order atomicity, and API shape
+
+Three bundled manifests show different expectations:
+
+| Manifest | Examples |
 |---|---|
-| `report.md` | Human-readable findings, consequences, proposed tests, and coverage gaps |
-| `report.json` | Versioned structured report, identities, usage, and failure cause |
-| `evidence.json` | Retrieved evidence, pinned locations, hashes, and provenance |
-| `trace.jsonl` | Sanitized model/tool events and usage records |
-| `publication.json` | Independent GitHub publication outcome and receipt |
+| `.undertow/contracts.yaml` | Trusted policy, evidence-backed publication, workflow credential separation, no paid fallback |
+| `demo/order-service/.undertow/contracts.yaml` | Observable payment effects; separate PostgreSQL order/event integrity |
+| `demo/customer-service/.undertow/contracts.yaml` | Tenant authorization, many tenants sharing order IDs, declared public API shape |
 
-Artifacts can contain source and private information. Keep them in ignored local directories or access-controlled CI/service storage. Do not attach private evidence to public issues.
+Use `--manifest PATH` consistently with validate/list/export/verify. A payment unit test cannot satisfy a PostgreSQL contract. Row uniqueness cannot establish that an external gateway charged only once.
 
-Exit `0` means artifacts were produced, including partial or skipped outcomes. Exit `2` means final-output validation failed. Setup errors exit nonzero. Automation must inspect `status`, `coverage_gaps`, and `details.failure_cause` in `report.json`.
+With JDK 21 selected for the application demos:
+
+```sh
+mvn -f demo/order-service/pom.xml test
+mvn -f demo/order-service/pom.xml verify        # Docker/PostgreSQL required
+mvn -f demo/customer-service/pom.xml verify
+python3 scripts/payment-mutation.py --output .undertow/payment-mutation
+python3 scripts/tenant-mutation.py --output .undertow/tenant-mutation
+```
+
+An optional real-container exercise runs the approved-oracle path with the same isolation flags used by the CI runner:
+
+```sh
+# Prepare the official pinned image and dependency cache in a controlled stage first.
+python3 scripts/isolation-showcase.py --output .undertow/isolation-demo \
+  --image maven@sha256:6fdc855a6ed81d288ca7ca37ac6ff5e9308b612485c0801d70b25a858c83d237 \
+  --dependency-cache /path/to/prepared/maven-repository
+```
+
+It checks the unprivileged UID, lack of a default network route and host Docker socket, protected root filesystem, and absent provider/publisher variables. It does not certify every Docker host.
+
+The reviewed mutations change the payment retry key and remove the tenant filter. Both compare two corrected passes with two relevant assertion failures under an unchanged oracle. Compilation, dependency, and infrastructure errors cannot count as detection. These checks measure verifier sensitivity, not AI precision.
+
+### 7. Reproduce a regression independently
+
+The full showcase's `reproduction.json` records two baseline passes and two candidate assertion failures with distinct execution identities. Use the same command with real trusted imports:
+
+```sh
+./scripts/undertow contracts reproduce \
+  --repo .undertow/assurance-demo/repo --base baseline --head violation \
+  --policy-commit baseline --runs .undertow/assurance-demo/reproduction-input.json \
+  --contract PAYMENT-RETRY --test-id shop.PaymentTest.retryPreservesIdentity \
+  --output .undertow/reproduction.json
+```
+
+For a newly proposed test, the owner first approves its source archive digest and binding. `contracts regression-plan` prepares an inert plan; the separate [isolated CI runner](docs/assurance.md#approved-regression-artifacts) checks source/oracle hashes and uses a digest-pinned image, no network, a read-only root, resource limits, and no host credentials. Generated expectations never approve themselves, and the model has no execution tool.
+
+### 8. Export results to code scanning
+
+Add `--sarif .undertow/contracts.sarif` to `verify`. The adapter preserves the exact test source path and candidate revision; it does not invent line numbers. Missing required evidence appears as a warning rather than disappearing into an empty result. Upload only through your trusted CI integration after checking the destination's SARIF support.
+
+### 9. Apply a narrowly enabled release policy
+
+Shadow verification is the default. A separate owner-approved policy can select mature contracts:
+
+```yaml
+schema_version: 1
+enabled: false
+owner: payments release owners
+required_contracts: [PAYMENT-RETRY]
+```
+
+Commit it as `.undertow/release.yaml`. Change `enabled` only after reviewing shadow results and gate-specific tolerances. Then:
+
+```sh
+./scripts/undertow contracts release \
+  --repo /path/to/shop --base BASE_SHA --head MERGE_SHA \
+  --policy-commit POLICY_SHA --target-head TARGET_SHA \
+  --ci-bundle /tmp/ci-bundle.json --ci-receipt /tmp/trusted-ci-receipt.json \
+  --output .undertow/release-check
+```
+
+This recomputes verification; it does not trust a supplied green report. Required unknowns hold release. Temporary exceptions need an exact candidate SHA, named owner, reason, and expiry, and cannot waive incomplete evidence. The `pilot` command measures separately supplied human labels and uncertainty; it never enables a gate. See [governed release policy](docs/assurance.md#release-policies).
+
+### 10. Follow the tested binary into rollout and recovery
+
+A trusted build job uses `scripts/capture-build.py` to emit `build-provenance.json` alongside its test evidence. After import:
+
+```sh
+./scripts/undertow contracts attest \
+  --repo /path/to/shop --base BASE_SHA --head MERGE_SHA \
+  --policy-commit POLICY_SHA --target-head TARGET_SHA \
+  --ci-bundle /tmp/ci-bundle.json --ci-receipt /tmp/trusted-ci-receipt.json \
+  --artifact /tmp/tested-shop.jar --output .undertow/artifact-check
+```
+
+A substituted binary or a candidate missing the pinned target tip is held. `contracts rollout` recomputes that attestation and evaluates a separately trusted monitoring export against `.undertow/operations.yaml`.
+
+The showcase walks through `accepted`, quiet-canary `held`, `halt_required`, `contained`, and `recovered`. It requires relevant traffic, freshness, exact deployment/artifact identity, timely halt confirmation, and reconciliation when external effects are irreversible. These are decisions over exported evidence; Undertow does not deploy or execute a production halt. See [operational examples](docs/assurance.md#operational-feedback).
+
+### 11. Explore a real major dependency break
+
+The [Spring Web 5 to 6 demo](demo/dependency-upgrade/README.md) builds three committed variants using cached historical JARs:
+
+```sh
+python3 demo/dependency-upgrade/run.py --output .undertow/spring-major-demo
+```
+
+The baseline and correction compile and run; the intervening upgrade fails on the changed `ResponseEntity` return type. That compiler failure demonstrates compatibility of these selected sources, not a reproduced JUnit assertion or a general migration guarantee.
+
+Collect registered official notes and OSV evidence separately; this command makes network requests but uses no model:
+
+```sh
+./scripts/undertow investigate-dependency \
+  --repo .undertow/spring-major-demo/repo --base base --head upgrade \
+  --coordinate org.springframework:spring-web --old-version 5.3.31 --new-version 6.0.7 \
+  --output .undertow/spring-major-demo/investigation.json
+```
+
+These are historical demonstration versions, not version recommendations. Literal POM inventory, retrieved migration notes, and vulnerability matches do not establish full dependency resolution, runtime compatibility, or exploitable reachability.
+
+### 12. Add optional AI risk investigation
+
+First try an authored offline replay:
+
+```sh
+python3 scripts/prepare-demo.py --case retry-key-unsafe --output .undertow/ai-demo
+./scripts/undertow review \
+  --repo .undertow/ai-demo --base HEAD~1 --head HEAD \
+  --replay .undertow/ai-demo/replay.json --output .undertow/ai-review
+```
+
+Open `report.md`, `report.json`, and `evidence.json`. Replay exercises real dispatch and validation using authored responses; it does not measure live-model quality. `partial` coverage remains visible.
+
+For a live review, configure `GEMINI_API_KEY` outside Git and follow the [setup guide](docs/phase2-setup.md). `review` without `--replay` sends bounded source/evidence to Google and may incur charges. There is no automatic provider or paid fallback. Tools are read-only; generated tests remain proposals until separately approved and executed. Mechanical formatting belongs to the build, while design, security, and business guidance remain available to investigation.
+
+| Review mode | Use |
+|---|---|
+| `tools` | Bounded model investigation through approved read-only tools |
+| `diff` | Diff-only model baseline |
+| `collect` | Deterministic source collection without model calls |
+
+Model findings remain advisory and cannot overwrite contract verification. Live quality, historical-PR evaluation, and independent human acceptance are separate from authored replay and mutation checks.
+
+## Commands and exit codes
+
+Run `./scripts/undertow COMMAND --help` or `contracts SUBCOMMAND --help` for exact options.
 
 | Command | Purpose |
 |---|---|
-| `review` | Review pinned local source changes |
-| `doctor` | Check setup; `--network` explicitly tests Gemini access |
-| `rules validate/list/explain` | Validate and inspect trusted rules |
-| `investigate-dependency` | Collect dependency inventory, official notes, and OSV evidence without a model |
-| `pr-info` | Capture current GitHub PR metadata |
-| `publish` / `mark-stale` | Publish an owned bot summary or invalidate an outdated one |
-| `service` | Start the internal central control API |
-| `service-worker` / `service-publisher` | Run separately credentialed review and publication processes |
+| `contracts init/validate/list/export` | Adopt, inspect, and export pinned intent |
+| `verify [--sarif FILE]` | Shadow verification and JSON/Markdown/SARIF output |
+| `contracts preview/freshness` | Fixed local content identity and invalidation |
+| `contracts mcp` | Read-only agent transport over the same implementation |
+| `contracts regression-plan/reproduce` | Approved external oracle plans and independent repeated comparisons |
+| `contracts pilot` | Shadow measurements with separate human judgments |
+| `contracts release/attest/rollout` | Owner policy, tested artifact identity, and operational evidence |
+| `review`, `doctor`, `rules` | Existing optional AI review and policy setup |
+| `investigate-dependency` | Dependency evidence without a model |
+| `pr-info`, `publish`, `mark-stale` | Existing separately credentialed GitHub integration |
+| `service`, `service-worker`, `service-publisher` | Internal hosted-service processes |
 
-Run `java -jar target/undertow.jar COMMAND --help` for options. Rule schemas support company-owned rules, applicability, references, examples, and expiring scoped exceptions. See the [rule guide](docs/phase2-setup.md#rules-and-trusted-policy-p2-04).
+`verify` exits `0` when it writes reports, including unsatisfied/incomplete results. `freshness` exits `3` for stale content; an enabled `release` exits `3` when held; `attest`/`rollout` exit `3` when their acceptance requirements are unmet. Setup/schema errors are nonzero. Existing AI review exits `2` for final-output validation failure. Automation must inspect the structured result rather than treating every successful process exit as a clean review.
 
-## Tech stack
+## CI, service preview, and maintenance
 
-| Area | Technology |
-|---|---|
-| Harness | Java 25, Spring Boot 4.1.1, Maven, picocli |
-| Source analysis | JavaParser configured for Java 21 syntax |
-| Model integration | Official Google Gen AI Java SDK; authored replay adapter |
-| Contracts | Jackson JSON/YAML and JSON Schema validation |
-| Internal service state | Embedded H2 with identity-bound AES-256-GCM record encryption |
-| Quality checks | JUnit Jupiter, AssertJ, Spotless, SpotBugs |
-| Order/payment demo | Java 21, Spring Boot 3.4.4, PostgreSQL, Flyway, Testcontainers |
+The included [CI workflow](.github/workflows/ci.yml) keeps ordinary builds independent of model outcomes and retains exact module evidence, tested artifact digests, and synthetic regression outputs. The [AI review workflow](.github/workflows/agent-review.yml) separates trusted harness/model work from publication credentials. Adopters can use the pinned [reusable action](action.yml) and [GitHub integration guide](docs/phase2-setup.md#githubcom-workflow-p2-02-p2-06).
 
-## Verification and evaluation
+The hosted implementation retains tenant isolation, encrypted state, budget accounting, workers, and separate publishers. Feature expansion is paused while core assurance develops. Try its authored worker fixture with `python3 scripts/phase3-demo.py --output .undertow/hosted-demo`; actual service setup and outstanding operational gates are in the [service guide](docs/phase3-setup.md) and [service status](docs/phase3-status.md).
 
 ```sh
-# JDK 25: harness tests, formatting, and static analysis
-mvn verify
+mvn --batch-mode --no-transfer-progress verify
 python3 -m unittest discover -s scripts/tests -v
 python3 scripts/public-check.py
-
-# Authored corpus evaluation across collect, diff, and tools
 python3 scripts/evaluate.py --split all --output .undertow/eval-replay
-
-# JDK 21 or newer: independent customer-application tests
-mvn -f demo/customer-service/pom.xml verify
 ```
 
-The corpus contains 40 synthetic cases: ten tuning inputs and thirty held out. Authored replay scores validate the harness; they are not live-model precision or recall. Live evaluation and human feedback procedures are documented in the [evaluation guide](docs/phase2-setup.md#evaluation-and-feedback-p2-01-p2-07).
-
-The separate executable [order/payment service](demo/order-service/README.md) uses JDK 21. Run `mvn -f demo/order-service/pom.xml test` for controlled behavior tests, or `verify` with Docker for PostgreSQL integration tests. Interactive use requires an explicitly supplied `DATABASE_PASSWORD`. Restore JDK 25 before running the harness.
-
-## Limitations and project status
-
-- Analysis is syntactic. Receiver, overload, and classpath symbol resolution remain unresolved.
-- Gradle, multi-module builds, additional languages, and native GitLab/Bitbucket adapters are deferred.
-- Parent/BOM/profile resolution needs imported build evidence; literal POM comparisons cannot establish the full dependency graph.
-- Migration notes and vulnerability matches do not prove complete compatibility or reachable exploitation.
-- Autonomous fixes, generated-test execution, cross-repository memory, and AI merge gating are not implemented.
-- Live-model quality and external pilot acceptance remain unverified.
-
-[Phase 2 status](docs/phase2-status.md) · [Phase 3 status](docs/phase3-status.md) · [Evaluation status](docs/evaluation-report.md) · [Implementation status](docs/implementation-status.md)
-
-## Contributing and security
-
-Keep committed content and commit messages in English. Use synthetic examples and protect credentials outside Git. See [CONTRIBUTING.md](CONTRIBUTING.md) for development checks and [SECURITY.md](SECURITY.md) for source handling, secret scanning, and publication precautions.
+Source navigation remains syntactic; classpath/overload resolution, Gradle, multiple modules, and broader language support are outside the current scope. A local test, clean scan, or quiet canary cannot establish global production safety. Private reports may contain source; restrict artifact access and retention. See [security](SECURITY.md), [contribution guidance](CONTRIBUTING.md), [tool contracts](docs/tool-contracts.md), and [implementation evidence](docs/ai-era-implementation-status.md).
 
 Licensed under [MIT](LICENSE).

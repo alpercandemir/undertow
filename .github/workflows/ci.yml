@@ -44,6 +44,8 @@ jobs:
           distribution: temurin
           java-version: '25'
       - run: mvn --batch-mode --no-transfer-progress verify
+      - name: Bind the harness build artifact to this candidate
+        run: python3 scripts/capture-build.py --artifact target/undertow.jar --head "$GITHUB_SHA" --output target/build-provenance.json
       - name: Verify workflow helpers
         run: python3 -m unittest discover -s scripts/tests -v
       - name: Collect harness dependency inventory (unprivileged)
@@ -54,8 +56,16 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: mvn --batch-mode --no-transfer-progress -f demo/order-service/pom.xml verify
+      - name: Bind the order build artifact to this candidate
+        run: python3 scripts/capture-build.py --artifact demo/order-service/target/order-service-0.1.0.jar --head "$GITHUB_SHA" --output demo/order-service/target/build-provenance.json
+      - name: Check the reviewed payment-key mutation twice in clean copies
+        run: python3 scripts/payment-mutation.py --output .undertow/payment-mutation
       - name: Verify the customer-only application
         run: mvn --batch-mode --no-transfer-progress -f demo/customer-service/pom.xml verify
+      - name: Check the reviewed tenant-isolation mutation
+        run: python3 scripts/tenant-mutation.py --output .undertow/tenant-mutation
+      - name: Bind the customer build artifact to this candidate
+        run: python3 scripts/capture-build.py --artifact demo/customer-service/target/customer-orders-1.0.0.jar --head "$GITHUB_SHA" --output demo/customer-service/target/build-provenance.json
       - name: Collect demo dependency inventory (unprivileged)
         run: mvn --batch-mode --no-transfer-progress -f demo/order-service/pom.xml org.apache.maven.plugins:maven-dependency-plugin:3.8.1:tree -DoutputType=json -DoutputFile=target/dependency-tree.json
       - name: Restore Java 25 for the harness CLI
@@ -65,6 +75,8 @@ jobs:
           java-version: '25'
       - name: Exercise offline corpus
         run: python3 scripts/evaluate.py --split all --output .undertow/ci-evals
+      - name: Exercise the full synthetic contract assurance showcase
+        run: python3 scripts/assurance-showcase.py --output .undertow/assurance-showcase
       - name: Exercise the packaged hosted worker without credentials
         run: python3 scripts/phase3-demo.py --output .undertow/phase3-ci-demo
       - name: Retain single-module evidence for explicit trusted import
@@ -76,6 +88,24 @@ jobs:
             target/surefire-reports/TEST-*.xml
             target/spotbugsXml.xml
             target/dependency-tree.json
+            target/build-provenance.json
+          retention-days: 7
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: order-contract-evidence
+          path: |
+            demo/order-service/target/surefire-reports/TEST-*.xml
+            demo/order-service/target/failsafe-reports/TEST-*.xml
+            demo/order-service/target/build-provenance.json
+          retention-days: 7
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: customer-contract-evidence
+          path: |
+            demo/customer-service/target/surefire-reports/TEST-*.xml
+            demo/customer-service/target/build-provenance.json
           retention-days: 7
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
@@ -89,4 +119,16 @@ jobs:
             demo/order-service/target/failsafe-reports/
             demo/order-service/target/dependency-tree.json
             .undertow/ci-evals/evaluation.json
+            .undertow/payment-mutation/mutation.json
+            .undertow/tenant-mutation/mutation.json
+            .undertow/assurance-showcase/summary.json
+          retention-days: 7
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: tested-builds
+          path: |
+            target/undertow.jar
+            demo/order-service/target/order-service-0.1.0.jar
+            demo/customer-service/target/customer-orders-1.0.0.jar
           retention-days: 7

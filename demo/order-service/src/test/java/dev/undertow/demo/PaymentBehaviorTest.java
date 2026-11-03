@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.*;
 import org.junit.jupiter.api.Test;
 
 class PaymentBehaviorTest {
@@ -14,7 +15,8 @@ class PaymentBehaviorTest {
     PaymentGateway gateway =
         (key, money) -> {
           keys.add(key);
-          if (effects.add(key)) {
+          effects.add(key);
+          if (keys.size() == 1) {
             throw new PaymentGateway.LostResponse();
           }
           return true;
@@ -38,6 +40,35 @@ class PaymentBehaviorTest {
             });
     assertThat(adapter.charge("rejected", new Money(BigDecimal.ZERO))).isFalse();
     assertThat(keys).hasSize(1);
+  }
+
+  @Test
+  void concurrentRetriesProduceOneObservableGatewayEffect() throws Exception {
+    Set<String> effects = ConcurrentHashMap.newKeySet();
+    var attempts = new java.util.concurrent.atomic.AtomicInteger();
+    var barrier = new CyclicBarrier(2);
+    var adapter =
+        new PaymentGatewayAdapter(
+            (key, money) -> {
+              attempts.incrementAndGet();
+              if (effects.add(key)) {
+                throw new PaymentGateway.LostResponse();
+              }
+              return true;
+            });
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      Callable<Boolean> request =
+          () -> {
+            barrier.await(10, TimeUnit.SECONDS);
+            return adapter.charge("concurrent-payment", new Money(BigDecimal.ONE));
+          };
+      var first = executor.submit(request);
+      var second = executor.submit(request);
+      assertThat(first.get(20, TimeUnit.SECONDS)).isTrue();
+      assertThat(second.get(20, TimeUnit.SECONDS)).isTrue();
+    }
+    assertThat(attempts.get()).isEqualTo(3);
+    assertThat(effects).containsExactly("concurrent-payment");
   }
 
   @Test
