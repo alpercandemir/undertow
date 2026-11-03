@@ -10,7 +10,7 @@
   <artifactId>undertow</artifactId>
   <version>0.1.0-alpha.1</version>
   <name>Undertow</name>
-  <description>Evidence-backed agentic change-risk reviewer</description>
+  <description>Contract verification and evidence-backed Java change assurance</description>
   <properties>
     <java.version>25</java.version>
     <start-class>dev.undertow.cli.UndertowApplication</start-class>

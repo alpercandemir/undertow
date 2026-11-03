@@ -1,0 +1,30 @@
+#!/bin/sh
+# Host-side launcher. Repository contracts cannot select its runtime or JAR.
+set -eu
+undertow_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+undertow_jar=${UNDERTOW_JAR:-"$undertow_root/target/undertow.jar"}
+java_major() {
+    "$1" -version 2>&1 | sed -n 's/.*version "\([0-9][0-9]*\).*/\1/p' | head -n 1
+}
+undertow_java=
+if [ -n "${UNDERTOW_JAVA_HOME:-}" ]; then
+    undertow_java="$UNDERTOW_JAVA_HOME/bin/java"
+elif [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+    undertow_major=$(java_major "$JAVA_HOME/bin/java")
+    if [ "${undertow_major:-0}" -ge 25 ]; then undertow_java="$JAVA_HOME/bin/java"; fi
+fi
+if [ -z "$undertow_java" ]; then undertow_java=$(command -v java || true); fi
+if [ -z "$undertow_java" ] || [ ! -x "$undertow_java" ]; then
+    echo 'Undertow requires JDK 25 or newer. Set UNDERTOW_JAVA_HOME to a supported JDK.' >&2
+    exit 1
+fi
+undertow_major=$(java_major "$undertow_java")
+if [ "${undertow_major:-0}" -lt 25 ]; then
+    echo 'Undertow requires JDK 25 or newer. Set UNDERTOW_JAVA_HOME independently of an application JDK.' >&2
+    exit 1
+fi
+if [ ! -f "$undertow_jar" ]; then
+    echo 'Build the trusted harness with JDK 25: mvn --batch-mode --no-transfer-progress verify' >&2
+    exit 1
+fi
+exec "$undertow_java" -jar "$undertow_jar" "$@"

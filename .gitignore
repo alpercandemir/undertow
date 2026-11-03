@@ -1,6 +1,12 @@
 target/
 .cache/
 .undertow/
+!/.undertow/
+/.undertow/*
+!/.undertow/contracts.yaml
+!demo/order-service/.undertow/
+demo/order-service/.undertow/*
+!demo/order-service/.undertow/contracts.yaml
 !demo/customer-service/.undertow/
 !demo/customer-service/.undertow/**
 .DS_Store

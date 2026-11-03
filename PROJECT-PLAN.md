@@ -1,6 +1,6 @@
 # Undertow — project and learning plan
 
-Planning date: September 30, 2026. This document records the original design and learning roadmap. The current harness is implemented with Java 25 and Spring Boot 4.1.1; its source-analysis target and separate demo remain Java 21. See the [README tech stack](README.md#tech-stack), [implementation status](docs/implementation-status.md) and [migration notes](docs/spring-java25-migration.md) for delivered behavior. Service availability and prices were checked against the official links below on the planning date.
+Planning date: September 30, 2026. This is the historical design and learning plan; the [consolidated AI-era roadmap](docs/ai-era-consolidated-roadmap.md) supersedes its delivery sequence. The harness uses Java 25 and Spring Boot 4.1.1; source analysis and separate demos remain Java 21. See the [quick start](README.md#quick-start), [current implementation status](docs/ai-era-implementation-status.md), and [migration notes](docs/spring-java25-migration.md) for delivered behavior. Service availability and prices below are historical checks from the planning date.
 
 ## 1. Recommended concept
 

@@ -594,6 +594,7 @@ public final class Reviewer {
     private JsonNode promptRules() {
         var selected = Json.MAPPER.createArrayNode();
         for (JsonNode rule : policy.rules()) {
+            if (rule.path("kind").asText().equals("style")) continue;
             var row = selected.addObject();
             for (String key :
                     List.of(

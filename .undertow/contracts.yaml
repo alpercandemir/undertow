@@ -1,0 +1,87 @@
+schema_version: 1
+repository: alpercandemir/undertow
+oracle_paths:
+  - pom.xml
+  - action.yml
+  - scripts/capture-build.py
+  - .github/workflows/ci.yml
+  - .github/workflows/agent-review.yml
+  - src/test/java/dev/undertow/TestRepository.java
+  - src/test/java/dev/undertow/ContractVerificationTest.java
+  - config/review.yaml
+  - config/business-context.yaml
+  - config/dependency-sources.yaml
+  - config/languages/java/rules.yaml
+  - CODING-SKILL.md
+contracts:
+  - id: TRUSTED-POLICY
+    version: '1'
+    owner: repository maintainers
+    expectation: Candidate files cannot replace the separately pinned review policy or business context.
+    scope: [src/main/java/dev/undertow/policy/Policy.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.BoundaryTest.headCannotReplacePolicyOrBusinessContext
+        sources: [src/test/java/dev/undertow/BoundaryTest.java]
+  - id: EVIDENCE-PUBLICATION
+    version: '1'
+    owner: repository maintainers
+    expectation: Fabricated finding evidence and stale-head publication are rejected.
+    scope: [src/main/java/dev/undertow/findings/ReviewValidator.java, src/main/java/dev/undertow/github/GitHubClient.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.ReviewValidationTest.fabricatedEvidenceIsRejected
+        sources: [src/test/java/dev/undertow/ReviewValidationTest.java]
+      - id: dev.undertow.PublisherTest.staleHeadNeverReceivesCurrentSummary
+        sources: [src/test/java/dev/undertow/PublisherTest.java]
+  - id: CREDENTIAL-SEPARATION
+    version: '1'
+    owner: repository maintainers
+    expectation: Workflow definitions separate model and publication permissions; the model cannot add a command tool.
+    assumptions:
+      - Static workflow checks do not establish deployed container or network isolation.
+    scope: [.github/workflows/agent-review.yml, src/main/java/dev/undertow/tools/ToolRegistry.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.WorkflowAndCoverageTest.ciAndReviewWorkflowsParseAndKeepPermissionsSeparated
+        sources: [src/test/java/dev/undertow/WorkflowAndCoverageTest.java]
+      - id: dev.undertow.ReviewValidationTest.promptInjectionCannotAddACommandTool
+        sources: [src/test/java/dev/undertow/ReviewValidationTest.java]
+  - id: NO-PAID-FALLBACK
+    version: '1'
+    owner: repository maintainers
+    expectation: A quota failure does not retry or switch to another paid model.
+    scope: [src/main/java/dev/undertow/harness/Reviewer.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.ReviewValidationTest.quotaFailureIsNotRetriedOrSwitchedToAnotherModel
+        sources: [src/test/java/dev/undertow/ReviewValidationTest.java]
+  - id: RELEASE-UNKNOWNS
+    version: '1'
+    owner: repository maintainers
+    expectation: Required unknowns hold an enabled release; candidate policy cannot enable a disabled gate.
+    scope: [src/main/java/dev/undertow/contracts/ReleaseAssurance.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.AssuranceWorkflowTest.shadowRemainsSeparateFromOwnerEnabledGatesAndUnknownsHold
+        sources: [src/test/java/dev/undertow/AssuranceWorkflowTest.java]
+      - id: dev.undertow.AssuranceWorkflowTest.headCannotEnableDisabledGate
+        sources: [src/test/java/dev/undertow/AssuranceWorkflowTest.java]
+  - id: ARTIFACT-IDENTITY
+    version: '1'
+    owner: repository maintainers
+    expectation: A substituted artifact cannot inherit an eligible build's attestation.
+    scope: [src/main/java/dev/undertow/contracts/ReleaseAssurance.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.AssuranceWorkflowTest.candidateCannotReplaceGatePolicyAndArtifactBytesMustMatchTrustedCi
+        sources: [src/test/java/dev/undertow/AssuranceWorkflowTest.java]
+  - id: LOCAL-PREVIEW-IDENTITY
+    version: '1'
+    owner: repository maintainers
+    expectation: Working and staged previews become stale when their captured content changes.
+    scope: [src/main/java/dev/undertow/contracts/LocalPreview.java]
+    verifier: junit
+    tests:
+      - id: dev.undertow.AssuranceWorkflowTest.localMutationInvalidatesWorkingPreviewButNotUnchangedIndex
+        sources: [src/test/java/dev/undertow/AssuranceWorkflowTest.java]

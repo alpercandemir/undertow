@@ -2,7 +2,7 @@
 
 Undertow is one Java 25 CLI module packaged with Spring Boot 4.1.1. Spring owns application lifecycle and constructor injection at the CLI boundary; picocli owns command parsing and exit codes. The review engine remains plain Java, with JavaParser configured for Java 21 syntax analysis. Commands receive fresh option state for each invocation, and model clients are created only after loading pinned policy.
 
-The order/payment demo is a separate Java 21 / Spring Boot 3.4.4 Maven module with PostgreSQL, Spring JDBC and Flyway. Its database integration tests use Testcontainers. See the [README tech stack](../README.md#tech-stack) for the libraries and tooling used by each part.
+The order/payment demo is a separate Java 21 / Spring Boot 3.4.4 Maven module with PostgreSQL, Spring JDBC and Flyway. Its database integration tests use Testcontainers. See the [README quick start](../README.md#quick-start) for the libraries and tooling used by each part.
 
 Spring reads only bundled `undertow.properties`, never working-directory `application.properties` or `config/` files. No web server or component scanning of reviewed projects is enabled. See the [migration decisions and validation](spring-java25-migration.md).
 

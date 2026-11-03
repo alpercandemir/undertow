@@ -21,6 +21,7 @@ PRIVATE_NAMES = {"id_rsa", "id_ed25519", "service.local.json"}
 PRIVATE_DIRECTORIES = {".secrets", ".credentials", ".aws", ".ssh", "service-data", "target"}
 ENV_EXAMPLES = {".env.example", ".env.sample", ".env.template"}
 CUSTOMER_POLICY = "demo/customer-service/.undertow/"
+CONTRACT_MANIFESTS = {".undertow/contracts.yaml", "demo/order-service/.undertow/contracts.yaml"}
 
 
 def git(*arguments):
@@ -44,7 +45,7 @@ def path_issues(relative):
         issues.append("credential_or_runtime_file")
     if PRIVATE_DIRECTORIES.intersection(path.parts):
         issues.append("private_or_generated_directory")
-    if ".undertow" in path.parts and not relative.startswith(CUSTOMER_POLICY):
+    if ".undertow" in path.parts and not relative.startswith(CUSTOMER_POLICY) and relative not in CONTRACT_MANIFESTS:
         issues.append("local_review_artifact")
     return issues
 

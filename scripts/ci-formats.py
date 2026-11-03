@@ -20,20 +20,32 @@ def junit(data):
     root = xml_root(data)
     result = []
     for case in root.iter("testcase"):
+        if any(case.find(kind) is not None for kind in ("flakyFailure", "flakyError", "rerunFailure", "rerunError")):
+            raise ValueError("JUnit retries/flaky results need independent execution identities")
         name = case.get("name", "")
         if not name:
             raise ValueError("JUnit case name missing")
         status = ("error" if case.find("error") is not None else
                   "failed" if case.find("failure") is not None else
                   "skipped" if case.find("skipped") is not None else "passed")
+        if sum(case.find(kind) is not None for kind in ("error", "failure", "skipped")) > 1:
+            raise ValueError("Conflicting JUnit case outcomes")
         result.append({"name": case.get("classname", "") + "." + name, "status": status})
     if root.tag not in {"testsuite", "testsuites"}:
         raise ValueError("Unsupported JUnit document")
-    for suite in root.iter("testsuite"):
-        if suite.get("tests") is not None and int(suite.get("tests")) != len(list(suite.iter("testcase"))):
-            raise ValueError("JUnit declared test count does not match execution results")
-    if root.tag == "testsuites" and root.get("tests") is not None and int(root.get("tests")) != len(result):
-        raise ValueError("JUnit aggregate count does not match execution results")
+    suites = list(root.iter("testsuite"))
+    if root.tag == "testsuites":
+        suites.append(root)
+    for suite in suites:
+        cases = list(suite.iter("testcase"))
+        counts = {"tests": len(cases), "failures": sum(c.find("failure") is not None for c in cases),
+                  "errors": sum(c.find("error") is not None for c in cases),
+                  "skipped": sum(c.find("skipped") is not None for c in cases)}
+        for attribute, count in counts.items():
+            if suite.get(attribute) is not None and int(suite.get(attribute)) != count:
+                raise ValueError("JUnit declared counts do not match execution results")
+        if suite.find("error") is not None or suite.find("failure") is not None:
+            raise ValueError("JUnit suite-level failure has no individual execution identity")
     return result
 
 

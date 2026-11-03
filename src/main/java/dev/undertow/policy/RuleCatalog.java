@@ -158,6 +158,7 @@ public final class RuleCatalog {
 
     public boolean active(JsonNode rule, String path) {
         return rule.path("enabled").asBoolean(true)
+                && !rule.path("kind").asText().equals("style")
                 && matches(rule.path("include"), path)
                 && !matches(rule.path("exclude"), path)
                 && !excepted(rule.path("id").asText(), path);
@@ -197,17 +198,21 @@ public final class RuleCatalog {
                                     + exception.path("expires").asText()
                                     + ")");
             String status =
-                    !rule.path("enabled").asBoolean() || applicable.isEmpty()
+                    rule.path("kind").asText().equals("style")
+                                    || !rule.path("enabled").asBoolean()
+                                    || applicable.isEmpty()
                             ? "out_of_scope"
                             : active.isEmpty() ? "exception" : "selected";
             String reason =
-                    !rule.path("enabled").asBoolean()
-                            ? "Disabled in trusted policy"
-                            : applicable.isEmpty()
-                                    ? "No changed paths match"
-                                    : active.isEmpty()
-                                            ? "Trusted scoped exception"
-                                            : "Selected for declared scope; evaluation requires evidence";
+                    rule.path("kind").asText().equals("style")
+                            ? "Mechanical style belongs to formatter/build checks; excluded from model assessment"
+                            : !rule.path("enabled").asBoolean()
+                                    ? "Disabled in trusted policy"
+                                    : applicable.isEmpty()
+                                            ? "No changed paths match"
+                                            : active.isEmpty()
+                                                    ? "Trusted scoped exception"
+                                                    : "Selected for declared scope; evaluation requires evidence";
             result.add(
                     new Coverage(
                             id, rule.path("version").asText(), status, reason, active, excepts));

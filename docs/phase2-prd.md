@@ -7,7 +7,7 @@ Default platform sequence: GitHub.com in Phase 2; GitLab and Bitbucket in Phase 
 
 The user confirmed that the first customer's platform is not yet known. GitHub-first is therefore a planning assumption that can change when customer requirements are confirmed. Maintain this PRD in English.
 
-This document specifies target behavior. Commands, fields, and integrations not explicitly marked as existing are planned features. It supplements the original [project plan](../PROJECT-PLAN.md); see [implementation status](implementation-status.md) for delivered capabilities.
+This document specifies historical Phase 2 target behavior. Commands, fields, and integrations not explicitly marked as existing are planned features. It supplements the original [project plan](../PROJECT-PLAN.md); see [current implementation status](ai-era-implementation-status.md) for delivered capabilities and retained acceptance gates.
 
 ## 1. Product decision
 
