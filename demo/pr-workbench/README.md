@@ -2,6 +2,10 @@
 
 An engineering workspace for standing contracts, proposed changes, legacy observations, and baseline/candidate evidence. The main example is [refund extraction](../refund-extraction/README.md): partial refunds must preserve the aggregate refund limit and operation-key semantics.
 
+[Live interactive demo](https://undertow-contract-demo-alper.merry-shark-3470.chatgpt.site) · [Engineering workspace](https://undertow-contract-demo-alper.merry-shark-3470.chatgpt.site/workspace.html)
+
+## Run locally
+
 ```sh
 python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist
 ```
@@ -29,4 +33,8 @@ mvn --batch-mode --no-transfer-progress -f demo/refund-extraction/pom.xml test
 python3 scripts/refund-showcase.py --output .undertow/refund-validation
 ```
 
-No production extraction, general rule-mining engine, anonymous code runner, public deployment, or production acceptance is claimed. The [next-step plan](../../docs/next-pilot-and-public-playground.md) retains the public-page/adoption sequence.
+The static demo is publicly deployed. The Java verifier/CLI, JVM/Maven execution, hosted service, production extraction, and general rule-mining engine are not deployed by this site. Production acceptance is not claimed. The [next-step plan](../../docs/next-pilot-and-public-playground.md) retains the public-page/adoption sequence.
+
+## Publication
+
+The tracked [.openai/hosting.json](.openai/hosting.json) identifies the existing public Site and its static directory. Routine updates must reuse that project. Synchronize the tested `dist/` assets into the Site checkout, push/package the exact source through the Sites workflow, and deploy the saved version while preserving its public audience. Keep source-write credentials in session memory; never commit them.

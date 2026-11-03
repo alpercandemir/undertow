@@ -6,13 +6,13 @@ The product direction is contract management, discovery, and verification across
 
 ## What exists now
 
-The entry page is a focused interactive refund demo: change implementation, edit a JSON trace, compare outcomes, and generate a shareable URL fragment. The full engineering workspace is a separate `workspace.html` route, preserving the selected implementation. Neither route is publicly deployed yet.
+The entry page is a focused interactive refund demo: change implementation, edit a JSON trace, compare outcomes, and generate a shareable URL fragment. The full engineering workspace is a separate `workspace.html` route, preserving the selected implementation. The [static demo](https://undertow-contract-demo-alper.merry-shark-3470.chatgpt.site) and full workspace are public. The Java verifier and repository execution service are not deployed there.
 
 The [local engineering workspace](../demo/pr-workbench/README.md) contains editable version 1 contract JSON, free-text change intention, proposed checks, replay input, source/verifier inspection, and legacy test inventory. The primary example extracts refunds while adding partial refunds. Standing refund limits and retry obligations remain independent of that new behavior.
 
 The same six JUnit checks run against legacy, broken, and corrected implementations. Two temporary candidate-probe executions expose cumulative partial-refund overflow. The UI reads these recorded local results and runs edited traces in a separate browser model. It does not compile submitted Java, infer general monolith semantics, authenticate fresh receipts, or approve drafts.
 
-The original owned public ticket PRs and trusted-imported GitHub evidence remain a secondary reference below. Optional public PR lookup fetches metadata only. The site is local, not a deployed public service.
+The original owned public ticket PRs and trusted-imported GitHub evidence remain a secondary reference below. Optional public PR lookup fetches metadata only. The static frontend is public; it is not a deployed verifier or arbitrary-repository execution service.
 
 ## The owned public example: NIGHT / SHIFT
 

@@ -28,7 +28,9 @@ flowchart LR
 
 ## Interactive demo
 
-The entry page demonstrates one invariant across three implementations. No Java setup or model key is needed to try it locally:
+[**Try the live interactive demo**](https://undertow-contract-demo-alper.merry-shark-3470.chatgpt.site) · [Engineering workspace](https://undertow-contract-demo-alper.merry-shark-3470.chatgpt.site/workspace.html)
+
+The entry page demonstrates one invariant across three implementations. To run the same static demo locally:
 
 ```sh
 python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist
@@ -44,7 +46,7 @@ The demo runs a bounded browser model. Its expandable evidence section contains 
 
 ![Interactive refund demo: preserve a standing invariant across implementations](docs/assets/interactive-refund-demo.jpg)
 
-The page is ready for static hosting; there is currently no public deployment URL. It executes no submitted repositories and does not verify arbitrary public PRs. The [owned ticket PR regression](https://github.com/alpercandemir/undertow-showcase/pull/1) and [correction](https://github.com/alpercandemir/undertow-showcase/pull/2) remain a separate trusted-imported GitHub CI reference.
+**Deployment scope:** the public site hosts static HTML/CSS/JavaScript and fixture evidence. It does not deploy the Java verifier, a JVM/Maven runner, or the hosted Undertow service. It executes no submitted repositories and does not verify arbitrary public PRs. The [owned ticket PR regression](https://github.com/alpercandemir/undertow-showcase/pull/1) and [correction](https://github.com/alpercandemir/undertow-showcase/pull/2) remain a separate trusted-imported GitHub CI reference.
 
 ## Quick start
 

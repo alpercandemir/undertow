@@ -50,3 +50,5 @@ A real organization should review the contracts, run shadow verification on auth
 ## Next product increment
 
 The [workspace and pilot plan](next-pilot-and-public-playground.md) now centers standing contracts, proposed behavior, and baseline/candidate evidence. Its [engineering workspace](../demo/pr-workbench/README.md) uses refund extraction with versioned JSON drafts, free-text intention, recorded local JUnit, editable traces, a temporary candidate probe, and source-linked test-metadata inventory. The earlier public ticket PR evidence remains available. The [monolith design](behavior-preservation-and-monoliths.md) defines general discovery and bounded replacement as further work; they are not delivered mining or production-migration capabilities. Independent adoption and operational acceptance above remain open.
+
+The static interactive entry and engineering workspace are now publicly hosted. This publishes only browser assets and fixture evidence, not the Java verifier, Maven execution, or hosted service. Editable traces run a browser model; recorded JUnit remains independently labeled. See the [live demo and source guide](../demo/pr-workbench/README.md).
