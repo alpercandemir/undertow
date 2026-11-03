@@ -6,82 +6,60 @@
   <meta name="color-scheme" content="light">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Undertow playground — a preview should stay a preview</title>
+  <title>Undertow playground — rule, action, result</title>
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="app.js"></script>
 </head>
 <body>
-  <header class="masthead"><a class="wordmark" href="#">undertow<span aria-hidden="true">↳</span></a><span>CONTRACT PLAYGROUND</span><span class="local-tag">LOCAL PROTOTYPE</span></header>
+  <header><a class="wordmark" href="#">undertow<span aria-hidden="true">↳</span></a><span>PLAYGROUND <span class="sandbox-label">/ LOCAL SANDBOX</span></span></header>
   <main>
-    <section class="intro">
-      <p class="eyebrow">01 / A REAL PR. ONE SMALL CHANGE. AN UNEXPECTED EFFECT.</p>
-      <h1>A preview should<br>stay a <em>preview.</em></h1>
-      <p class="lede">Someone shares a ticket-transfer link. A chat app opens it first.<br class="desktop-break"> Does the ticket move before its recipient says yes?</p>
-      <div class="case-picker" aria-label="Evidence case">
-        <button type="button" data-case="broken" aria-pressed="true"><span>01</span> The regression</button>
-        <button type="button" data-case="fixed" aria-pressed="false"><span>02</span> The correction</button>
-        <button type="button" data-case="missing" aria-pressed="false"><span>03</span> Without evidence</button>
-      </div>
-    </section>
+    <div class="intro"><h1>Does this action break the rule?</h1><p>Set a rule. Change the action. Run it.</p></div>
+    <div class="scenario-row"><div class="scenario-picker" aria-label="Scenario"><button type="button" data-scenario="preview" aria-pressed="true">Ticket preview</button><button type="button" data-scenario="recipient" aria-pressed="false">Recipient access</button></div><button type="button" id="reset" class="text-button">Reset</button></div>
+    <p id="scenario-description" class="scenario-description"></p>
 
-    <section class="workbench" aria-labelledby="story-title">
-      <div class="story">
-        <div class="section-label"><span>THE BEHAVIOR</span><span>ILLUSTRATED REPLAY</span></div>
-        <article class="ticket" aria-label="Fictional NIGHT SHIFT event ticket">
-          <div class="ticket-top"><span>ADMIT ONE</span><span>↗</span></div>
-          <h2 id="story-title">NIGHT<br><span>/ SHIFT</span></h2>
-          <p>One ticket. One invitation.<br>One explicit acceptance.</p>
-          <div class="ticket-stub"><span>TRANSFER TO<br><strong>LEO</strong></span><span class="barcode" aria-hidden="true"></span><span>FROM<br><strong>MIRA</strong></span></div>
-        </article>
-        <div class="state-line"><span>Before preview <strong>Mira owns it</strong></span><span aria-hidden="true">→</span><span>After preview <strong id="owner-after">Loading…</strong></span></div>
-        <p id="story-caption" class="caption">Loading the pinned evidence snapshot…</p>
-        <details class="diff"><summary>See the change <span>JAVA ↗</span></summary><pre id="source-diff"></pre><a id="source-link" target="_blank" rel="noreferrer">Open pinned source on GitHub ↗</a></details>
-      </div>
-
-      <div class="assessment">
-        <div class="section-label"><span>THE EVIDENCE</span><a id="pr-link" target="_blank" rel="noreferrer">Open public PR ↗</a></div>
-        <div class="verdict" id="verdict" role="status" aria-live="polite"><span id="verdict-label">Loading evidence</span><h2 id="verdict-title">Reading the snapshot…</h2><p id="verdict-description"></p></div>
-        <div id="contract-results" class="contract-results"></div>
-        <div class="provenance">
-          <div><span>POLICY</span><a id="policy-link" target="_blank" rel="noreferrer"></a></div>
-          <div><span>CANDIDATE</span><code id="head-sha"></code></div>
-          <div><span>EXECUTION</span><a id="run-link" target="_blank" rel="noreferrer"></a></div>
-          <div><span>REPORT</span><a id="report-link">Undertow JSON ↗</a><a id="bundle-link">Imported JUnit ↗</a></div>
+    <form id="experiment" class="experiment">
+      <section class="step" aria-labelledby="rule-title">
+        <h2 id="rule-title"><span>1</span> Business rule <small>DRAFT</small></h2>
+        <label id="expectation-label" for="expectation"></label>
+        <select id="expectation"></select>
+        <code id="rule-code" class="code"></code>
+      </section>
+      <section class="step" aria-labelledby="action-title">
+        <h2 id="action-title"><span>2</span> Action</h2>
+        <label id="action-label" for="action"></label>
+        <select id="action"></select>
+        <button type="button" id="break-action" class="text-button">Use a breaking action ↗</button>
+        <button type="submit" class="run-button">Run scenario <span aria-hidden="true">→</span></button>
+      </section>
+      <section id="result" class="step result" aria-labelledby="result-heading" aria-live="polite">
+        <h2 id="result-heading"><span>3</span> Result <small>SANDBOX</small></h2>
+        <div id="ready"><p class="result-title">Ready to run</p><p id="ready-hint">Run the action against your rule.</p></div>
+        <div id="outcome" hidden>
+          <p id="result-label" class="result-label"></p>
+          <div class="ownership"><span id="owner-before">Mira</span><span aria-hidden="true">→</span><strong id="owner-after"></strong></div>
+          <p class="ownership-label">Ticket owner · before → after</p>
+          <dl><div><dt>Expected</dt><dd id="expected"></dd></div><div><dt>Observed</dt><dd id="observed"></dd></div></dl>
+          <p id="result-message"></p>
         </div>
-        <p class="fine-print" id="snapshot-note"></p>
-      </div>
-    </section>
+      </section>
+    </form>
+    <p class="sandbox-note">Runs a local model. Draft edits do not change the approved PR checks.</p>
 
-    <section class="flow-lab" aria-labelledby="flow-title">
-      <div class="lab-intro"><p class="eyebrow">02 / TRY A DIFFERENT FLOW</p><h2 id="flow-title">Change the behavior.<br>Follow the ticket.</h2><p>These controls edit a small local business model. Try a preview that accepts the ticket, or let a different account accept it.</p><p class="boundary">Local simulation. No Java compilation.<br>No new CI evidence or approval.</p></div>
-      <form id="flow-form" class="rule-form">
-        <label for="preview-flow">When a link preview opens</label><select id="preview-flow"><option value="read">Render the invitation only</option><option value="accept">Accept for the recipient, then render</option></select>
-        <label for="accept-flow">Who may accept?</label><select id="accept-flow"><option value="recipient">Only the named recipient</option><option value="anyone">Any signed-in account with the link</option></select>
-        <label for="visitor">Try as</label><select id="visitor"><option value="preview">A chat app previewing the link</option><option value="leo">Leo, the named recipient</option><option value="alex">Alex, a different account</option></select>
-        <button class="primary" type="submit">Run local flow <span>↗</span></button>
-        <div id="flow-result" class="proposal-result" role="status" aria-live="polite"></div>
-        <details class="diff"><summary>Inspect the local model <span>SIMULATION</span></summary><pre id="flow-code"></pre></details>
-      </form>
-    </section>
-
-    <section class="rule-lab" aria-labelledby="rule-title">
-      <div class="lab-intro"><p class="eyebrow">03 / CHANGE THE QUESTION</p><h2 id="rule-title">What should<br>this change preserve?</h2><p>Edit the intent or its check. See where the evidence stops answering your question.</p><p class="boundary">Your edit is a proposal.<br>Approval belongs to the contract owner.</p></div>
-      <form id="rule-form" class="rule-form">
-        <div class="rule-heading"><code>PREVIEW-IS-READ-ONLY / v1</code><span>OWNER: SHOWCASE MAINTAINER</span></div>
-        <label for="expectation">Intended behavior</label>
-        <textarea id="expectation" rows="3" maxlength="600" required></textarea>
-        <label for="test-binding">Required evidence</label>
-        <select id="test-binding"><option value="preview">Preview leaves ownership unchanged</option><option value="title">Preview title is readable — no approved execution</option></select>
-        <div class="rule-actions"><button class="primary" type="submit">Explore this proposal <span>↗</span></button><button id="reset-rule" class="text-button" type="button">Restore approved rule</button></div>
-        <div id="proposal-result" class="proposal-result" role="status" aria-live="polite">The approved rule is shown. The CI result above applies to that rule only.</div>
-      </form>
-    </section>
-
-    <section class="public-pr" aria-labelledby="public-title">
-      <div><p class="eyebrow">04 / BRING YOUR OWN CHANGE</p><h2 id="public-title">Have a public PR?</h2><p>The two showcase links load pinned results. Other links can fetch public metadata directly from GitHub. Contract verification needs approved intent and independent execution evidence.</p></div>
-      <form id="pr-form"><label for="pr-url">GitHub pull request URL</label><div class="url-row"><input id="pr-url" type="url" placeholder="https://github.com/owner/repo/pull/123" required autocomplete="off"><button type="submit" class="primary">Inspect link ↗</button></div><p class="fine-print">Optional network request to api.github.com. No token, repository build, model call, or PR comment. Input stays in this tab.</p><div id="pr-status" class="pr-status" role="status" aria-live="polite"></div></form>
-    </section>
-    <footer><span>Intent → independent evidence → explicit gaps.</span><p>Archived fixture evidence, not a live safety verdict. The event is fictional; the PRs, JUnit assertions, and imported results are real. Release is not evaluated.</p><a href="https://github.com/alpercandemir/undertow" target="_blank" rel="noreferrer">Explore Undertow ↗</a></footer>
+    <div class="secondary">
+      <details id="real-evidence">
+        <summary>See the real PR example <span aria-hidden="true">↗</span></summary>
+        <div class="evidence-body">
+          <div class="case-picker" aria-label="Archived PR case"><button type="button" data-case="broken" aria-pressed="true">Broken PR</button><button type="button" data-case="fixed" aria-pressed="false">Fixed PR</button><button type="button" data-case="missing" aria-pressed="false">No evidence</button></div>
+          <p id="evidence-summary" role="status">Loading archived results…</p>
+          <div id="contract-results"></div>
+          <div class="evidence-links"><a id="pr-link" target="_blank" rel="noreferrer">Public PR ↗</a><a id="report-link">Verification JSON ↗</a></div>
+          <details class="provenance"><summary>Source and CI details</summary><dl><div><dt>Policy</dt><dd><a id="policy-link" target="_blank" rel="noreferrer"></a></dd></div><div><dt>Candidate</dt><dd><code id="head-sha"></code></dd></div><div><dt>Execution</dt><dd id="execution"></dd></div></dl><a id="bundle-link">Imported JUnit ↗</a><p id="snapshot-note"></p></details>
+          <p class="fine-print">Archived Java/JUnit results use the approved rule, independently of the sandbox above.</p>
+        </div>
+      </details>
+      <details id="public-pr"><summary>Inspect a public PR link <span aria-hidden="true">↗</span></summary><form id="pr-form"><label for="pr-url">Public GitHub PR</label><div class="url-row"><input id="pr-url" type="url" placeholder="https://github.com/owner/repo/pull/123" required autocomplete="off"><button type="submit">Inspect</button></div><p class="fine-print">Showcase links load archived results. Other links fetch metadata only.</p><div id="pr-status" role="status" aria-live="polite"></div></form></details>
+    </div>
+    <footer><a href="https://github.com/alpercandemir/undertow" target="_blank" rel="noreferrer">GitHub ↗</a><span>No model calls. No repository builds.</span></footer>
   </main>
 </body>
 </html>

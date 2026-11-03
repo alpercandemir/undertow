@@ -2,32 +2,44 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {APPROVED_EXPECTATION, PREVIEW_TEST, parsePrUrl, proposalEffect, simulateFlow, validateMetadata, currentSnapshotState} from '../../demo/pr-workbench/dist/model.mjs';
+import {APPROVED_EXPECTATION, PREVIEW_TEST, SCENARIOS, runDraft, parsePrUrl, simulateFlow, validateMetadata, currentSnapshotState} from '../../demo/pr-workbench/dist/model.mjs';
 
 test('public PR input cannot select another host, credentials, path, or query', () => {
   for (const value of ['http://github.com/a/b/pull/1','https://github.com.evil.test/a/b/pull/1','https://user@github.com/a/b/pull/1','https://github.com:443/a/b/pull/1','https://github.com/a/../pull/1','https://github.com/a/b/pull/1?token=x','https://github.com/a/b/pull/1#x','https://github.com/a/b/pull/0','https://github.com/a/b/pull/1/files','https://github.com/a%2fb/c/pull/1']) assert.throws(() => parsePrUrl(value), value);
   assert.equal(parsePrUrl(' https://github.com/alpercandemir/undertow-showcase/pull/1/ ').api,'https://api.github.com/repos/alpercandemir/undertow-showcase/pulls/1');
 });
 
-test('changed intent or evidence binding cannot inherit approved status', () => {
-  assert.equal(proposalEffect(APPROVED_EXPECTATION,'preview').changed,false);
-  for (const [expectation,binding] of [['Preview may transfer a ticket.','preview'],[APPROVED_EXPECTATION,'title'],['Anything passes','title']]) {
-    const result = proposalEffect(expectation,binding);
-    assert.equal(result.status,'incomplete');
-    assert.equal(result.changed,true);
+test('draft rule is evaluated against the action that actually ran', () => {
+  assert.equal(runDraft({scenario:'preview',expectation:'mira',action:'read'}).passed,true);
+  const broken = runDraft({scenario:'preview',expectation:'mira',action:'accept'});
+  assert.equal(broken.passed,false);
+  assert.equal(broken.expected,'Owner: Mira'); assert.equal(broken.observed,'Owner: Leo');
+  // Changing a sandbox expectation changes only this local comparison.
+  assert.equal(runDraft({scenario:'preview',expectation:'leo',action:'accept'}).passed,true);
+  assert.equal(runDraft({scenario:'preview',expectation:'leo',action:'read'}).passed,false);
+  assert.equal(runDraft({scenario:'recipient',expectation:'blocked',action:'recipient'}).passed,true);
+  const unauthorized = runDraft({scenario:'recipient',expectation:'blocked',action:'anyone'});
+  assert.equal(unauthorized.passed,false); assert.equal(unauthorized.after,'Alex');
+  assert.equal(runDraft({scenario:'recipient',expectation:'allowed',action:'anyone'}).passed,true);
+  for (const [scenario,spec] of Object.entries(SCENARIOS)) {
+    for (const [expectation] of spec.expectations) {
+      assert.equal(spec.actions.filter(([action]) => runDraft({scenario,expectation,action}).passed).length,1);
+    }
   }
-  assert.throws(() => proposalEffect(' ','preview'));
+  assert.throws(() => runDraft({scenario:'preview',expectation:'anyone',action:'read'}));
+  assert.throws(() => runDraft({scenario:'preview',expectation:'mira',action:'execute'}));
+  assert.throws(() => runDraft({scenario:'toString',expectation:'mira',action:'read'}));
 });
 
 test('local business model exposes premature acceptance and recipient bypass', () => {
   const scanner = simulateFlow({preview:'read',acceptance:'recipient',visitor:'preview'});
   assert.equal(scanner.owner,'mira'); assert.equal(scanner.accepted,false);
   const broken = simulateFlow({preview:'accept',acceptance:'recipient',visitor:'preview'});
-  assert.equal(broken.owner,'leo'); assert.equal(broken.accepted,true); assert.equal(broken.previewPreserved,false);
+  assert.equal(broken.owner,'leo'); assert.equal(broken.accepted,true);
   const denied = simulateFlow({preview:'read',acceptance:'recipient',visitor:'alex'});
   assert.equal(denied.denied,true); assert.equal(denied.owner,'mira');
   const bypass = simulateFlow({preview:'read',acceptance:'anyone',visitor:'alex'});
-  assert.equal(bypass.owner,'alex'); assert.equal(bypass.recipientBound,false);
+  assert.equal(bypass.owner,'alex'); assert.equal(bypass.accepted,true);
   assert.equal(simulateFlow({preview:'read',acceptance:'recipient',visitor:'leo'}).owner,'leo');
   assert.throws(() => simulateFlow({preview:'execute',acceptance:'anyone',visitor:'alex'}));
 });
