@@ -17,6 +17,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: mvn --batch-mode --no-transfer-progress -f demo/ticket-transfer/pom.xml clean test
+      - run: mvn --batch-mode --no-transfer-progress -f demo/refund-extraction/pom.xml clean test
+      - name: Reproduce preserved behavior, regressions, and temporary refund probes
+        run: python3 scripts/refund-showcase.py --output .undertow/refund-ci
       - name: Check playground boundaries and archived evidence integrity
         run: node --test scripts/tests/pr-workbench.test.mjs
   public-content:

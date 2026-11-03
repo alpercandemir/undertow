@@ -1,29 +1,28 @@
-# Undertow contract playground
+# Behavior contract workspace
 
-A buildless local UI for the [next-step plan](../../docs/next-pilot-and-public-playground.md). One loop: **set a draft business rule → choose an action → run → compare expected and observed behavior**.
-
-From the Undertow repository root:
+An engineering workspace for standing contracts, proposed changes, legacy observations, and baseline/candidate evidence. The main example is [refund extraction](../refund-extraction/README.md): partial refunds must preserve the aggregate refund limit and operation-key semantics.
 
 ```sh
 python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist
 ```
 
-Open [the local playground](http://127.0.0.1:8773). Use an HTTP server; browser module/JSON loading does not work reliably from a `file:` URL. No installation, model key, GitHub token, or backend is needed. `dist/` is the authored portable site source; there is no duplicate generated frontend tree.
+Open [localhost:8773](http://127.0.0.1:8773/). No frontend installation, model key, or backend execution service is needed. `dist/` is the authored portable site source.
 
-Start with **Ticket preview**: the ticket must stay with Mira. Run **Show the invitation** to see the rule hold. Choose **Use a breaking action**, then run again: the preview accepts the transfer and the owner becomes Leo. Change the draft expectation and rerun to compare against that different rule. **Recipient access** demonstrates Alex trying to accept Leo's ticket. Input edits invalidate the previous result until another run.
+The file pane provides editable version 1 JSON contract drafts, free-text change intention, proposed acceptance checks, and replay cases. Source/verifier files and a temporary generated probe are inspectable. JSON uses the same model as the CLI's YAML input; the browser offers structural preflight, not full CLI validation.
 
-The main screen contains only Rule, Action, and Result. **See the real PR example** expands the separate regression, correction, missing-evidence assessment, and source/CI links. **Inspect a public PR link** expands optional metadata lookup. These are references, not additional steps in the sandbox flow.
+Compare legacy, broken extraction, and corrected extraction. The table reads real recorded JUnit executions grouped as standing invariants, proposed behavior, and a temporary candidate probe. It does not compile edited Java or authenticate a fresh CI receipt. Draft edits cannot rewrite these results or approve policy. Editable traces run a separate bounded browser model; changed/invalid input cannot inherit an old replay result.
 
-The archived reports were produced by the actual Java verifier after trusted GitHub artifact import. Source/run/policy identities and normalized JUnit evidence are included under `dist/evidence/`. The page reads those files; it does not independently authenticate them. They are not signatures or reusable trusted receipts. The no-evidence report is an actual verifier assessment with its CI bundle withheld. Sandbox rules are structured, locally evaluated drafts; a sandbox pass is not an approved contract or newly executed JUnit evidence. Editing the draft never changes an archived PR result.
+Legacy discovery inventories test descriptions, source lines, and hashes. **Open as draft** copies a candidate into an unapproved version 1 manifest. This narrow feature does not infer arbitrary Java semantics or freeze bugs as requirements. The [product design](../../docs/behavior-preservation-and-monoliths.md) defines the wider monolith discovery and evaluation pipeline.
 
-The two public showcase PRs stay open for demonstration. The deliberately failing PR must not be merged. GitHub artifacts expire; the plan explains how to rerun and import evidence rather than silently treating a stale snapshot as current.
+The earlier public ticket PRs and trusted-imported GitHub results remain a secondary evidence reference. Optional public PR lookup fetches metadata only. Input is not persisted or sent to a model; metadata goes directly to `api.github.com` without browser credentials.
 
 Validation:
 
 ```sh
 node --test scripts/tests/pr-workbench.test.mjs
-# JDK 21 for the fixture:
-mvn --batch-mode --no-transfer-progress -f demo/ticket-transfer/pom.xml clean test
+# JDK 21; prepare the reviewed fixture's dependencies first:
+mvn --batch-mode --no-transfer-progress -f demo/refund-extraction/pom.xml test
+python3 scripts/refund-showcase.py --output .undertow/refund-validation
 ```
 
-The static page persists no input, uses no external scripts, fonts, analytics, model calls, or browser credentials, and executes no submitted repository code. Optional metadata goes to `api.github.com` only. The current service is not deployed.
+No production extraction, general rule-mining engine, anonymous code runner, public deployment, or production acceptance is claimed. The [next-step plan](../../docs/next-pilot-and-public-playground.md) retains the public-page/adoption sequence.

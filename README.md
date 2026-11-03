@@ -51,7 +51,7 @@ The showcase uses offline Maven after the harness build prepares its pinned depe
 
 ![Evidence gallery: six distinct cases with observable consequences](docs/assets/assurance-gallery.png)
 
-Try the [editable contract playground](demo/pr-workbench/README.md): set a draft rule, choose an action, and run it. A ticket preview should leave ownership unchanged; make it accept the transfer and see the rule break. The [real failing PR](https://github.com/alpercandemir/undertow-showcase/pull/1) and [passing alternative](https://github.com/alpercandemir/undertow-showcase/pull/2) remain available in an expandable evidence section. Local experiments stay separate from archived, head-bound JUnit results.
+Try the [behavior contract workspace](demo/pr-workbench/README.md): extract refunds from a monolith while adding partial refunds. Edit contract JSON, change intention, and replay cases; compare standing invariants with proposed behavior across legacy and replacement implementations. Recorded JUnit and temporary-probe results show why a passing new-feature test cannot excuse an existing refund-cap regression. The earlier [public failing PR](https://github.com/alpercandemir/undertow-showcase/pull/1) and [correction](https://github.com/alpercandemir/undertow-showcase/pull/2) remain a secondary CI reference.
 
 ```sh
 python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist

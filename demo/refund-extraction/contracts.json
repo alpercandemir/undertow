@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "repository": "example/refund-extraction",
+  "oracle_paths": ["pom.xml"],
+  "oracle_roots": ["src/test"],
+  "contracts": [
+    {
+      "id": "REFUND-CAP",
+      "version": "1",
+      "owner": "Payments / fixture owner",
+      "expectation": "Total settled refunds for a payment never exceed its captured amount.",
+      "assumptions": ["Single payment and currency; integer minor units; sequential in-memory calls. Provider effects, concurrent reservations, persistence and FX are outside this fixture."],
+      "scope": ["src/main/java/example/refunds/RefundService.java"],
+      "verifier": "junit",
+      "tests": [
+        {"id": "example.refunds.ExistingRefundContractTest.rejectsRefundAboveCapture", "sources": ["src/test/java/example/refunds/ExistingRefundContractTest.java"]},
+        {"id": "example.refunds.ExistingRefundContractTest.rejectsASecondFullRefund", "sources": ["src/test/java/example/refunds/ExistingRefundContractTest.java"]}
+      ]
+    },
+    {
+      "id": "REFUND-RETRY",
+      "version": "1",
+      "owner": "Payments / fixture owner",
+      "expectation": "A repeated refund operation has one effect; reusing its key with another amount is rejected.",
+      "assumptions": ["The in-memory operation ledger survives for the duration of a test only."],
+      "scope": ["src/main/java/example/refunds/RefundService.java"],
+      "verifier": "junit",
+      "tests": [
+        {"id": "example.refunds.ExistingRefundContractTest.retryDoesNotRefundTwice", "sources": ["src/test/java/example/refunds/ExistingRefundContractTest.java"]},
+        {"id": "example.refunds.ExistingRefundContractTest.operationKeyCannotChangeAmount", "sources": ["src/test/java/example/refunds/ExistingRefundContractTest.java"]}
+      ]
+    }
+  ]
+}

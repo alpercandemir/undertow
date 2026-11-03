@@ -1,20 +1,16 @@
-# Next: an editable contract playground, then an owner-backed pilot
+# Next: a behavior contract workspace and an owner-backed pilot
 
 Date: November 3, 2026. This follows the [consolidated roadmap](ai-era-consolidated-roadmap.md) and its [implementation/acceptance status](ai-era-implementation-status.md). Engineering across its stages is implemented; independent adoption and production acceptance remain open.
 
-The next product step is a small public playground that makes the contract/evidence loop tangible. A visitor should understand what a change must preserve, experiment with the business logic and the expectation, and see why a particular observation supports—or fails to support—that expectation. Formatting and generic code scores do not explain Undertow's purpose.
+The product direction is contract management, discovery, and verification across implementation changes. The [behavior-preservation and monolith design](behavior-preservation-and-monoliths.md) connects the user's two conceptual inputs to standing invariants, proposed behavior, candidate extraction, temporary tests, and bounded replacement.
 
 ## What exists now
 
-The [local playground](../demo/pr-workbench/README.md) is implemented with no build tool or model key. It includes:
+The [local engineering workspace](../demo/pr-workbench/README.md) contains editable version 1 contract JSON, free-text change intention, proposed checks, replay input, source/verifier inspection, and legacy test inventory. The primary example extracts refunds while adding partial refunds. Standing refund limits and retry obligations remain independent of that new behavior.
 
-- Two real public showcase PRs, approved base contracts, exact candidate SHAs, real GitHub JUnit evidence, and archived Undertow verification results.
-- A compact Rule → Action → Result loop, with ticket-preview and recipient-access scenarios.
-- Structured draft expectations and editable actions. Run to compare actual local behavior against the selected rule; changing an input invalidates the displayed result.
-- A real no-evidence assessment with an `incomplete` result.
-- Strict public GitHub PR URL input. Known examples load archived results; other URLs fetch public PR metadata on request and remain **not evaluated**. A separate metadata check detects moved showcase heads/targets.
+The same six JUnit checks run against legacy, broken, and corrected implementations. Two temporary candidate-probe executions expose cumulative partial-refund overflow. The UI reads these recorded local results and runs edited traces in a separate browser model. It does not compile submitted Java, infer general monolith semantics, authenticate fresh receipts, or approve drafts.
 
-This is a local prototype, not a deployed public service. It does not compile edited Java, execute submitted repositories, discover business intent, verify arbitrary PRs, write comments, approve policies, or authorize releases. The browser's editable business model is explicitly a simulation, separate from JUnit execution. The existing Java verifier produces the archived contract results; the page does not reimplement it.
+The original owned public ticket PRs and trusted-imported GitHub evidence remain a secondary reference below. Optional public PR lookup fetches metadata only. The site is local, not a deployed public service.
 
 ## The owned public example: NIGHT / SHIFT
 
@@ -47,15 +43,11 @@ The importer checked repository, administrator-selected workflow ID `405623956`,
 
 The archived page is a presentation of that observation. It does not perform fresh API-origin validation. Its committed JSON is not an independently signed receipt, and a visitor must not submit those files as trusted CI evidence for another subject. GitHub source origin alone does not prove a workflow is an adequate oracle; the owner-reviewed source bindings and limited assumptions matter.
 
-### A simple visitor journey
+### Workspace use
 
-1. **Rule:** after a preview, the ticket must belong to Mira.
-2. **Action:** show the invitation. Press **Run scenario**; the rule holds.
-3. Choose **Use a breaking action**, then run again. The preview now accepts the transfer; the observed owner is Leo, so the rule breaks.
+Inspect the standing contracts first, then the change intention and proposed checks. Compare legacy and candidate results separately. A successful new partial refund does not excuse a failed existing refund cap. Inspect the generated counterexample probe and its recorded outcomes; it remains a candidate verifier.
 
-The result shows expected behavior, observed behavior, and the ownership change. Editing the rule or action clears the prior result until another run. Draft rules can change the local comparison; they cannot approve a policy or rewrite historical CI evidence. There is no freeform-text-to-verifier inference.
-
-**Recipient access** supplies a second small scenario: Alex attempts to accept Leo's ticket. The real PR reports and public-link lookup are collapsed references below the playground, not more steps in its main flow. Keep explanations, provenance, and adoption guidance out of the primary input/result area.
+Edit structured contract drafts or free-text intention without rewriting historical observations. Edit replay-cases.json for bounded browser experiments. The discovery pane links existing test metadata to exact sources and can copy a candidate into an unapproved draft. General semantic extraction and production migration are later acceptance targets, described in the [monolith design](behavior-preservation-and-monoliths.md).
 
 ## Public-page intentions and rules
 
@@ -63,8 +55,8 @@ The page should let a visitor answer: “What behavior matters here? Who declare
 
 | Area | Rule for the first public version |
 |---|---|
-| Editable intent | Structured sandbox expectations are locally evaluated drafts. A passing experiment cannot approve a policy or establish that an existing test covers a new business intention. |
-| Editable business logic | Run the small browser model locally. Arbitrary submitted Java execution is a separate capability requiring a disposable, externally constrained runner. |
+| Editable intent | Versioned YAML/JSON contracts and free-text change intention remain drafts until reviewed. Passing old checks does not establish a new intention. |
+| Editable business logic | Inspect recorded fixture source and edit bounded replay data. Temporary candidate tests run through reviewed local fixtures or the separate isolated CI path; the browser executes no submitted Java. |
 | Policy authority | Read the approved target-side policy from a pinned commit. A visitor edit or PR-side weakening cannot replace it. |
 | Result vocabulary | `satisfied`, `unsatisfied`, and `incomplete` describe declared checks; “not evaluated” describes unsupported submissions. Never produce a general safety score or “safe to merge.” |
 | Evidence | Bind exact test identity, sources, policy, workflow, candidate head, run, and artifact. Missing, stale, skipped, errored, duplicated, or tampered evidence stays incomplete. |
@@ -82,7 +74,7 @@ GitHub documents a [60-request/hour unauthenticated REST limit](https://docs.git
 
 ### 1. Validate the lesson with a few engineers
 
-Observe whether people can distinguish intent, source, assertion evidence, and approval without coaching. Have them break the preview model, restore it, and propose a rule change. Record misunderstandings, time to first meaningful contract, and whether they can explain the remaining gap. This checks usefulness; it is not a statistically representative product validation.
+Observe whether people can distinguish intent, source, assertion evidence, and approval without coaching. Have them distinguish standing invariants from proposed behavior, find the refund regression, and review a source-linked discovery candidate. Record misunderstandings, time to first meaningful contract, and whether they can explain the remaining gap. This checks usefulness; it is not a statistically representative product validation.
 
 Exit when another engineer can connect one business expectation to an exact check, explain why missing evidence is incomplete, and distinguish a draft from approved policy. If people only see a generic PR reviewer, simplify the experience before adding more controls.
 

@@ -1,0 +1,6 @@
+[
+  {"id": "cumulative-cap", "captured_minor": 10000, "operations": [{"key": "refund-1", "amount_minor": 8000}, {"key": "refund-2", "amount_minor": 3000}]},
+  {"id": "existing-full-refund", "captured_minor": 10000, "operations": [{"key": "refund-1", "amount_minor": 10000}, {"key": "refund-2", "amount_minor": 10000}]},
+  {"id": "retry", "captured_minor": 10000, "operations": [{"key": "refund-1", "amount_minor": 10000}, {"key": "refund-1", "amount_minor": 10000}]},
+  {"id": "new-partial-refund", "captured_minor": 10000, "operations": [{"key": "refund-1", "amount_minor": 2500}]}
+]
