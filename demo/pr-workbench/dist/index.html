@@ -1,65 +1,37 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Undertow playground — rule, action, result</title>
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="app.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Undertow — behavior contract workspace</title><link rel="stylesheet" href="styles.css"><script type="module" src="app.js"></script>
 </head>
 <body>
-  <header><a class="wordmark" href="#">undertow<span aria-hidden="true">↳</span></a><span>PLAYGROUND <span class="sandbox-label">/ LOCAL SANDBOX</span></span></header>
-  <main>
-    <div class="intro"><h1>Does this action break the rule?</h1><p>Set a rule. Change the action. Run it.</p></div>
-    <div class="scenario-row"><div class="scenario-picker" aria-label="Scenario"><button type="button" data-scenario="preview" aria-pressed="true">Ticket preview</button><button type="button" data-scenario="recipient" aria-pressed="false">Recipient access</button></div><button type="button" id="reset" class="text-button">Reset</button></div>
-    <p id="scenario-description" class="scenario-description"></p>
-
-    <form id="experiment" class="experiment">
-      <section class="step" aria-labelledby="rule-title">
-        <h2 id="rule-title"><span>1</span> Business rule <small>DRAFT</small></h2>
-        <label id="expectation-label" for="expectation"></label>
-        <select id="expectation"></select>
-        <code id="rule-code" class="code"></code>
-      </section>
-      <section class="step" aria-labelledby="action-title">
-        <h2 id="action-title"><span>2</span> Action</h2>
-        <label id="action-label" for="action"></label>
-        <select id="action"></select>
-        <button type="button" id="break-action" class="text-button">Use a breaking action ↗</button>
-        <button type="submit" class="run-button">Run scenario <span aria-hidden="true">→</span></button>
-      </section>
-      <section id="result" class="step result" aria-labelledby="result-heading" aria-live="polite">
-        <h2 id="result-heading"><span>3</span> Result <small>SANDBOX</small></h2>
-        <div id="ready"><p class="result-title">Ready to run</p><p id="ready-hint">Run the action against your rule.</p></div>
-        <div id="outcome" hidden>
-          <p id="result-label" class="result-label"></p>
-          <div class="ownership"><span id="owner-before">Mira</span><span aria-hidden="true">→</span><strong id="owner-after"></strong></div>
-          <p class="ownership-label">Ticket owner · before → after</p>
-          <dl><div><dt>Expected</dt><dd id="expected"></dd></div><div><dt>Observed</dt><dd id="observed"></dd></div></dl>
-          <p id="result-message"></p>
-        </div>
-      </section>
-    </form>
-    <p class="sandbox-note">Runs a local model. Draft edits do not change the approved PR checks.</p>
-
-    <div class="secondary">
-      <details id="real-evidence">
-        <summary>See the real PR example <span aria-hidden="true">↗</span></summary>
-        <div class="evidence-body">
-          <div class="case-picker" aria-label="Archived PR case"><button type="button" data-case="broken" aria-pressed="true">Broken PR</button><button type="button" data-case="fixed" aria-pressed="false">Fixed PR</button><button type="button" data-case="missing" aria-pressed="false">No evidence</button></div>
-          <p id="evidence-summary" role="status">Loading archived results…</p>
-          <div id="contract-results"></div>
-          <div class="evidence-links"><a id="pr-link" target="_blank" rel="noreferrer">Public PR ↗</a><a id="report-link">Verification JSON ↗</a></div>
-          <details class="provenance"><summary>Source and CI details</summary><dl><div><dt>Policy</dt><dd><a id="policy-link" target="_blank" rel="noreferrer"></a></dd></div><div><dt>Candidate</dt><dd><code id="head-sha"></code></dd></div><div><dt>Execution</dt><dd id="execution"></dd></div></dl><a id="bundle-link">Imported JUnit ↗</a><p id="snapshot-note"></p></details>
-          <p class="fine-print">Archived Java/JUnit results use the approved rule, independently of the sandbox above.</p>
-        </div>
-      </details>
-      <details id="public-pr"><summary>Inspect a public PR link <span aria-hidden="true">↗</span></summary><form id="pr-form"><label for="pr-url">Public GitHub PR</label><div class="url-row"><input id="pr-url" type="url" placeholder="https://github.com/owner/repo/pull/123" required autocomplete="off"><button type="submit">Inspect</button></div><p class="fine-print">Showcase links load archived results. Other links fetch metadata only.</p><div id="pr-status" role="status" aria-live="polite"></div></form></details>
-    </div>
-    <footer><a href="https://github.com/alpercandemir/undertow" target="_blank" rel="noreferrer">GitHub ↗</a><span>No model calls. No repository builds.</span></footer>
-  </main>
-</body>
-</html>
+<header><a class="brand" href="#">undertow<span>↳</span></a><span class="product">BEHAVIOR CONTRACT WORKSPACE</span><span class="environment">LOCAL FIXTURE</span></header>
+<main>
+  <div class="workspace-title"><div><p class="breadcrumb">example/refund-extraction / payments</p><h1>Extract refunds. Preserve the contracts.</h1><p class="subtitle">Standing invariants, proposed behavior, and evidence across implementations.</p></div><div class="subject"><label for="subject">Candidate implementation</label><select id="subject"><option value="broken">extracted / broken budget check</option><option value="fixed">extracted / corrected</option><option value="legacy">legacy / full refunds only</option></select><button id="compare" disabled>Compare behavior <span>→</span></button></div></div>
+  <div class="workspace">
+    <nav aria-label="Workspace files">
+      <div class="nav-group">CONTRACTS &amp; INTENT</div>
+      <button data-file="contracts" aria-pressed="true"><span>contracts.json</span><small>standing</small></button>
+      <button data-file="intent"><span>change-intent.md</span><small>draft</small></button>
+      <button data-file="proposed"><span>change-contracts.json</span><small>proposed</small></button>
+      <div class="nav-group">IMPLEMENTATION &amp; EVAL</div>
+      <button data-file="source"><span>RefundService.java</span></button>
+      <button data-file="cases"><span>replay-cases.json</span><small>editable</small></button>
+      <button data-file="existingTests"><span>ExistingRefundContractTest.java</span></button>
+      <button data-file="newTests"><span>PartialRefundContractTest.java</span></button>
+      <button data-file="probe"><span>GeneratedRefundProbeTest.java</span><small>temporary</small></button>
+      <div class="nav-group">DISCOVERY</div>
+      <button data-file="discovery"><span>Legacy test inventory</span><small>candidates</small></button>
+      <button id="discovery-draft-button" data-file="discoveryDraft" hidden><span>discovery-proposal.json</span><small>unapproved</small></button>
+      <p class="nav-note">Rules belong to the system.<br>Implementations are comparison subjects.</p>
+    </nav>
+    <section class="editor-pane" aria-label="Contract and source editor"><div class="editor-bar"><span id="file-name">Loading fixture…</span><span id="file-status"></span><button id="download" class="text-button">Export file</button><button id="restore" class="text-button">Restore file</button></div><div id="file-purpose" class="file-purpose"></div><label class="sr-only" for="editor">Workspace file content</label><textarea id="editor" spellcheck="false" wrap="off"></textarea><div id="discovery" hidden></div><div id="editor-feedback" role="status"></div></section>
+  </div>
+  <div id="draft-status" class="draft-status" role="status"></div>
+  <section class="results" aria-labelledby="results-title"><div class="section-heading"><h2 id="results-title">Behavior comparison</h2><span id="record-origin">Recorded local JUnit · not a fresh CI assessment</span></div><div id="comparison-summary" role="status">Loading the recorded executions…</div><div class="table-wrap"><table><thead><tr><th>Contract / exact check</th><th>Legacy</th><th>Candidate</th></tr></thead><tbody id="check-rows"></tbody></table></div><details><summary>Source identity and execution scope</summary><pre id="provenance"></pre></details></section>
+  <section class="replay" aria-labelledby="replay-title"><div class="section-heading"><h2 id="replay-title">Editable trace replay</h2><span>Browser model · integer minor units · sequential calls</span></div><div id="replay-status" role="status">Edit replay-cases.json and compare.</div><div class="table-wrap"><table><thead><tr><th>Case</th><th>Captured</th><th>Legacy refunded</th><th>Candidate refunded</th><th>Candidate cap</th></tr></thead><tbody id="replay-rows"></tbody></table></div><details><summary>Operation traces</summary><pre id="trace-output"></pre></details></section>
+  <details id="ticket-reference" class="reference"><summary>Public CI reference: ticket-transfer contracts</summary><div class="reference-body"><p>The earlier public example retains independently imported, head-bound GitHub evidence.</p><div id="ticket-results"></div><label for="pr-url">Inspect a public GitHub PR</label><form id="pr-form"><input id="pr-url" type="url" placeholder="https://github.com/owner/repo/pull/123" required><button type="submit">Inspect metadata</button></form><p id="pr-status" role="status"></p><small>Metadata lookup does not verify arbitrary PRs.</small></div></details>
+  <footer><span>Contract discovery → owner review → independent evaluation → operational feedback</span><a href="https://github.com/alpercandemir/undertow" target="_blank" rel="noreferrer">Repository ↗</a></footer>
+</main>
+</body></html>

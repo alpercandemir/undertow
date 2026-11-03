@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "kind": "recorded-local-junit",
+  "trusted_ci_import": false,
+  "captured_at": "2026-11-03T14:10:08.872669+00:00",
+  "assumptions": "Sequential in-memory domain fixture. No HTTP service, provider, concurrent reservations, persistence, FX, or deployment.",
+  "contracts": "{\n  \"schema_version\": 1,\n  \"repository\": \"example/refund-extraction\",\n  \"oracle_paths\": [\"pom.xml\"],\n  \"oracle_roots\": [\"src/test\"],\n  \"contracts\": [\n    {\n      \"id\": \"REFUND-CAP\",\n      \"version\": \"1\",\n      \"owner\": \"Payments / fixture owner\",\n      \"expectation\": \"Total settled refunds for a payment never exceed its captured amount.\",\n      \"assumptions\": [\"Single payment and currency; integer minor units; sequential in-memory calls. Provider effects, concurrent reservations, persistence and FX are outside this fixture.\"],\n      \"scope\": [\"src/main/java/example/refunds/RefundService.java\"],\n      \"verifier\": \"junit\",\n      \"tests\": [\n        {\"id\": \"example.refunds.ExistingRefundContractTest.rejectsRefundAboveCapture\", \"sources\": [\"src/test/java/example/refunds/ExistingRefundContractTest.java\"]},\n        {\"id\": \"example.refunds.ExistingRefundContractTest.rejectsASecondFullRefund\", \"sources\": [\"src/test/java/example/refunds/ExistingRefundContractTest.java\"]}\n      ]\n    },\n    {\n      \"id\": \"REFUND-RETRY\",\n      \"version\": \"1\",\n      \"owner\": \"Payments / fixture owner\",\n      \"expectation\": \"A repeated refund operation has one effect; reusing its key with another amount is rejected.\",\n      \"assumptions\": [\"The in-memory operation ledger survives for the duration of a test only.\"],\n      \"scope\": [\"src/main/java/example/refunds/RefundService.java\"],\n      \"verifier\": \"junit\",\n      \"tests\": [\n        {\"id\": \"example.refunds.ExistingRefundContractTest.retryDoesNotRefundTwice\", \"sources\": [\"src/test/java/example/refunds/ExistingRefundContractTest.java\"]},\n        {\"id\": \"example.refunds.ExistingRefundContractTest.operationKeyCannotChangeAmount\", \"sources\": [\"src/test/java/example/refunds/ExistingRefundContractTest.java\"]}\n      ]\n    }\n  ]\n}\n",
+  "proposed": "{\n  \"schema_version\": 1,\n  \"repository\": \"example/refund-extraction\",\n  \"oracle_paths\": [\"pom.xml\"],\n  \"oracle_roots\": [\"src/test\"],\n  \"contracts\": [{\n    \"id\": \"PARTIAL-REFUND\",\n    \"version\": \"1\",\n    \"owner\": \"Payments / proposed for review\",\n    \"expectation\": \"Accept partial refunds within the remaining captured balance while preserving the cumulative cap.\",\n    \"assumptions\": [\"Proposed behavior, not an approved addition to the standing policy. Single-currency sequential fixture only.\"],\n    \"scope\": [\"src/main/java/example/refunds/RefundService.java\"],\n    \"verifier\": \"junit\",\n    \"tests\": [\n      {\"id\": \"example.refunds.PartialRefundContractTest.acceptsPartialRefund\", \"sources\": [\"src/test/java/example/refunds/PartialRefundContractTest.java\"]},\n      {\"id\": \"example.refunds.PartialRefundContractTest.partialRefundsShareOneBudget\", \"sources\": [\"src/test/java/example/refunds/PartialRefundContractTest.java\"]}\n    ]\n  }]\n}\n",
+  "intent": "# Extract refunds from the payment monolith\n\nMove refund processing behind a service boundary and add partial refunds.\n\nPreserve the existing cumulative refund cap and operation-key semantics.\nA new partial-refund path must use the same remaining balance as full refunds.\n\nProposed acceptance checks:\n- Accept 2500 against a 10000 capture.\n- After refunding 8000, reject another 3000.\n\nThis fixture models the domain transition only. It does not implement HTTP,\ndistributed transactions, a real provider, or a production service extraction.\n",
+  "cases": "[\n  {\"id\": \"cumulative-cap\", \"captured_minor\": 10000, \"operations\": [{\"key\": \"refund-1\", \"amount_minor\": 8000}, {\"key\": \"refund-2\", \"amount_minor\": 3000}]},\n  {\"id\": \"existing-full-refund\", \"captured_minor\": 10000, \"operations\": [{\"key\": \"refund-1\", \"amount_minor\": 10000}, {\"key\": \"refund-2\", \"amount_minor\": 10000}]},\n  {\"id\": \"retry\", \"captured_minor\": 10000, \"operations\": [{\"key\": \"refund-1\", \"amount_minor\": 10000}, {\"key\": \"refund-1\", \"amount_minor\": 10000}]},\n  {\"id\": \"new-partial-refund\", \"captured_minor\": 10000, \"operations\": [{\"key\": \"refund-1\", \"amount_minor\": 2500}]}\n]\n",
+  "test_sources": {
+    "src/test/java/example/refunds/ExistingRefundContractTest.java": "package example.refunds;\n\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\nclass ExistingRefundContractTest {\n    @Test\n    @DisplayName(\"A refund larger than the captured payment is rejected.\")\n    void rejectsRefundAboveCapture() {\n        var service = new RefundService(10000);\n        assertThrows(IllegalArgumentException.class, () -> service.refund(\"r-1\", 10001));\n        assertEquals(0, service.refunded());\n    }\n\n    @Test\n    @DisplayName(\"Total settled refunds must not exceed the captured payment.\")\n    void rejectsASecondFullRefund() {\n        var service = new RefundService(10000);\n        service.refund(\"r-1\", 10000);\n        assertThrows(IllegalArgumentException.class, () -> service.refund(\"r-2\", 10000));\n        assertEquals(10000, service.refunded());\n    }\n\n    @Test\n    @DisplayName(\"Retrying the same refund operation produces one settled effect.\")\n    void retryDoesNotRefundTwice() {\n        var service = new RefundService(10000);\n        service.refund(\"r-1\", 10000);\n        service.refund(\"r-1\", 10000);\n        assertEquals(10000, service.refunded());\n        assertEquals(1, service.effects());\n    }\n\n    @Test\n    @DisplayName(\"A refund operation key cannot be reused with another amount.\")\n    void operationKeyCannotChangeAmount() {\n        var service = new RefundService(10000);\n        service.refund(\"r-1\", 10000);\n        assertThrows(IllegalArgumentException.class, () -> service.refund(\"r-1\", 2500));\n        assertEquals(10000, service.refunded());\n    }\n}\n",
+    "src/test/java/example/refunds/PartialRefundContractTest.java": "package example.refunds;\n\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\n/** Proposed behavior for the extraction, separate from established contracts. */\nclass PartialRefundContractTest {\n    @Test\n    @DisplayName(\"A positive partial refund within the remaining budget is accepted.\")\n    void acceptsPartialRefund() {\n        var service = new RefundService(10000);\n        assertDoesNotThrow(() -> service.refund(\"r-1\", 2500));\n        assertEquals(2500, service.refunded());\n    }\n\n    @Test\n    @DisplayName(\"Partial refunds share the payment's remaining refund budget.\")\n    void partialRefundsShareOneBudget() {\n        var service = new RefundService(10000);\n        assertDoesNotThrow(() -> service.refund(\"r-1\", 8000));\n        assertThrows(IllegalArgumentException.class, () -> service.refund(\"r-2\", 3000));\n        assertEquals(8000, service.refunded());\n    }\n}\n"
+  },
+  "oracle_sha256": "84bb888e8571ff46ccfa740f6f3a4b5defeba88e03048ca104f66024fc6b525d",
+  "discovery": [
+    {
+      "expectation": "A refund larger than the captured payment is rejected.",
+      "test_id": "example.refunds.ExistingRefundContractTest.rejectsRefundAboveCapture",
+      "source": "src/test/java/example/refunds/ExistingRefundContractTest.java",
+      "line": 9,
+      "source_sha256": "d809874c7235ac0fce9070ddd0469b426b95097282da9121677093ff565b5a63",
+      "authority": "candidate",
+      "origin": "existing_test_display_name",
+      "limitation": "Metadata observation; owner review and adversarial coverage required."
+    },
+    {
+      "expectation": "Total settled refunds must not exceed the captured payment.",
+      "test_id": "example.refunds.ExistingRefundContractTest.rejectsASecondFullRefund",
+      "source": "src/test/java/example/refunds/ExistingRefundContractTest.java",
+      "line": 17,
+      "source_sha256": "d809874c7235ac0fce9070ddd0469b426b95097282da9121677093ff565b5a63",
+      "authority": "candidate",
+      "origin": "existing_test_display_name",
+      "limitation": "Metadata observation; owner review and adversarial coverage required."
+    },
+    {
+      "expectation": "Retrying the same refund operation produces one settled effect.",
+      "test_id": "example.refunds.ExistingRefundContractTest.retryDoesNotRefundTwice",
+      "source": "src/test/java/example/refunds/ExistingRefundContractTest.java",
+      "line": 26,
+      "source_sha256": "d809874c7235ac0fce9070ddd0469b426b95097282da9121677093ff565b5a63",
+      "authority": "candidate",
+      "origin": "existing_test_display_name",
+      "limitation": "Metadata observation; owner review and adversarial coverage required."
+    },
+    {
+      "expectation": "A refund operation key cannot be reused with another amount.",
+      "test_id": "example.refunds.ExistingRefundContractTest.operationKeyCannotChangeAmount",
+      "source": "src/test/java/example/refunds/ExistingRefundContractTest.java",
+      "line": 36,
+      "source_sha256": "d809874c7235ac0fce9070ddd0469b426b95097282da9121677093ff565b5a63",
+      "authority": "candidate",
+      "origin": "existing_test_display_name",
+      "limitation": "Metadata observation; owner review and adversarial coverage required."
+    }
+  ],
+  "variants": {
+    "legacy": {
+      "source": "package example.refunds;\n\nimport java.util.HashMap;\nimport java.util.Map;\n\n/** One payment, one currency, sequential calls. No real payment provider. */\npublic final class RefundService {\n    private final long captured;\n    private final Map<String, Long> settled = new HashMap<>();\n    private long refunded;\n\n    public RefundService(long captured) {\n        if (captured <= 0) throw new IllegalArgumentException(\"Positive capture required\");\n        this.captured = captured;\n    }\n\n    public void refund(String operationKey, long amount) {\n        if (operationKey == null || operationKey.isBlank()) throw new IllegalArgumentException(\"Key required\");\n        if (settled.containsKey(operationKey)) {\n            if (settled.get(operationKey) != amount) throw new IllegalArgumentException(\"Key reused with another amount\");\n            return;\n        }\n        if (amount != captured) throw new IllegalArgumentException(\"Full refunds only\");\n        if (amount <= 0 || amount > captured - refunded) throw new IllegalArgumentException(\"Refund exceeds available capture\");\n        settled.put(operationKey, amount);\n        refunded += amount;\n    }\n\n    public long refunded() { return refunded; }\n    public int effects() { return settled.size(); }\n}\n",
+      "source_sha256": "3f030b6aa44d85a7defad00a01484b306136937e0b14433e2392bf4b14a5cb47",
+      "tests": [
+        {
+          "name": "example.refunds.ExistingRefundContractTest.operationKeyCannotChangeAmount",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.rejectsASecondFullRefund",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.rejectsRefundAboveCapture",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.retryDoesNotRefundTwice",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.PartialRefundContractTest.acceptsPartialRefund",
+          "status": "failed"
+        },
+        {
+          "name": "example.refunds.PartialRefundContractTest.partialRefundsShareOneBudget",
+          "status": "failed"
+        }
+      ]
+    },
+    "broken": {
+      "source": "package example.refunds;\n\nimport java.util.HashMap;\nimport java.util.Map;\n\n/** One payment, one currency, sequential calls. No real payment provider. */\npublic final class RefundService {\n    private final long captured;\n    private final Map<String, Long> settled = new HashMap<>();\n    private long refunded;\n\n    public RefundService(long captured) {\n        if (captured <= 0) throw new IllegalArgumentException(\"Positive capture required\");\n        this.captured = captured;\n    }\n\n    public void refund(String operationKey, long amount) {\n        if (operationKey == null || operationKey.isBlank()) throw new IllegalArgumentException(\"Key required\");\n        if (settled.containsKey(operationKey)) {\n            if (settled.get(operationKey) != amount) throw new IllegalArgumentException(\"Key reused with another amount\");\n            return;\n        }\n        if (amount <= 0 || amount > captured) throw new IllegalArgumentException(\"Refund exceeds available capture\");\n        settled.put(operationKey, amount);\n        refunded += amount;\n    }\n\n    public long refunded() { return refunded; }\n    public int effects() { return settled.size(); }\n}\n",
+      "source_sha256": "60ce7bacad470679b7a693d29bf9686e1e513203805a6efab9948c216ef0f507",
+      "tests": [
+        {
+          "name": "example.refunds.ExistingRefundContractTest.operationKeyCannotChangeAmount",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.rejectsASecondFullRefund",
+          "status": "failed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.rejectsRefundAboveCapture",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.retryDoesNotRefundTwice",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.PartialRefundContractTest.acceptsPartialRefund",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.PartialRefundContractTest.partialRefundsShareOneBudget",
+          "status": "failed"
+        }
+      ]
+    },
+    "fixed": {
+      "source": "package example.refunds;\n\nimport java.util.HashMap;\nimport java.util.Map;\n\n/** One payment, one currency, sequential calls. No real payment provider. */\npublic final class RefundService {\n    private final long captured;\n    private final Map<String, Long> settled = new HashMap<>();\n    private long refunded;\n\n    public RefundService(long captured) {\n        if (captured <= 0) throw new IllegalArgumentException(\"Positive capture required\");\n        this.captured = captured;\n    }\n\n    public void refund(String operationKey, long amount) {\n        if (operationKey == null || operationKey.isBlank()) throw new IllegalArgumentException(\"Key required\");\n        if (settled.containsKey(operationKey)) {\n            if (settled.get(operationKey) != amount) throw new IllegalArgumentException(\"Key reused with another amount\");\n            return;\n        }\n        if (amount <= 0 || amount > captured - refunded) throw new IllegalArgumentException(\"Refund exceeds available capture\");\n        settled.put(operationKey, amount);\n        refunded += amount;\n    }\n\n    public long refunded() { return refunded; }\n    public int effects() { return settled.size(); }\n}\n",
+      "source_sha256": "82256e37737b93f3af4b4faaf4fa46fee6bcac7564131c9a749fb6b905e1d4b7",
+      "tests": [
+        {
+          "name": "example.refunds.ExistingRefundContractTest.operationKeyCannotChangeAmount",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.rejectsASecondFullRefund",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.rejectsRefundAboveCapture",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.ExistingRefundContractTest.retryDoesNotRefundTwice",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.PartialRefundContractTest.acceptsPartialRefund",
+          "status": "passed"
+        },
+        {
+          "name": "example.refunds.PartialRefundContractTest.partialRefundsShareOneBudget",
+          "status": "passed"
+        }
+      ]
+    }
+  },
+  "probe": {
+    "source": "package example.refunds;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.Test;\n// Temporary candidate oracle generated by the reviewed fixture template.\nclass GeneratedRefundProbeTest {\n    @Test void cumulativePartialRefundCounterexample() {\n        var service = new RefundService(10000);\n        assertDoesNotThrow(() -> service.refund(\"probe-1\", 8000));\n        assertThrows(IllegalArgumentException.class, () -> service.refund(\"probe-2\", 3000));\n        assertEquals(8000, service.refunded());\n    }\n}\n",
+    "sha256": "c75cdb957607ad5d58c875d9d1e29641dbf1049afc5525a2b79f4efc1cc29d62",
+    "runs": {
+      "broken": {
+        "name": "example.refunds.GeneratedRefundProbeTest.cumulativePartialRefundCounterexample",
+        "status": "failed"
+      },
+      "fixed": {
+        "name": "example.refunds.GeneratedRefundProbeTest.cumulativePartialRefundCounterexample",
+        "status": "passed"
+      }
+    },
+    "authority": "candidate",
+    "generator": "reviewed_fixture_template"
+  }
+}

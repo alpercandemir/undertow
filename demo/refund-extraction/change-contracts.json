@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "example/refund-extraction",
+  "oracle_paths": ["pom.xml"],
+  "oracle_roots": ["src/test"],
+  "contracts": [{
+    "id": "PARTIAL-REFUND",
+    "version": "1",
+    "owner": "Payments / proposed for review",
+    "expectation": "Accept partial refunds within the remaining captured balance while preserving the cumulative cap.",
+    "assumptions": ["Proposed behavior, not an approved addition to the standing policy. Single-currency sequential fixture only."],
+    "scope": ["src/main/java/example/refunds/RefundService.java"],
+    "verifier": "junit",
+    "tests": [
+      {"id": "example.refunds.PartialRefundContractTest.acceptsPartialRefund", "sources": ["src/test/java/example/refunds/PartialRefundContractTest.java"]},
+      {"id": "example.refunds.PartialRefundContractTest.partialRefundsShareOneBudget", "sources": ["src/test/java/example/refunds/PartialRefundContractTest.java"]}
+    ]
+  }]
+}
