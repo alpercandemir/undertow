@@ -81,6 +81,12 @@ function showStatus(message, url) {
   if (url) {const anchor = document.createElement('a'); anchor.href = url; anchor.target = '_blank'; anchor.rel = 'noreferrer'; anchor.textContent = 'Open public PR ↗'; $('pr-status').append(anchor);}
 }
 
+$('pr-url').addEventListener('input', () => {
+  metadataRequest?.abort();
+  metadataRequest = undefined;
+  $('pr-status').replaceChildren();
+});
+
 $('pr-form').addEventListener('submit', async event => {
   event.preventDefault();
   metadataRequest?.abort();
