@@ -49,4 +49,4 @@ A real organization should review the contracts, run shadow verification on auth
 
 ## Next product increment
 
-The [public playground and pilot plan](next-pilot-and-public-playground.md) defines the next adoption sequence. Its [local prototype](../demo/pr-workbench/README.md) includes an editable ticket-transfer model, rule proposals, and two owned public PRs with real GitHub-imported JUnit results. It distinguishes archived verification, local simulation, and public metadata. This adds a concrete demonstration; independent adoption and operational acceptance above remain open.
+The [public playground and pilot plan](next-pilot-and-public-playground.md) defines the next adoption sequence. Its [local prototype](../demo/pr-workbench/README.md) presents a three-part loop: draft business rule, action, and observed result. Two owned public PRs with real GitHub-imported JUnit results sit in a separate expandable reference. It distinguishes archived verification, local simulation, and public metadata. This adds a concrete demonstration; independent adoption and operational acceptance above remain open.

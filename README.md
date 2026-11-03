@@ -51,7 +51,7 @@ The showcase uses offline Maven after the harness build prepares its pinned depe
 
 ![Evidence gallery: six distinct cases with observable consequences](docs/assets/assurance-gallery.png)
 
-Try the [editable contract playground](demo/pr-workbench/README.md): a chat preview accidentally accepts a ticket transfer. Compare [the real failing PR](https://github.com/alpercandemir/undertow-showcase/pull/1) with [its passing alternative](https://github.com/alpercandemir/undertow-showcase/pull/2), change the local business flow, and propose a different intent or check. The UI keeps simulated edits separate from archived, head-bound JUnit results.
+Try the [editable contract playground](demo/pr-workbench/README.md): set a draft rule, choose an action, and run it. A ticket preview should leave ownership unchanged; make it accept the transfer and see the rule break. The [real failing PR](https://github.com/alpercandemir/undertow-showcase/pull/1) and [passing alternative](https://github.com/alpercandemir/undertow-showcase/pull/2) remain available in an expandable evidence section. Local experiments stay separate from archived, head-bound JUnit results.
 
 ```sh
 python3 -m http.server 8773 --bind 127.0.0.1 --directory demo/pr-workbench/dist

@@ -9,8 +9,8 @@ The next product step is a small public playground that makes the contract/evide
 The [local playground](../demo/pr-workbench/README.md) is implemented with no build tool or model key. It includes:
 
 - Two real public showcase PRs, approved base contracts, exact candidate SHAs, real GitHub JUnit evidence, and archived Undertow verification results.
-- An editable local business-flow model: what preview does, who can accept, and which actor opens the invitation.
-- Editable intent and required-check selection. Changes become proposals; they do not rewrite the historical result or acquire owner approval.
+- A compact Rule → Action → Result loop, with ticket-preview and recipient-access scenarios.
+- Structured draft expectations and editable actions. Run to compare actual local behavior against the selected rule; changing an input invalidates the displayed result.
 - A real no-evidence assessment with an `incomplete` result.
 - Strict public GitHub PR URL input. Known examples load archived results; other URLs fetch public PR metadata on request and remain **not evaluated**. A separate metadata check detects moved showcase heads/targets.
 
@@ -47,15 +47,15 @@ The importer checked repository, administrator-selected workflow ID `405623956`,
 
 The archived page is a presentation of that observation. It does not perform fresh API-origin validation. Its committed JSON is not an independently signed receipt, and a visitor must not submit those files as trusted CI evidence for another subject. GitHub source origin alone does not prove a workflow is an adequate oracle; the owner-reviewed source bindings and limited assumptions matter.
 
-### A useful 90-second visitor journey
+### A simple visitor journey
 
-1. Open **The regression**. Follow the ticket from Mira to Leo during a preview; inspect the failed ownership assertion and the passing recipient assertion.
-2. Open **The correction**. The intent and tests stay the same; the implementation preserves the invitation and the assertions pass.
-3. Select **Without evidence**. The verdict becomes incomplete, even though the candidate source is known.
-4. Change the local preview flow to **Accept for the recipient, then render**. Run as a chat preview. Observe the simulated ownership change.
-5. Permit **Any signed-in account with the link** and try Alex. Observe the local authorization failure. This does not create a new JUnit execution.
-6. Edit the contract to allow acceptance during preview, or select the unbound title check. The page marks a proposal that requires owner review or new evidence. It never relabels the archived failure as a pass.
-7. Paste a public PR link. Learn whether there is an actual approved policy and evidence set available; metadata alone receives no contract verdict.
+1. **Rule:** after a preview, the ticket must belong to Mira.
+2. **Action:** show the invitation. Press **Run scenario**; the rule holds.
+3. Choose **Use a breaking action**, then run again. The preview now accepts the transfer; the observed owner is Leo, so the rule breaks.
+
+The result shows expected behavior, observed behavior, and the ownership change. Editing the rule or action clears the prior result until another run. Draft rules can change the local comparison; they cannot approve a policy or rewrite historical CI evidence. There is no freeform-text-to-verifier inference.
+
+**Recipient access** supplies a second small scenario: Alex attempts to accept Leo's ticket. The real PR reports and public-link lookup are collapsed references below the playground, not more steps in its main flow. Keep explanations, provenance, and adoption guidance out of the primary input/result area.
 
 ## Public-page intentions and rules
 
@@ -63,7 +63,7 @@ The page should let a visitor answer: “What behavior matters here? Who declare
 
 | Area | Rule for the first public version |
 |---|---|
-| Editable intent | Freeform text is a draft. An existing passing test is not automatically a semantic oracle for a new sentence. |
+| Editable intent | Structured sandbox expectations are locally evaluated drafts. A passing experiment cannot approve a policy or establish that an existing test covers a new business intention. |
 | Editable business logic | Run the small browser model locally. Arbitrary submitted Java execution is a separate capability requiring a disposable, externally constrained runner. |
 | Policy authority | Read the approved target-side policy from a pinned commit. A visitor edit or PR-side weakening cannot replace it. |
 | Result vocabulary | `satisfied`, `unsatisfied`, and `incomplete` describe declared checks; “not evaluated” describes unsupported submissions. Never produce a general safety score or “safe to merge.” |

@@ -9,12 +9,41 @@ export function parsePrUrl(value) {
   return {owner, repo, number, repository: `${owner}/${repo}`, url: `https://github.com/${owner}/${repo}/pull/${number}`, api: `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`};
 }
 
-export function proposalEffect(expectation, binding) {
-  if (!expectation.trim()) throw new Error('Describe the intended behavior.');
-  if (expectation === APPROVED_EXPECTATION && binding === 'preview') return {changed:false, status:'unchanged', message:'This matches the approved rule. The archived CI result above still applies only to its pinned candidate.'};
-  return {changed:true, status:'incomplete', message: binding === 'preview'
-    ? 'PROPOSAL · Owner review required. Keeping the same test does not establish that it checks your new intent. Approve a policy binding and obtain matching evidence before verification.'
-    : 'PROPOSAL · Evidence missing. No approved execution is bound to the preview-title check. The existing ownership test cannot answer this requirement.'};
+export const SCENARIOS = {
+  preview: {
+    description:'Mira sends Leo a ticket. A chat app previews the link.',
+    ruleLabel:'After a preview, the ticket must belong to',
+    expectations:[['mira','Mira (sender)'],['leo','Leo (recipient)']],
+    actionLabel:'When the chat app opens the link',
+    actions:[['read','Show the invitation'],['accept','Accept the transfer, then show it']],
+    defaultExpectation:'mira', defaultAction:'read'
+  },
+  recipient: {
+    description:'The ticket is for Leo. Alex tries to accept it.',
+    ruleLabel:'An account other than Leo must be',
+    expectations:[['blocked','Blocked'],['allowed','Allowed to accept']],
+    actionLabel:'When someone accepts the ticket',
+    actions:[['recipient','Check they are Leo'],['anyone','Allow any signed-in account']],
+    defaultExpectation:'blocked', defaultAction:'recipient'
+  }
+};
+
+export function runDraft({scenario, expectation, action}) {
+  const spec = Object.hasOwn(SCENARIOS,scenario) && SCENARIOS[scenario];
+  if (!spec || !spec.expectations.some(([value]) => value === expectation) || !spec.actions.some(([value]) => value === action)) throw new Error('Unsupported draft rule or action.');
+  const state = simulateFlow(scenario === 'preview'
+    ? {preview:action, acceptance:'recipient', visitor:'preview'}
+    : {preview:'read', acceptance:action, visitor:'alex'});
+  const actual = scenario === 'preview' ? state.owner : state.denied ? 'blocked' : 'allowed';
+  const label = value => scenario === 'preview' ? `Owner: ${value === 'mira' ? 'Mira' : 'Leo'}` : value === 'blocked' ? 'Alex is blocked' : 'Alex can accept';
+  return {
+    passed:actual === expectation,
+    expected:label(expectation), observed:label(actual),
+    before:'Mira', after:state.owner[0].toUpperCase()+state.owner.slice(1),
+    message:scenario === 'preview'
+      ? state.accepted ? 'The preview transferred the ticket.' : 'The preview left ownership unchanged.'
+      : state.denied ? 'Alex was denied. Mira keeps the ticket.' : 'Alex accepted a ticket intended for Leo.'
+  };
 }
 
 export function validateMetadata(data, requested) {
@@ -39,5 +68,5 @@ export function simulateFlow({preview, acceptance, visitor}) {
   };
   if (visitor === 'preview' && preview === 'accept') accept('leo');
   else if (visitor !== 'preview') accept(visitor);
-  return {owner, accepted, denied, previewPreserved: preview === 'read', recipientBound: acceptance === 'recipient'};
+  return {owner, accepted, denied};
 }
