@@ -1,0 +1,7 @@
+{
+  "repository" : "alpercandemir/undertow-showcase",
+  "policy_commit" : "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+  "manifest_path" : ".undertow/contracts.yaml",
+  "manifest_sha256" : "26e3cf8de7599a391b05caf21bc4e8b01d3518ad7de580f67507d885b8c64be5",
+  "oracle_sha256" : "a0971f7b54044a5a5ad7f880a2c6dbe33c465c8ed39d8af86fda2b10ed6bb6f6"
+}

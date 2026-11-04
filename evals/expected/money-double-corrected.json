@@ -1,0 +1,13 @@
+{
+  "id": "money-double-corrected",
+  "split": "tuning",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-MONEY-001",
+  "severity": "HIGH",
+  "category": "DATA_INTEGRITY",
+  "trigger": "Price is constructed from a binary floating-point literal.",
+  "consequence": "The persisted or compared monetary value contains an unintended binary conversion tail.",
+  "regression": "Construct 0.1 and assert exact decimal 0.10 after explicit rounding.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

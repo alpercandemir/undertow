@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "base_sha": "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+  "artifacts": [
+    {
+      "snapshot": "head",
+      "kind": "tests",
+      "content": [
+        {
+          "name": "example.tickets.TransferContractTest.anotherAccountCannotAcceptTransfer",
+          "status": "passed"
+        },
+        {
+          "name": "example.tickets.TransferContractTest.linkPreviewDoesNotAcceptTransfer",
+          "status": "passed"
+        }
+      ],
+      "sha256": "dd8035b9a6a13cc84e85d124f7f3f7d03e65b1027c96de10f1749fe4547103eb"
+    }
+  ],
+  "origin": {
+    "archive_digest": "sha256:2e938f4bfce5953cae5d0937d9692fb3b05f9ab901e3f1390753931f8cf9367d",
+    "workflow_url": "https://github.com/alpercandemir/undertow-showcase/actions/runs/41628213752"
+  },
+  "repository": "alpercandemir/undertow-showcase",
+  "run_id": "41628213752",
+  "workflow_id": "405623956",
+  "artifact_id": "13226194136",
+  "head_sha": "59903f7b13a4ef5fe6164d38d34e6c302e7ec72c",
+  "contract_binding": {
+    "repository": "alpercandemir/undertow-showcase",
+    "policy_commit": "b73b50a67ea9efcdf83658cd897ca83c34a4819a",
+    "manifest_path": ".undertow/contracts.yaml",
+    "manifest_sha256": "26e3cf8de7599a391b05caf21bc4e8b01d3518ad7de580f67507d885b8c64be5",
+    "oracle_sha256": "a0971f7b54044a5a5ad7f880a2c6dbe33c465c8ed39d8af86fda2b10ed6bb6f6"
+  },
+  "run_conclusion": "success"
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="referrer" content="no-referrer">
+<meta name="description" content="Replace an implementation without losing its business contracts. Edit a refund trace, compare legacy and replacement behavior, and inspect recorded JUnit evidence.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Undertow demo — keep the contract</title><link rel="stylesheet" href="demo.css"><script type="module" src="demo.js"></script>
+</head>
+<body>
+<header><a class="brand" href="index.html">undertow<span>↳</span></a><span class="header-label">INTERACTIVE DEMO</span><a href="workspace.html">Open workspace ↗</a><a href="https://github.com/alpercandemir/undertow" target="_blank" rel="noreferrer">GitHub ↗</a></header>
+<main>
+  <section class="intro"><p class="eyebrow">IMPLEMENTATIONS CHANGE. BUSINESS CONTRACTS PERSIST.</p><h1>Keep the contract.<br><em>Replace the implementation.</em></h1><p class="lede">Add partial refunds while preserving the payment's refund limit.</p></section>
+  <section class="contract" aria-label="Standing business contract"><div><code>REFUND-CAP / v1</code><p>Total settled refunds must never exceed the captured payment.</p></div><pre>sum(settled_refunds) &lt;= captured_amount</pre></section>
+  <section class="experiment" aria-label="Interactive refund comparison">
+    <div class="input-pane">
+      <div class="section-title"><h2>Implementation</h2><span>Java budget check</span></div>
+      <div class="subjects" aria-label="Implementation"><button type="button" data-subject="legacy" aria-pressed="false">Legacy</button><button type="button" data-subject="broken" aria-pressed="true">Broken extraction</button><button type="button" data-subject="fixed" aria-pressed="false">Corrected</button></div>
+      <pre id="guard" class="guard">Loading source…</pre>
+      <div class="section-title input-title"><label for="trace">trace.json</label><button id="reset" class="text-button" type="button">Reset</button></div>
+      <div class="presets" aria-label="Trace presets"><button type="button" data-preset="overflow" aria-pressed="true">Over-refund</button><button type="button" data-preset="retry" aria-pressed="false">Same-key retry</button><button type="button" data-preset="boundary" aria-pressed="false">Exact balance</button></div>
+      <textarea id="trace" spellcheck="false" aria-describedby="input-hint" wrap="off"></textarea>
+      <p id="input-hint" class="fine">One payment, one currency. Amounts are integer minor units.</p>
+      <div class="actions"><button id="evaluate" class="primary" type="button">Evaluate trace <span>→</span></button><button id="share" type="button" class="text-button">Share scenario ↗</button></div>
+      <div id="share-box" hidden><label for="share-url">Copy this scenario link</label><input id="share-url" readonly></div><p id="input-status" class="input-status" role="status"></p>
+    </div>
+    <div id="result" class="result" aria-live="polite">
+      <div class="section-title"><h2>Observed behavior</h2><span>BROWSER REPLAY</span></div>
+      <div id="pending"><h3>Ready to evaluate</h3><p>Edit the trace or select an implementation, then evaluate.</p></div>
+      <div id="outcome" hidden>
+        <p id="verdict" class="verdict"></p><div class="total"><strong id="refunded"></strong><span>refunded</span><span class="divider">/</span><span id="captured"></span><span>captured</span></div>
+        <dl class="observations"><div><dt>Standing refund cap</dt><dd id="cap-status"></dd></div><div><dt>Partial refund in this trace</dt><dd id="partial-status"></dd></div><div><dt>Distinct settled effects</dt><dd id="effects"></dd></div></dl>
+        <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Requested</th><th>Outcome</th><th>Settled total</th></tr></thead><tbody id="operations"></tbody></table></div>
+        <p id="explanation" class="explanation"></p>
+      </div>
+      <p class="scope">This runs a bounded browser model of the Java fixture. Recorded JUnit evidence is available below.</p>
+    </div>
+  </section>
+  <details id="evidence" class="evidence"><summary>Inspect recorded JUnit evidence <span>source · exact checks · temporary probe</span></summary><div class="evidence-content"><p id="evidence-note">Loading recorded evidence…</p><div class="table-wrap"><table><thead><tr><th>Check</th><th>Legacy</th><th>Selected implementation</th></tr></thead><tbody id="evidence-rows"></tbody></table></div><p class="fine" id="source-identity"></p><a href="workspace.html">Inspect all contracts, tests, and source ↗</a></div></details>
+  <section class="next"><div><h2>Bring the intent. Inspect the evidence.</h2><p>Edit contract drafts, change intention, replay cases, and source-linked discovery proposals in the engineering workspace.</p></div><a class="workspace-link" href="workspace.html">Open full workspace ↗</a></section>
+  <footer><span>Contract management · discovery · verification</span><span>No login, model key, or repository execution.</span></footer>
+</main>
+</body></html>

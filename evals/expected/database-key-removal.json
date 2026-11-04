@@ -1,0 +1,15 @@
+{
+  "id": "database-key-removal",
+  "split": "heldout",
+  "unsafe": true,
+  "language": "java",
+  "rule_id": "JAVA-DATA-001",
+  "severity": "CRITICAL",
+  "category": "CONCURRENCY",
+  "source_path": "db/migration/V1__orders.sql",
+  "finding_line": 2,
+  "trigger": "Concurrent requests reuse an operation key without a database uniqueness boundary.",
+  "consequence": "Duplicate operation records can commit, violating the declared payment operation invariant.",
+  "regression": "Synchronize two inserts with the same key and assert only one commits.",
+  "kind": "synthetic schema/Java/dependency fixture; dependency versions are investigation inputs, not migration claims"
+}

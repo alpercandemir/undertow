@@ -1,0 +1,8 @@
+invariants:
+  - id: PAYMENT-IDENTITY
+    statement: Retrying one order must not create another payment operation.
+    impact: A duplicated charge harms the customer and requires reconciliation.
+    assumptions: The gateway deduplicates requests by operation key.
+  - id: TENANT-ORDER-OWNERSHIP
+    statement: Order access is limited to the authenticated tenant.
+    impact: An unscoped lookup can disclose another customer's order.

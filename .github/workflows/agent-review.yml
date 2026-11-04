@@ -1,0 +1,194 @@
+name: Undertow agent review
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number in this repository (public or private)
+        required: true
+        type: number
+      publish:
+        description: Update the single Undertow summary comment
+        type: boolean
+        default: false
+      ci_run_id:
+        description: Optional completed trusted internal CI run to import
+        type: string
+        default: ''
+      replay_case:
+        description: Explicit authored pilot replay (live is the default)
+        type: choice
+        default: live
+        options: [live, retry-key-unsafe, retry-key-corrected, tenant-unsafe, tenant-corrected]
+  pull_request_target:
+    types: [opened, synchronize, ready_for_review, reopened, converted_to_draft, closed]
+permissions: {}
+concurrency:
+  group: undertow-review-${{ github.repository }}-${{ inputs.pr_number || github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  invalidate:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && inputs.publish && github.ref_name == github.event.repository.default_branch) ||
+      (github.event_name == 'pull_request_target' && vars.UNDERTOW_AUTO_REVIEW == 'true' && github.event.pull_request.base.ref == github.event.repository.default_branch)
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Build trusted harness only
+        run: mvn --batch-mode --no-transfer-progress -DskipTests package
+      - name: Mark previous owned report outdated when commits or state change
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
+        run: java -jar target/undertow.jar mark-stale --repository "$GITHUB_REPOSITORY" --pr "$PR_NUMBER"
+  review:
+    needs: invalidate
+    if: >-
+      always() && (needs.invalidate.result == 'success' || needs.invalidate.result == 'skipped') &&
+      ((github.event_name == 'workflow_dispatch' && github.ref_name == github.event.repository.default_branch) ||
+      (github.event_name == 'pull_request_target' && vars.UNDERTOW_AUTO_REVIEW == 'true' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == github.event.repository.default_branch &&
+      github.event.pull_request.state == 'open' && !github.event.pull_request.draft))
+    outputs:
+      authorized: ${{ steps.authorize.outputs.authorized }}
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify maintainer or internal author's live write permission
+        id: authorize
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          UNDERTOW_AUTO_REVIEW: ${{ vars.UNDERTOW_AUTO_REVIEW }}
+        run: python3 scripts/trigger-policy.py
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        if: steps.authorize.outputs.authorized == 'true'
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Build trusted harness at default-branch event/dispatch SHA
+        if: steps.authorize.outputs.authorized == 'true'
+        run: mvn --batch-mode --no-transfer-progress verify
+      - name: Pin PR and obtain public/private source objects as data
+        if: steps.authorize.outputs.authorized == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_FETCH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
+        run: |
+          java -jar target/undertow.jar pr-info --repository "$GITHUB_REPOSITORY" --pr "$PR_NUMBER" --output .undertow/pr.json
+          python3 scripts/github-snapshots.py --metadata .undertow/pr.json --output .undertow/source.git
+      - name: Import an explicitly authorized CI artifact
+        if: steps.authorize.outputs.authorized == 'true' && inputs.ci_run_id != '' && vars.UNDERTOW_CI_WORKFLOW_ID != ''
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+          CI_WORKFLOW_ID: ${{ vars.UNDERTOW_CI_WORKFLOW_ID }}
+        run: |
+          python3 - <<'PYCI'
+          import json,os,subprocess
+          from pathlib import Path
+          pr=json.loads(Path('.undertow/pr.json').read_text())
+          subprocess.run(['python3','scripts/import-ci.py','--repository',os.environ['GITHUB_REPOSITORY'],'--run-id',os.environ['CI_RUN_ID'],'--workflow-id',os.environ['CI_WORKFLOW_ID'],'--base',pr['analysis_diff_base'],'--head',pr['head_sha'],'--output','.undertow/ci.json','--receipt','.undertow/ci-receipt.json'],check=True)
+          PYCI
+      - name: Review without checking out or building PR source
+        id: model_review
+        if: steps.authorize.outputs.authorized == 'true'
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          REPLAY_CASE: ${{ inputs.replay_case || 'live' }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          pr=json.loads(Path('.undertow/pr.json').read_text())
+          command=['java','-jar','target/undertow.jar','review','--repo','.undertow/source.git','--base',pr['analysis_diff_base'],'--head',pr['head_sha'],'--policy-commit',pr['policy_commit'],'--target-head',pr['target_head'],'--output','.undertow/report']
+          if Path('.undertow/ci-receipt.json').exists():command += ['--ci-bundle','.undertow/ci.json','--ci-receipt','.undertow/ci-receipt.json']
+          case=os.environ['REPLAY_CASE']
+          if case != 'live':
+            subprocess.run(['python3','scripts/pilot-replay.py','--case',case,'--metadata','.undertow/pr.json','--source','.undertow/source.git','--output','.undertow/replay.json'],check=True)
+            command += ['--replay','.undertow/replay.json']
+          subprocess.run(command,check=True)
+          PY
+      - name: Bind available artifacts to this trusted workflow run
+        if: always() && steps.authorize.outputs.authorized == 'true'
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,shutil
+          from pathlib import Path
+          out=Path('review-artifact');out.mkdir()
+          for src in [Path('target/undertow.jar'),Path('.undertow/pr.json'),*Path('.undertow/report').iterdir()]:shutil.copyfile(src,out/src.name)
+          hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in out.iterdir()}
+          (out/'provenance.json').write_text(json.dumps(dict(repository=os.environ['GITHUB_REPOSITORY'],run_id=os.environ['GITHUB_RUN_ID'],harness_sha=os.environ['GITHUB_SHA'],hashes=hashes)))
+          report=json.loads((out/'report.json').read_text())
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as summary:summary.write('Undertow review: '+report['status']+' (advisory); inspect review-artifact for gaps and failures.\n')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always() && steps.authorize.outputs.authorized == 'true'
+        with:
+          name: trusted-review
+          path: review-artifact/
+          if-no-files-found: error
+          retention-days: 7
+  publish:
+    needs: review
+    if: >-
+      needs.review.outputs.authorized == 'true' &&
+      (inputs.publish || github.event_name == 'pull_request_target')
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0; same workflow run only
+        with:
+          name: trusted-review
+          path: review-artifact/
+      - name: Verify trusted artifacts and fetch pinned private source objects
+        env:
+          GITHUB_FETCH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
+        run: |
+          python3 scripts/verify-artifacts.py
+          python3 scripts/github-snapshots.py --metadata review-artifact/pr.json --output .undertow/source.git
+      - name: Validate and update summary; reject stale commits
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
+          DETAILS_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: java -jar review-artifact/undertow.jar publish --repository "$GITHUB_REPOSITORY" --pr "$PR_NUMBER" --repo .undertow/source.git --report-dir review-artifact --details-url "$DETAILS_URL"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: publication-receipt
+          path: review-artifact/publication.json
+          retention-days: 7

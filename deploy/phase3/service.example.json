@@ -1,0 +1,27 @@
+{
+  "publicUrl": "https://undertow.example.com",
+  "appId": "REPLACE_WITH_REGISTERED_APP_ID",
+  "clientId": "REPLACE_WITH_APP_CLIENT_ID",
+  "appKeyFile": "/run/secrets/undertow-app-pkcs8.pem",
+  "botLogin": "undertow-example[bot]",
+  "botId": 0,
+  "engineDigest": "sha256:REPLACE_WITH_BUILT_JAR_DIGEST",
+  "executionVersion": "pilot-execution-v1",
+  "tariffVersion": "internal-demonstration-v1",
+  "inputCreditRate": 1,
+  "outputCreditRate": 1,
+  "maximumReservation": 80000,
+  "globalConcurrency": 2,
+  "tenantConcurrency": 1,
+  "liveApproved": false,
+  "executionMode": "collect",
+  "workerCommand": [],
+  "publisherCommand": [],
+  "execution": {
+    "schema_version": 1,
+    "model": {"name": "gemini-3.1-flash-lite", "api_key_env": "GEMINI_API_KEY"},
+    "limits": {"max_model_calls": 12, "max_tool_calls": 30, "max_context_tokens": 30000, "max_total_tokens": 80000, "run_timeout_seconds": 300, "tool_timeout_seconds": 20, "retry_attempts": 2},
+    "output": {"max_findings": 10}
+  },
+  "sources": {"sources": {}, "allowed_hosts": []}
+}

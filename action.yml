@@ -1,0 +1,65 @@
+name: Undertow change-risk review
+description: Review pinned Java changes with a trusted bounded harness and your own Gemini credentials
+inputs:
+  repository-path:
+    description: Local repository containing already fetched pinned commits and trusted base policy
+    required: true
+  base:
+    description: Pinned analysis diff base commit or ref
+    required: true
+  head:
+    description: Head commit or ref
+    required: true
+  policy-commit:
+    description: Trusted target policy commit; defaults to base
+    required: false
+  target-head:
+    description: Current target tip, separate from the merge base; defaults to base
+    required: false
+  ci-bundle:
+    description: Optional imported CI evidence bundle
+    required: false
+  ci-receipt:
+    description: Optional origin receipt produced by the trusted CI importer
+    required: false
+  api-key:
+    description: Gemini credential, supplied from a secret; only passed to the reviewer step
+    required: false
+  mode:
+    description: tools, diff, or collect
+    default: tools
+  output-directory:
+    description: Report artifact directory
+    default: .undertow/review
+runs:
+  using: composite
+  steps:
+    - name: Set up Java 25
+      uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00
+      with:
+        distribution: temurin
+        java-version: '25'
+    - name: Build the pinned action's trusted harness
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: mvn --batch-mode --no-transfer-progress -Dmaven.repo.local="$RUNNER_TEMP/undertow-action-m2" -DskipTests package
+    - name: Review source objects as data
+      shell: bash
+      env:
+        GEMINI_API_KEY: ${{ inputs.api-key }}
+        UNDERTOW_REPO: ${{ inputs.repository-path }}
+        UNDERTOW_BASE: ${{ inputs.base }}
+        UNDERTOW_HEAD: ${{ inputs.head }}
+        UNDERTOW_POLICY: ${{ inputs.policy-commit }}
+        UNDERTOW_TARGET: ${{ inputs.target-head }}
+        UNDERTOW_CI_BUNDLE: ${{ inputs.ci-bundle }}
+        UNDERTOW_CI_RECEIPT: ${{ inputs.ci-receipt }}
+        UNDERTOW_MODE: ${{ inputs.mode }}
+        UNDERTOW_OUTPUT: ${{ inputs.output-directory }}
+      run: |
+        args=(review --repo "$UNDERTOW_REPO" --base "$UNDERTOW_BASE" --head "$UNDERTOW_HEAD" --mode "$UNDERTOW_MODE" --output "$UNDERTOW_OUTPUT")
+        if [[ -n "$UNDERTOW_POLICY" ]]; then args+=(--policy-commit "$UNDERTOW_POLICY"); fi
+        if [[ -n "$UNDERTOW_TARGET" ]]; then args+=(--target-head "$UNDERTOW_TARGET"); fi
+        if [[ -n "$UNDERTOW_CI_BUNDLE" ]]; then args+=(--ci-bundle "$UNDERTOW_CI_BUNDLE"); fi
+        if [[ -n "$UNDERTOW_CI_RECEIPT" ]]; then args+=(--ci-receipt "$UNDERTOW_CI_RECEIPT"); fi
+        java -jar "$GITHUB_ACTION_PATH/target/undertow.jar" "${args[@]}"

@@ -1,0 +1,15 @@
+{
+  "id": "rename-benign",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-MODERN-001",
+  "severity": "LOW",
+  "category": "STYLE",
+  "source_path": "src/Subject.java",
+  "finding_line": 1,
+  "trigger": "Apply a benign refactor or investigate a dependency version change.",
+  "consequence": "No verified regression is asserted.",
+  "regression": "Preserve the existing behavior; do not invent migration claims.",
+  "kind": "synthetic schema/Java/dependency fixture; dependency versions are investigation inputs, not migration claims"
+}

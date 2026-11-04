@@ -1,0 +1,87 @@
+[ {
+  "id" : "e1",
+  "kind" : "get_diff",
+  "origin" : "get_diff",
+  "commit" : "1533b438ed88a9c7add667305e4f333b1bd760ea",
+  "content_hash" : "7c013478b9c22b9c00e15a1e9c3c184b4b1963811beeb0049fc5045b96a2f5ea",
+  "retrieved_at" : "2026-09-30T17:32:15.416443Z",
+  "content" : {
+    "base_sha" : "c80301580713505d2025b27fec0370b9f10ec515",
+    "head_sha" : "1533b438ed88a9c7add667305e4f333b1bd760ea",
+    "files" : [ {
+      "path" : "src/Subject.java",
+      "diff" : "diff --git a/src/Subject.java b/src/Subject.java\nindex 4ae65a8..6013ff3 100644\n--- a/src/Subject.java\n+++ b/src/Subject.java\n@@ -2,9 +2,9 @@ package fixtures;\n // Public demo contract: stable operation keys deduplicate charges; HALF_UP cents; no secrets in logs.\n // OrderWriter is a separate Spring proxy. place() is not transactional. persist writes order then audit.\n class Subject {\n   boolean place(String operationKey, Money money) {\n-    return gateway.charge(operationKey, money);\n+    return gateway.charge(java.util.UUID.randomUUID().toString(), money);\n   }\n   Gateway gateway; Writer writer; Repository repository; Log log;\n   record Money(java.math.BigDecimal amount) {}\n   interface Gateway { boolean charge(String key, Money money); }\n"
+    } ],
+    "coverage_gaps" : [ ]
+  }
+}, {
+  "id" : "e2",
+  "kind" : "read_source",
+  "origin" : "src/Subject.java",
+  "commit" : "1533b438ed88a9c7add667305e4f333b1bd760ea",
+  "content_hash" : "59d200e64999534ba4a0d135fce8746b075d156f5fb03d0ec7582dcd3fcff952",
+  "retrieved_at" : "2026-09-30T17:32:15.442161Z",
+  "content" : {
+    "snapshot" : "head",
+    "commit" : "1533b438ed88a9c7add667305e4f333b1bd760ea",
+    "path" : "src/Subject.java",
+    "start_line" : 1,
+    "end_line" : 20,
+    "total_lines" : 20,
+    "content" : "package fixtures;\n// Public demo contract: stable operation keys deduplicate charges; HALF_UP cents; no secrets in logs.\n// OrderWriter is a separate Spring proxy. place() is not transactional. persist writes order then audit.\nclass Subject {\n  boolean place(String operationKey, Money money) {\n    return gateway.charge(java.util.UUID.randomUUID().toString(), money);\n  }\n  Gateway gateway; Writer writer; Repository repository; Log log;\n  record Money(java.math.BigDecimal amount) {}\n  interface Gateway { boolean charge(String key, Money money); }\n  interface Writer { void persist(Object order); }\n  interface Repository { void save(Object order); void audit(Object order); }\n  interface Log { void info(String format, Object value); }\n  boolean retry(java.util.function.BooleanSupplier callback) { try { return callback.getAsBoolean(); } catch (IllegalStateException e) { return callback.getAsBoolean(); } }\n  @org.springframework.transaction.annotation.Transactional\n  void persist(Object order) { repository.save(order); repository.audit(order); }\n  @org.springframework.transaction.annotation.Transactional\n  private void privatePersist(Object order) { repository.save(order); repository.audit(order); }\n}\n"
+  }
+}, {
+  "id" : "e3",
+  "kind" : "read_source",
+  "origin" : "src/Subject.java",
+  "commit" : "c80301580713505d2025b27fec0370b9f10ec515",
+  "content_hash" : "c41fb3b9b0c3508e795f5b0434a64a94d620d9b0bba5c9b166ff70b633fd6d0b",
+  "retrieved_at" : "2026-09-30T17:32:15.464525Z",
+  "content" : {
+    "snapshot" : "base",
+    "commit" : "c80301580713505d2025b27fec0370b9f10ec515",
+    "path" : "src/Subject.java",
+    "start_line" : 1,
+    "end_line" : 20,
+    "total_lines" : 20,
+    "content" : "package fixtures;\n// Public demo contract: stable operation keys deduplicate charges; HALF_UP cents; no secrets in logs.\n// OrderWriter is a separate Spring proxy. place() is not transactional. persist writes order then audit.\nclass Subject {\n  boolean place(String operationKey, Money money) {\n    return gateway.charge(operationKey, money);\n  }\n  Gateway gateway; Writer writer; Repository repository; Log log;\n  record Money(java.math.BigDecimal amount) {}\n  interface Gateway { boolean charge(String key, Money money); }\n  interface Writer { void persist(Object order); }\n  interface Repository { void save(Object order); void audit(Object order); }\n  interface Log { void info(String format, Object value); }\n  boolean retry(java.util.function.BooleanSupplier callback) { try { return callback.getAsBoolean(); } catch (IllegalStateException e) { return callback.getAsBoolean(); } }\n  @org.springframework.transaction.annotation.Transactional\n  void persist(Object order) { repository.save(order); repository.audit(order); }\n  @org.springframework.transaction.annotation.Transactional\n  private void privatePersist(Object order) { repository.save(order); repository.audit(order); }\n}\n"
+  }
+}, {
+  "id" : "e4",
+  "kind" : "get_rule",
+  "origin" : "get_rule",
+  "commit" : "c80301580713505d2025b27fec0370b9f10ec515",
+  "content_hash" : "f7f86607d3be3d49943bca5b47701a4f9d3b2100d55e53736654464ecb8b0fd6",
+  "retrieved_at" : "2026-09-30T17:32:15.466243Z",
+  "content" : {
+    "id" : "JAVA-RETRY-001",
+    "sections" : [ 24, 38 ],
+    "strength" : "SHOULD",
+    "kind" : "contextual",
+    "label" : "BLOCKER",
+    "wording" : "Make retryable operations idempotent. Assume requests may be retried.",
+    "source_sections" : "# 24. HTTP and External APIs\n\n## MUST — Set timeouts\n\nEvery external network call needs bounded:\n\n```text\nconnection timeout\nrequest timeout\nread/response timeout\n```\n\nwhere relevant.\n\nNever rely indefinitely on defaults.\n\n---\n\n## MUST — Retry only retryable failures\n\nPotential candidates:\n\n```text\nconnection reset\ntemporary unavailable\nHTTP 429\nselected HTTP 5xx\n```\n\nDo not blindly retry:\n\n```text\nvalidation errors\nauthentication failures\npermanent 4xx responses\nnon-idempotent operations\n```\n\n---\n\n## MUST — Use bounded retries\n\nUse:\n\n```text\nmaximum attempts\nbackoff\njitter\n```\n\nwhere appropriate.\n\nNever implement infinite retry loops.\n\n---\n\n## SHOULD — Make retryable operations idempotent\n\nFor externally visible writes consider:\n\n```text\nidempotency keys\nunique operation IDs\ndeduplication\n```\n\n---\n\n# 38. Distributed Systems\n\n## MUST — Assume requests may be retried\n\nDesign write APIs with duplicate execution in mind.\n\n---\n\n## MUST — Do not rely on distributed exactly-once behavior unless the underlying system truly provides the required guarantees\n\nPrefer:\n\n```text\nat-least-once delivery\n+\nidempotent consumer\n+\ndeduplication\n```\n\nwhen applicable.\n\n---\n\n## SHOULD — Use transactional outbox when consistency between DB state and event publication matters\n\nConceptually:\n\n```text\nDatabase transaction\n    ├── update domain state\n    └── insert outbox record\n\nOutbox publisher\n    ↓\nMessage broker\n```\n\nAvoid naive dual writes:\n\n```text\nUPDATE DATABASE\nSEND KAFKA MESSAGE\n```\n\nwithout failure recovery.\n\n---\n\n"
+  }
+}, {
+  "id" : "e5",
+  "kind" : "get_business_context",
+  "origin" : "get_business_context",
+  "commit" : "c80301580713505d2025b27fec0370b9f10ec515",
+  "content_hash" : "fed3f0487da268cde2b3e52ea6757048c3280c58e588dfe1f2927c6907581782",
+  "retrieved_at" : "2026-09-30T17:32:15.466722Z",
+  "content" : {
+    "service" : "order-payments",
+    "critical_components" : [ "OrderService", "PaymentGatewayAdapter" ],
+    "invariants" : [ {
+      "id" : "PAYMENT-ONE-CHARGE",
+      "statement" : "An operation key may create at most one payment."
+    }, {
+      "id" : "ORDER-ATOMIC-STATE",
+      "statement" : "A failed placement must not leave a successful order record."
+    } ],
+    "impact_context" : {
+      "payment_failure" : "Customer funds and reconciliation are affected."
+    },
+    "catastrophic_scope" : ""
+  }
+} ]

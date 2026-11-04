@@ -1,0 +1,13 @@
+{
+  "id": "retry-key-unsafe",
+  "split": "tuning",
+  "unsafe": true,
+  "language": "java",
+  "rule_id": "JAVA-RETRY-001",
+  "severity": "CRITICAL",
+  "category": "DATA_INTEGRITY",
+  "trigger": "Gateway commits a payment, loses the response and the caller retries.",
+  "consequence": "A new key represents a new charge and can duplicate customer debit.",
+  "regression": "Drop the first response; assert equal keys and one charge.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

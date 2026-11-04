@@ -1,0 +1,13 @@
+{
+  "id": "money-division-corrected",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-MONEY-001",
+  "severity": "HIGH",
+  "category": "RELIABILITY",
+  "trigger": "A payment of 1.00 is split into three parts.",
+  "consequence": "Nonterminating decimal expansion throws instead of producing the documented rounded result.",
+  "regression": "Split 1.00 into thirds and assert explicit scale and rounding.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

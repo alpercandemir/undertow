@@ -1,0 +1,26 @@
+schema_version: 1
+repository: alpercandemir/undertow
+oracle_paths: [demo/customer-service/pom.xml, .github/workflows/ci.yml, scripts/capture-build.py]
+contracts:
+  - id: TENANT-ISOLATION
+    version: '1'
+    owner: demo maintainers
+    expectation: A different tenant cannot read or charge another tenant's order, including shared order identifiers.
+    scope: [demo/customer-service/src/main/java/example/OrderService.java]
+    verifier: junit
+    tests:
+      - id: example.OrderServiceTest.tenantCannotTriggerAnotherTenantsPayment
+        sources: [demo/customer-service/src/test/java/example/OrderServiceTest.java]
+      - id: example.OrderServiceTest.tenantLookupRemainsScopedAcrossManySharedIdentifiers
+        sources: [demo/customer-service/src/test/java/example/OrderServiceTest.java]
+  - id: ORDER-API
+    version: '1'
+    owner: demo maintainers
+    expectation: The declared public read/pay signatures and order record component names remain compatible.
+    assumptions:
+      - Reflection checks cover these declared shapes; they do not establish general binary or runtime compatibility.
+    scope: [demo/customer-service/src/main/java/example/OrderService.java]
+    verifier: junit
+    tests:
+      - id: example.OrderServiceTest.publishedOrderApiRetainsItsDeclaredShape
+        sources: [demo/customer-service/src/test/java/example/OrderServiceTest.java]

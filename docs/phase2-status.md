@@ -1,0 +1,35 @@
+# Phase 2 delivery status — October 6, 2026
+
+Phase 2 implementation is in progress. Pilot exit is **not achieved**: the original credential returned HTTP 401 locally and in Actions; its replacement passed a source-free network preflight and six live responses, but the first full review stopped at a quota-classified HTTP 429 without a validated final result, and independently labeled historical PRs/human feedback are not available. The code and offline checks below do not satisfy the PRD's live-model quality gates.
+
+| Requirement | Implemented | Remaining acceptance evidence |
+|---|---|---|
+| P2-01 | Explicit local/network doctor, distinct sanitized model failure causes, retained partial/failure artifacts, frozen synthetic inputs, failed-run denominators, identities/variability/usage/p95/interval metrics | Successful live run; 30 held-out cases × three repetitions; 30 authorized historical PRs in two repositories, 10 benign controls and 20 independently labeled high-risk defects |
+| P2-02 | Existing GitHub publisher migrated/hardened; administrator opt-in internal PR events; draft/fork/permission policy; separate publication job; serialized runs; authenticated private fetch; pending/stale/recovery behavior | Hosted private fetch and bot-summary creation passed; risky→fixed and repeated-trigger verification is being performed in the private pilot; public-hosted and access-loss scenarios require their own evidence |
+| P2-03 | `doctor`, `rules validate/list/explain`; independent candidate-policy validation; JDK/Java boundary and existing CLI exits documented | Independently measured new-developer setup time |
+| P2-04 | Strict v2 schema, v1 migration compatibility, eager IDs/fields/references/globs/date validation, trusted scoped exceptions, registered executors, explicit per-rule coverage | Company examples run locally; independent owner review of actual company rules remains a pilot task |
+| P2-05 | JUnit/SpotBugs/dependency imports, verified GitHub run/artifact digest and trusted receipt, explicit execution/proposal separation, v2 report and separate publication receipt | Import a pilot's authorized single-module CI artifact; never treat the existing combined multi-module archive as supported single-module evidence |
+| P2-06 | Provider-independent metadata/snapshot/publication contracts, capabilities, stable repository/finding identity, fake adapter and GitHub ownership/staleness/recovery tests | Real public/private authentication and publication matrix; fake tests do not imply GitLab/Bitbucket support |
+| P2-07 | Concise bounded summary, code/artifact links, replay/live distinction, company rule, missing-evidence state, append-only feedback and human adjudication tooling | Two independent reviewers, real-PR measurement and client walkthrough |
+| P2-08 / P2-09 | Deferred according to the PRD | Checks/annotations/cache enhancements start after P0 gates pass |
+
+An authorized private pilot using public Undertow source and authored fixtures exercised payment and tenant-isolation changes, automatic review, same-comment updates, and live failure reporting. Private repository identifiers and links are omitted from public documentation. Its administrator opt-in variable is enabled; the Gemini repository secret was set from the existing environment without displaying its value. The original automatic hosted live run confirmed HTTP 401 after that update. A supplied replacement was then installed securely via hidden input; the source-free model preflight passed. The first full local review retained a quota-classified HTTP 429 after six successful responses (seven model calls, seven tools, 17,000 input/325 output tokens); no large live benchmark was launched after that failure.
+
+Local validation passed 72 harness tests, formatting, SpotBugs, 15 Python tests, and all 40 synthetic scenarios across collect/diff/tools (120 authored replay runs). Every replay result remains labeled authored; the quality gate is unmet and pricing is unknown. Local tenant unsafe/corrected replays produced one/zero findings. These reports remain partial where explicit rule assessments, classpath analysis or CI execution evidence are missing.
+
+Hosted ordinary CI passed independently of model access, including the Java 21 PostgreSQL demo and offline corpus. The payment replay published a GitHub Actions bot-owned summary with one important finding, code links, explicit partial coverage and an authored-replay label. A first runner attempt failed before execution because GitHub did not acquire a hosted runner; the retry used Ubuntu 22.04.
+
+The automatic tenant run retained a live `authentication` failure (HTTP 401, one model call, zero tools/findings, partial) and published it without blocking ordinary CI. The company replay is explicitly authored.
+
+The private pilot exposed cached PR `base.sha` after target advancement. The adapter now queries the live target branch ref separately on every metadata/publication check, with a regression covering unchanged PR metadata and an advanced target. The initial run must not count as passing the target-advancement matrix. Hosted payment rerun and tenant rerun used the current target tip and updated the original bot comment IDs without duplicates. The full public/private/access-loss matrix remains pending.
+
+The original v1 sample report remains a compatibility fixture and passes schema/read/write regression verification. Original README/showcase work was preserved. Existing Java 21 demo code/toolchain and deterministic CI remain independent of AI outcomes. See [setup and rollback](phase2-setup.md), [report migration](phase2-report-contract.md), and [Phase 2 PRD](phase2-prd.md) for acceptance criteria.
+
+## Exit gates requiring external evidence
+
+- A working Gemini credential/model account and a successful source-authorized live end-to-end review. Original-key failures retained `authentication`; the working replacement reached live inference but stopped at a quota-classified HTTP 429. Both retained partial reports and zero validated findings, never approval. Full evaluation remains gated on a successful final live review.
+- Frozen live synthetic evaluation and separately authorized real historical PRs with independent human labeling, disagreements/adjudication, and sufficient positive samples. The empty pilot manifest intentionally fails its sample/quality gates.
+- Verified hosted publication, staleness/ownership/duplicate scenarios, single-module CI import, public/private access and permission-loss recovery.
+- Measured p95 runner latency (queue time separate), explicitly priced usage/pilot budget, and setup time. Unknown cost is not free; repeated examples are not new independent samples.
+
+Each implementation maps to the P2 IDs above. Roll back automatic operation with `UNDERTOW_AUTO_REVIEW=false`, retain artifacts/feedback/frozen inputs, and restore the previous trusted harness if needed. AI-based merge gating, autonomous fixes, additional providers, and P1 enhancements have not been enabled.

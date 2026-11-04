@@ -1,0 +1,13 @@
+{
+  "id": "money-rounding-corrected",
+  "split": "heldout",
+  "unsafe": false,
+  "language": "java",
+  "rule_id": "JAVA-MONEY-001",
+  "severity": "HIGH",
+  "category": "CORRECTNESS",
+  "trigger": "A documented HALF_UP price such as 1.005 reaches checkout.",
+  "consequence": "The new rounding produces 1.00 instead of 1.01 and undercharges.",
+  "regression": "Use 1.005 and 1.015; expect documented HALF_UP cents.",
+  "kind": "synthetic source fixture; collaborator behavior declared in contract; not a production service"
+}

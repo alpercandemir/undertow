@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "base_sha", "head_sha", "target_head", "mode", "release_decision", "policy", "verification", "evidence_gaps", "evidence_provenance", "evidence_origin", "evidence_source", "contracts"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "base_sha": {"$ref": "#/$defs/commit"},
+    "head_sha": {"$ref": "#/$defs/commit"},
+    "target_head": {"$ref": "#/$defs/commit"},
+    "mode": {"const": "shadow"},
+    "release_decision": {"const": "not_evaluated"},
+    "policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "policy_commit", "manifest_path", "manifest_sha256", "oracle_sha256"],
+      "properties": {
+        "repository": {"type": "string"}, "policy_commit": {"$ref": "#/$defs/commit"},
+        "manifest_path": {"type": "string"}, "manifest_sha256": {"$ref": "#/$defs/hash"}, "oracle_sha256": {"$ref": "#/$defs/hash"},
+        "oracle_artifacts": {"type": "object", "minProperties": 1, "maxProperties": 10, "additionalProperties": {"$ref": "#/$defs/hash"}}
+      }
+    },
+    "verification": {"$ref": "#/$defs/status"},
+    "evidence_gaps": {"type": "array", "items": {"type": "string"}},
+    "evidence_provenance": {"type": "string"},
+    "evidence_origin": {"type": ["object", "null"]},
+    "evidence_source": {"type": ["object", "null"]},
+    "contracts": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "version", "owner", "expectation", "scope", "status", "checks"],
+      "properties": {
+        "id": {"type": "string"}, "version": {"type": "string"}, "owner": {"type": "string"}, "expectation": {"type": "string"},
+        "scope": {"type": "array", "items": {"type": "string"}}, "assumptions": {"type": "array", "items": {"type": "string"}},
+        "status": {"$ref": "#/$defs/status"},
+        "checks": {"type": "array", "minItems": 1, "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["test_id", "matches", "reported_status", "status", "next_action", "evidence_strength"],
+          "properties": {
+            "test_id": {"type": "string"}, "matches": {"type": "integer", "minimum": 0},
+            "reported_status": {"enum": ["passed", "failed", "error", "skipped", "missing"]},
+            "status": {"$ref": "#/$defs/status"}, "next_action": {"type": "string"},
+            "evidence_strength": {"enum": ["unverified", "approved_verifier_result"]}
+          }
+        }}
+      }
+    }}
+  },
+  "$defs": {
+    "commit": {"type": "string", "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["satisfied", "unsatisfied", "incomplete"]}
+  }
+}

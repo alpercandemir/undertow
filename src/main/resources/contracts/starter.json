@@ -1,0 +1,7 @@
+{
+  "template_version": 1,
+  "schema_version": 1,
+  "verifier": "junit",
+  "contract_version": "1",
+  "note": "Supply and review your own expectation, owner, scope, sources, and exact test identity. This template asserts no business intent."
+}
