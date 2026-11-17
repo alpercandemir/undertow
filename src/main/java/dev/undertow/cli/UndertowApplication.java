@@ -47,26 +47,12 @@ public class UndertowApplication {
     }
 
     @Bean
-    ModelClientFactory modelClientFactory() {
-        return new ModelClientFactory();
-    }
-
-    @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    CommandLine commandLine(ModelClientFactory models) {
+    CommandLine commandLine() {
         // picocli mutates option fields. Every invocation owns a fresh command tree.
         return new CommandLine(new Undertow())
-                .addSubcommand(new Undertow.Review(models))
-                .addSubcommand(new Undertow.PrInfo())
-                .addSubcommand(new Undertow.Publish())
-                .addSubcommand(new Undertow.MarkStale())
-                .addSubcommand(new SetupCommands.Doctor())
-                .addSubcommand(new SetupCommands.Rules())
+                .addSubcommand(new ExploreCommand())
                 .addSubcommand(new ContractCommands.Contracts())
-                .addSubcommand(new ContractCommands.Verify())
-                .addSubcommand(new Undertow.Investigate())
-                .addSubcommand(new dev.undertow.service.ServiceCommands.Serve())
-                .addSubcommand(new dev.undertow.service.ServiceCommands.Worker())
-                .addSubcommand(new dev.undertow.service.ServiceCommands.Publish());
+                .addSubcommand(new ContractCommands.Verify());
     }
 }

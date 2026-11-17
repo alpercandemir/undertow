@@ -3,7 +3,6 @@ package dev.undertow;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.undertow.cli.UndertowApplication;
-import dev.undertow.reporting.Json;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
@@ -16,7 +15,7 @@ class SpringCliTest {
     @TempDir Path temp;
 
     @Test
-    void helpAndUsageErrorsKeepTheirExitCodesWithoutCreatingClients() {
+    void helpExposesOnlyActiveProductCommands() {
         try (var context = UndertowApplication.start()) {
             var command = context.getBean(CommandLine.class);
             var output = new StringWriter();
@@ -24,9 +23,23 @@ class SpringCliTest {
             command.setErr(new PrintWriter(output));
 
             assertThat(command.execute()).isZero();
-            assertThat(output.toString()).contains("review", "publish", "investigate-dependency");
+            assertThat(output.toString()).contains("explore", "contracts", "verify");
+            assertThat(command.getSubcommands().keySet())
+                    .containsExactlyInAnyOrder("explore", "contracts", "verify");
+            assertThat(command.getSubcommands().get("contracts").getSubcommands().keySet())
+                    .containsExactlyInAnyOrder(
+                            "validate",
+                            "list",
+                            "export",
+                            "init",
+                            "preview",
+                            "freshness",
+                            "mcp",
+                            "regression-plan",
+                            "reproduce");
             assertThat(command.execute("--help")).isZero();
             assertThat(command.execute("--version")).isZero();
+            assertThat(command.execute("explore", "--help")).isZero();
             assertThat(output.toString()).contains("Undertow 0.1.0-alpha.1");
             assertThat(command.execute("review")).isEqualTo(2);
             assertThat(command.execute("--spring.config.location=untrusted")).isEqualTo(2);
@@ -34,35 +47,36 @@ class SpringCliTest {
     }
 
     @Test
-    void eachInvocationHasFreshOptionsAndCollectNeedsNoCredential() throws Exception {
-        var repo = new TestRepository(temp.resolve("repo"));
-        Path report = temp.resolve("report");
+    void eachInvocationHasFreshOptionsAndContractsNeedNoCredential() throws Exception {
+        var helper = new ContractVerificationTest();
+        helper.temp = temp;
+        var fixture = helper.fixture();
         try (var context = UndertowApplication.start()) {
             var first = context.getBean(CommandLine.class);
+            first.setOut(new PrintWriter(new StringWriter()));
             assertThat(
                             first.execute(
-                                    "review",
+                                    "contracts",
+                                    "list",
                                     "--repo",
-                                    repo.root.toString(),
+                                    fixture.repo().root.toString(),
                                     "--base",
-                                    repo.base,
+                                    fixture.git().policyCommit(),
                                     "--head",
-                                    repo.head,
-                                    "--mode",
-                                    "collect",
-                                    "--output",
-                                    report.toString()))
+                                    fixture.git().head()))
                     .isZero();
-            assertThat(
-                            Json.parse(Files.readString(report.resolve("report.json")))
-                                    .path("model_calls")
-                                    .asInt())
-                    .isZero();
-
             var second = context.getBean(CommandLine.class);
             second.setErr(new PrintWriter(new StringWriter()));
             assertThat(second).isNotSameAs(first);
-            assertThat(second.execute("review")).isEqualTo(2);
+            assertThat(second.execute("contracts", "list")).isEqualTo(2);
+            for (String retired :
+                    java.util.List.of(
+                            "review", "publish", "serve", "worker", "investigate-dependency")) {
+                assertThat(second.execute(retired)).isEqualTo(2);
+            }
+            for (String retired : java.util.List.of("release", "attest", "rollout", "pilot")) {
+                assertThat(second.execute("contracts", retired)).isEqualTo(2);
+            }
         }
     }
 

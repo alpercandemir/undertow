@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "expectation": "ticket_transfer_obligations",
+  "initial_range": [0, 0],
+  "actions": [
+    {"name": "preview", "fields": {}},
+    {"name": "accept", "fields": {"actor": {"kind": "enum", "values": ["recipient", "sender", "other"]}}}
+  ],
+  "preview": "Preview leaves owner and invitation acceptance unchanged, before and after acceptance.",
+  "authorization": "Only the named recipient can accept. Other actors are rejected without state changes, even after settlement.",
+  "acceptance": "The first acceptance by the recipient succeeds, transfers ownership to the recipient and marks the invitation accepted.",
+  "repeat": "Repeated recipient acceptance may succeed or reject, but must preserve settled ownership and invitation status.",
+  "observations": "owner: 0 sender, 1 recipient, 2 other, 3 unrecognized owner; accepted: 0 false, 1 true. Read from actual fixture state.",
+  "scope": "One sequential in-memory ticket transfer; synthetic accounts; no HTTP, signed links, provider, persistence or concurrency.",
+  "authority": "Local reviewable milestone-3 expectations extending the fixture's existing preview and recipient authorization obligations. Duplicate return semantics deliberately left open."
+}

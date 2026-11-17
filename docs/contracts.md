@@ -1,8 +1,8 @@
 # Contract verification
 
-Undertow can verify declared contracts without a model, API key, repository build, or old review configuration. The default verifier runs in shadow mode and produces `contracts.json` and PR-ready `contracts.md`. Separate [assurance commands](assurance.md) implement local previews, MCP, reproduction, optional governed release checks, artifact attestations, and monitoring-export evaluation. Verification itself does not publish or authorize release. Existing AI `report.json` versions and publication behavior remain compatible.
+Undertow verifies declared contracts without a model, API key or repository build. The verifier runs in shadow mode and produces `contracts.json` and `contracts.md`. A satisfied contract establishes that its exact approved checks passed under the recorded assumptions. Business-rule authority remains with the owner.
 
-Contract verification, AI review execution, and release decisions are separate. A satisfied contract establishes only that the declared approved checks passed under the recorded assumptions. It does not certify production harmlessness.
+The [agent tools](agent-integration.md) provide initialization, structured reads, local previews, read-only MCP, approved regression plans and SARIF. Behavior search and its candidate verdicts are documented separately in the [CI guide](ci-behavior-review.md).
 
 ## Start with one contract
 
@@ -30,7 +30,7 @@ contracts:
 
 Owners approve the expectation, exact JUnit identity, source binding, and complete oracle inventory. Include test helpers, fixtures, build settings, runner scripts, and workflow definitions that can change what the verifier executes or asserts. Source paths are exact repository-relative regular Git blobs. Optional `oracle_roots` capture complete directory inventories, including approved absence. Maven `.mvn` controls at the repository and declared project roots are always inventoried; adding new controls requires review. Globs, shell commands, credentials, executor registration, and budgets are unsupported. The only registered verifier is `junit`. Empty contracts/tests, duplicate IDs, unknown fields/verifiers, malformed scopes, missing sources, and unsafe paths are rejected. Schema version 1 is bundled in the JAR as `schemas/contracts.json`.
 
-All declared contracts are checked on every candidate. `scope` describes the business implementation; it cannot suppress a mandatory test based on inferred change impact. Verification has no impact skipping or optional checks. Separately pinned release policy can select required contracts and exact-subject expiring exceptions; incomplete evidence always holds release. See [release policies](assurance.md#release-policies). Existing violations can therefore be unsatisfied even when both revisions contain the defect.
+All declared contracts are checked on every candidate. `scope` describes the business implementation; it cannot suppress a mandatory test based on inferred change impact. Verification has no impact skipping or optional checks. Existing violations can therefore be unsatisfied even when both revisions contain the defect.
 
 Read approved intent before coding:
 
@@ -65,9 +65,9 @@ java -jar target/undertow.jar verify \
   --output .undertow/shop-verification
 ```
 
-Replace uppercase identities with full immutable commits and numeric administrator-approved run/workflow IDs. Import makes explicitly requested GitHub API requests using the existing `GITHUB_TOKEN` integration. Verification itself performs no network requests or model calls. Do not use the mixed `deterministic-evidence` artifact: select `single-module-evidence` for Undertow's own contracts, or `--artifact-name order-contract-evidence` for the bundled order/payment contracts. A single import supports one selected manifest and test inventory.
+Replace uppercase identities with full immutable commits and numeric administrator-approved run/workflow IDs. Import makes explicitly requested GitHub API requests using the existing `GITHUB_TOKEN` integration. Verification itself performs no network requests or model calls. Select `single-module-evidence` for Undertow's own contracts; use `--artifact-name` to select the approved artifact in another component repository. A single import supports one selected manifest and test inventory.
 
-The trusted importer validates the completed workflow/run/head/artifact origin and archive digest. It binds normalized results and run conclusion to the approved policy commit, manifest path/content hash, and sorted oracle-source digest. `CiEvidence` checks the matching receipt and bundle bytes, then the evaluator checks the exact policy binding. Legacy bundles remain usable by AI review but cannot satisfy contracts without the new binding.
+The trusted importer validates the completed workflow/run/head/artifact origin and archive digest. It binds normalized results and run conclusion to the approved policy commit, manifest path/content hash, and sorted oracle-source digest. `CiEvidence` checks the matching receipt and bundle bytes, then the evaluator checks the exact policy binding. Legacy or unbound bundles cannot satisfy approved contracts.
 
 The receipt is a trusted local-runner assertion, not a digital signature. A receipt or exported binding supplied by a candidate is not an authority. An administrator must review the workflow, its immutable dependencies, artifact creation, test execution, and clean-run behavior. Pin all files that influence oracle behavior in `oracle_paths`/`sources`. GitHub artifact origin alone cannot prove that a malicious or incorrectly configured workflow executed the intended oracle. This increment does not provision isolation or attest the runner environment.
 
@@ -86,25 +86,12 @@ An error, compilation failure, or infrastructure failure is not a reproduced con
 
 No evidence means explicit incomplete output. In shadow mode exit `0` means reports were produced, including incomplete/unsatisfied outcomes. Setup/schema errors exit nonzero. Consumers must inspect `verification`, `contracts[].checks[]`, and `evidence_gaps`. `mode` is always `shadow` and `release_decision` is always `not_evaluated`. The versioned result schema is bundled as `schemas/contract-verification.json`.
 
-If an oracle or manifest changes, review it and approve a new pinned policy before re-importing/re-verifying. The tool detects a structural change; it does not assert that an equivalent rename weakens behavior. Working-tree edits are excluded because this interface reads committed Git objects. The separate `contracts preview`/`freshness` commands capture working-tree or staged identities without CI/release authority. See [local preview examples](assurance.md#local-previews).
+If an oracle or manifest changes, review it and approve a new pinned policy before re-importing/re-verifying. The tool detects a structural change; it does not assert that an equivalent rename weakens behavior. Working-tree edits are excluded because this interface reads committed Git objects. The separate `contracts preview`/`freshness` commands capture working-tree or staged identities without CI/release authority. See [local preview examples](agent-integration.md#local-previews-and-freshness).
 
-## Bundled pilot and regression evidence
+## Owned fixtures and internal contracts
 
-The initial internal pilot is the order/payment demo. Its [manifest](../demo/order-service/.undertow/contracts.yaml) separates gateway effects from order/event database state. Use `--manifest demo/order-service/.undertow/contracts.yaml` consistently for validate/list/export/verify. A payment unit-test pass cannot satisfy the PostgreSQL order-state contract. The latter requires the three exact `OrderIntegrityIT` executions; a machine without Docker cannot manufacture that evidence.
+The supported fixtures are [refunds](../demo/refund-extraction/README.md) and [ticket transfers](../demo/ticket-transfer/README.md). The [eight-case gallery](cases/README.md) exercises actual Java, reduced replay and generated regression assertions; those authored observations are not automatically trusted contract receipts.
 
-The [dogfood manifest](../.undertow/contracts.yaml) binds Undertow's own policy, evidence/publication, credential-permission separation, and no-paid-fallback boundaries to existing individual tests. These declarations still need repository-owner review before operational adoption. Workflow permission tests are static checks, not proof of deployed isolation.
+The repository's [own manifest](../.undertow/contracts.yaml) declares evidence integrity, execution-control integrity, preview freshness and MCP read-only boundaries. It binds retained exact tests and active source paths. The cleanup updates those references; adopting the changed policy operationally still requires normal owner review and a newly pinned approved commit.
 
-Run approved-verifier sensitivity separately from harness regression and live AI evaluation:
-
-```sh
-# JDK 21, after preparing the bundled demo's Maven dependency cache
-python3 scripts/payment-mutation.py --output .undertow/payment-mutation
-```
-
-This developer/CI runner executes only the bundled reviewed mutation fixture. It creates four independent copies, runs the unchanged payment oracle twice on the correction and twice with a changed retry key, and requires the exact relevant assertion to fail for the mutant. Errors/missing reports cannot count as detection. `mutation.json` records oracle and subject hashes and explicitly disclaims trusted import and live-model evaluation. CI retains that result separately. Offline Maven and stripped credential variables reduce accidental access; they do not constitute a sandbox. Execute CI builds in a disposable, externally constrained environment without model, publisher, or production credentials.
-
-Migration is additive: existing `config/` CLI policies and hosted `.undertow/rules.yaml` packages continue working. The contract command needs only the new manifest and its references. It does not synthesize business intent from old contextual rules, silently bundle organization-specific contracts, or change hosted execution settings. Formatter/build checks handle mechanical style; the coding guide remains readable while style rules are excluded from model assessment.
-
-## Additional implemented stages
-
-The [advanced assurance guide](assurance.md) covers external approved regression artifacts, independent repeated reproductions, negative tenant checks, SARIF, pilot measurements, exact-subject exceptions, tested artifact provenance, and operational halt/reconciliation decisions. Legacy manifests remain valid; external oracle references and full oracle-root inventories are additive fields in schema version 1. Any changed binding requires fresh trusted import.
+The result schema retains `mode: shadow` and `release_decision: not_evaluated` for compatibility. Release, artifact-attestation and rollout commands are retired and available only in the [historical source archive](../archive/README.md).

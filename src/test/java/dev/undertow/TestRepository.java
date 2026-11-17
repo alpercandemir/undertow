@@ -15,17 +15,6 @@ final class TestRepository {
     TestRepository(Path directory) throws Exception {
         root = directory;
         Files.createDirectories(root);
-        for (String path :
-                List.of(
-                        "config/review.yaml",
-                        "config/business-context.yaml",
-                        "config/dependency-sources.yaml",
-                        "config/languages/java/rules.yaml",
-                        "CODING-SKILL.md")) {
-            Path to = root.resolve(path);
-            Files.createDirectories(to.getParent());
-            Files.copy(Path.of(path), to);
-        }
         write("src/Pay.java", "class Pay { int amount() { return 1; } }\n");
         command("init", "-q");
         command("add", ".");

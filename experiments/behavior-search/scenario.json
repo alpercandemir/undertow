@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "expectation": "aggregate_refunds_never_exceed_capture",
+  "unit": "integer_minor_units",
+  "capture_range": [2, 10000],
+  "amount_range": [-1, 10001],
+  "max_operations": 16,
+  "operation_keys": "fresh_nonblank_key_per_step",
+  "valid_refund": "amount > 0 and amount <= capture - observed_refunded",
+  "acceptance": "A valid refund is accepted and adds exactly its amount and one settled effect.",
+  "rejection": "An invalid refund is rejected with IllegalArgumentException and changes neither observation.",
+  "invariant": "0 <= observed_refunded <= capture after every operation",
+  "non_vacuity": "Accept a positive partial refund; reach the cap; reject invalid requests without changing state.",
+  "scope": "One capture, one currency, sequential in-memory calls; no retries, persistence, provider or concurrency.",
+  "authority": "Local experiment expectation specified by behavior-counterexample-plan milestones 1 and 2; not trusted CI policy."
+}

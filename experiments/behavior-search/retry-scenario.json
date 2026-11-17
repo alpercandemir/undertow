@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "expectation": "retry_idempotency",
+  "initial_range": [2, 10000],
+  "actions": [{"name": "refund", "fields": {
+    "key": {"kind": "integer", "min": 1, "max": 16},
+    "amount": {"kind": "integer", "min": -1, "max": 10001, "initial_boundaries": true}
+  }}],
+  "unit": "integer_minor_units",
+  "acceptance": "Fresh positive refunds within remaining capture settle once.",
+  "retry": "A settled key with the same amount succeeds without changing totals or effects, including when capture is exhausted.",
+  "conflict": "A settled key with a different amount is rejected without effects.",
+  "rejection": "Invalid fresh requests leave state unchanged and do not reserve keys.",
+  "scope": "Sequential in-memory refunds; no provider, persistence or concurrency.",
+  "authority": "Local experiment expectation from refund obligations and authorized milestone 3; no trusted CI provenance."
+}

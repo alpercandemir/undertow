@@ -1,0 +1,1585 @@
+{
+  "archive_sha256": "8f0d720961475ed22f4614c0eb8e51800115c0ebdf6ee2c27fa412b44ca28866",
+  "base_commit": "61587c01f1f62234beb92430b2e5151347056ada",
+  "files": {
+    ".editorconfig": {
+      "mode": "0o644",
+      "sha256": "72f218100372340183ea9970868911b56352c20a25c77fa7e5d88e1ebc65383d"
+    },
+    ".github/workflows/agent-review.yml": {
+      "mode": "0o644",
+      "sha256": "7b79feb0aa1004fcda5284c55afb8875314a41c85fd9026bdcadc5962d041563"
+    },
+    ".github/workflows/behavior-gallery.yml": {
+      "mode": "0o644",
+      "sha256": "cf7f3b468641813673db3b7f605842fa6495b61aab687ceddf9866f61941a399"
+    },
+    ".github/workflows/behavior-review.yml": {
+      "mode": "0o644",
+      "sha256": "0e9dfbb5257b6e37f8a67aaf7c6f3aa4efd661fae6b647de4033b4792294bbd0"
+    },
+    ".github/workflows/ci.yml": {
+      "mode": "0o644",
+      "sha256": "5400ff86e7f9b5eb9a8ac834ee63344b202981e00095469f06fd3742d36e121b"
+    },
+    ".gitignore": {
+      "mode": "0o644",
+      "sha256": "a9f70029f2ece42251efea7170bca18962e6bc36e25094fff33c6e331bda572a"
+    },
+    ".undertow/contracts.yaml": {
+      "mode": "0o644",
+      "sha256": "921da4e3691db4046c8ac8cdc825f6af10b5e1ce867e1d7fcb24fa18c40dab51"
+    },
+    "CODING-SKILL.md": {
+      "mode": "0o644",
+      "sha256": "61c8346f082d55c8a5b309ae5ae54697c2e3d93c1e9bd9aad9bac591ff3b22e0"
+    },
+    "CONTRIBUTING.md": {
+      "mode": "0o644",
+      "sha256": "0c08997553629943ea2bcc5fadf22d5b93519468b81499dbb2efb1780db74d74"
+    },
+    "LICENSE": {
+      "mode": "0o644",
+      "sha256": "f96d74a292d054db6f81a9fdaa6e7220547032f5ff31cab707d5bf6be55abc55"
+    },
+    "PROJECT-PLAN.md": {
+      "mode": "0o644",
+      "sha256": "f608d31845a83d9a1ee762213958f7afb7aa698513d63c1f1bdd9bf565a4f715"
+    },
+    "README.md": {
+      "mode": "0o644",
+      "sha256": "193d738044f9e20ba8eafe7dd095e2f09096c7019cbfdaa77d4b313deb22baad"
+    },
+    "SECURITY.md": {
+      "mode": "0o644",
+      "sha256": "04f6494339c2a71ff382e24a4b482671a8d7535927d9985b2f96ab5a5b8c4b8b"
+    },
+    "action.yml": {
+      "mode": "0o644",
+      "sha256": "ccc9393af69b6b5bc9da712be2cf978ab84aa8eed25e9db3b85960241fa5a13a"
+    },
+    "config/business-context.yaml": {
+      "mode": "0o644",
+      "sha256": "97e44e301f191355f741f00838b0f2871e84d21f31f2060873d09f77c741a5ca"
+    },
+    "config/dependency-sources.yaml": {
+      "mode": "0o644",
+      "sha256": "08270c52b241d8686c0da7e3b6806ebbabc3a496e95de72ec6655573458c00a7"
+    },
+    "config/languages/java/rules.yaml": {
+      "mode": "0o644",
+      "sha256": "ba9a0e81ba827bfa60e83080ba037652060489273e8d1fd46f0c8b236f639000"
+    },
+    "config/review.yaml": {
+      "mode": "0o644",
+      "sha256": "e8d110ff8d380d566444f3bde93ebd3bcbc180eae008716916ff250f31890223"
+    },
+    "config/spotbugs-exclude.xml": {
+      "mode": "0o644",
+      "sha256": "957ba261be68b44fd1c7790010078a7e815568d687c549883f25456f628aa9d4"
+    },
+    "demo/customer-service/.github/workflows/ci.yml": {
+      "mode": "0o644",
+      "sha256": "aa369fcd8182c07600060a29608f0b4ba08e761937f9d92e71af186c5b7393d3"
+    },
+    "demo/customer-service/.undertow/business-context.yaml": {
+      "mode": "0o644",
+      "sha256": "dfed6cbacc782368b640ffa287754c1fbbf58f7a68e4b9a9b954cfef3979919a"
+    },
+    "demo/customer-service/.undertow/contracts.yaml": {
+      "mode": "0o644",
+      "sha256": "65d10c033a357e42d5de615e825c432975e44378bd72624d686edbce2483454b"
+    },
+    "demo/customer-service/.undertow/guidelines.md": {
+      "mode": "0o644",
+      "sha256": "c8885bf95d982bf69a7864a8d884742a10c162a58dc989c22d98b599bf560cfa"
+    },
+    "demo/customer-service/.undertow/rules.yaml": {
+      "mode": "0o644",
+      "sha256": "0ce87fd93697f171c57165978c837dff1ea59eb63eec095bfb7e8f43b715b230"
+    },
+    "demo/customer-service/README.md": {
+      "mode": "0o644",
+      "sha256": "36f128e69ffe77447334dd605818dce1ca99d8531ae4c99ab2f4da0451a0cbbb"
+    },
+    "demo/customer-service/pom.xml": {
+      "mode": "0o644",
+      "sha256": "cb9bd98c4967bde9f06e64ebd89cdd0a544d46fcdf254978f1d7a6e504a15359"
+    },
+    "demo/customer-service/src/main/java/example/OrderService.java": {
+      "mode": "0o644",
+      "sha256": "e40deaa6bf4154af3630725d975519774d362fb5dd07231664621c797696a14e"
+    },
+    "demo/customer-service/src/test/java/example/OrderServiceTest.java": {
+      "mode": "0o644",
+      "sha256": "0381277abb7f9c83a2dade3d8da4617269f760aeed3686f22ada6f8bbe9608a4"
+    },
+    "demo/dependency-upgrade/README.md": {
+      "mode": "0o644",
+      "sha256": "50715996a4d5a388817dee0f78ba4367750910b0d12d7c1a4111dc5829684bea"
+    },
+    "demo/dependency-upgrade/pom.xml": {
+      "mode": "0o644",
+      "sha256": "0bb69863b27e97405c743f0f3025cc7cf5115a9cbd19ace184654b5f7ef582eb"
+    },
+    "demo/dependency-upgrade/run.py": {
+      "mode": "0o644",
+      "sha256": "62659754180ce1913b4cfe945975f1a1ae8c969aba886a5ba6ab6d383dc0e183"
+    },
+    "demo/dependency-upgrade/src/main/java/example/PaymentStatus.java": {
+      "mode": "0o644",
+      "sha256": "849feb058f8a6524b4a17c7df4420c2f1c21a4f3c26dbe48726db0ba405ec852"
+    },
+    "demo/order-service/.undertow/contracts.yaml": {
+      "mode": "0o644",
+      "sha256": "2074b4892173eecfaa98309052c0bbfd8141c19ea152ce6c1205acb42b4d3a38"
+    },
+    "demo/order-service/README.md": {
+      "mode": "0o644",
+      "sha256": "bb1a6948f4663693d7aae10d67f698e97bf9907fdd12f83f07cc327b51d0d553"
+    },
+    "demo/order-service/pom.xml": {
+      "mode": "0o644",
+      "sha256": "3ac17b5fcd7460ff5e1fec2d3a9ac63e54c585fb79c54b275c8888f39a1abb2c"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/DemoPaymentGateway.java": {
+      "mode": "0o644",
+      "sha256": "52dccdf6158f992cb6de888468e286a0fc0390d5daa8db1fbac7d008f9220476"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/Money.java": {
+      "mode": "0o644",
+      "sha256": "1f49a7c3577457ede9d8f45d6e4afbcae765c2787b58bfd80d38a3eee4ea5017"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/OrderApplication.java": {
+      "mode": "0o644",
+      "sha256": "883d3a20ce15605dcb129ffc66f6514c976582ed5b19c034cdb3c23287504984"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/OrderController.java": {
+      "mode": "0o644",
+      "sha256": "af8cc9f7253f11391ea2df8592cdef31bc50d11d32ba6c68b4f272e8095e3570"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/OrderRepository.java": {
+      "mode": "0o644",
+      "sha256": "8bfafcf16b75c2caa4eb547a8d57f308eef36cafb464377132d099f111198fe7"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/OrderService.java": {
+      "mode": "0o644",
+      "sha256": "fc554f920b2fa436dcb111efbdf057d1ed37eda1ac7d95d4f787823100d909b5"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/OrderWriter.java": {
+      "mode": "0o644",
+      "sha256": "82fd200edbbc15e3eb8c49e9b69be4a77f3647f5ba1252136dc0daa118f258f0"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/PaymentGateway.java": {
+      "mode": "0o644",
+      "sha256": "6fa186bfe62dc3f8c0e126f44f1936282fd0fc2e3e38085a6705dc1ddcb6eecb"
+    },
+    "demo/order-service/src/main/java/dev/undertow/demo/PaymentGatewayAdapter.java": {
+      "mode": "0o644",
+      "sha256": "4492fd6f7ab822d0f9818e9bdf3db815066b336cec008fb012b1742b30334322"
+    },
+    "demo/order-service/src/main/resources/application.yaml": {
+      "mode": "0o644",
+      "sha256": "39848a3416702bcd672ce829ed511336055823bfbe862e046d37beb157f4942a"
+    },
+    "demo/order-service/src/main/resources/db/migration/V1__orders.sql": {
+      "mode": "0o644",
+      "sha256": "f21cb8345deead329a5f2f74b7395cf859b75ddc47b3730e43ef0f0c7b5e77d5"
+    },
+    "demo/order-service/src/test/java/dev/undertow/demo/OrderIntegrityIT.java": {
+      "mode": "0o644",
+      "sha256": "5cfda4dc54f3895f70a55bfc1d3599b540ba029bc240857d36eb837983c57c11"
+    },
+    "demo/order-service/src/test/java/dev/undertow/demo/PaymentBehaviorTest.java": {
+      "mode": "0o644",
+      "sha256": "b5ade5176954a454b609d6d119252e478586ffb4b2c4e81c0ec628b2bb3f0b3f"
+    },
+    "demo/pr-workbench/.openai/hosting.json": {
+      "mode": "0o644",
+      "sha256": "41a155c7b4522b6436fb690172b6ed68d232ab040b4d7b91c8e29ffeccf2e9bb"
+    },
+    "demo/pr-workbench/README.md": {
+      "mode": "0o644",
+      "sha256": "32bf2ce8495531196da187c70692d7ac0392c5499bdb76c4598a9043c99c804d"
+    },
+    "demo/pr-workbench/dist/app.js": {
+      "mode": "0o644",
+      "sha256": "e279a7833f9d6f89b07510e10ed8d23ac351bfb7b51f753061871ccf91875a72"
+    },
+    "demo/pr-workbench/dist/demo-state.mjs": {
+      "mode": "0o644",
+      "sha256": "435db557435d44ecf95fb0cf49ebee3d9bc89a6ad901f6c6a9577134412ba976"
+    },
+    "demo/pr-workbench/dist/demo.css": {
+      "mode": "0o644",
+      "sha256": "3cf277e98a4839dedb4a87e0de93e61e582b0dec9964219e9c334f34810a30c2"
+    },
+    "demo/pr-workbench/dist/demo.js": {
+      "mode": "0o644",
+      "sha256": "eedad298d70a0235df2cc2d215ca34133830e9e6bef90fd38b118eb72042ec8a"
+    },
+    "demo/pr-workbench/dist/evidence/approved-policy.json": {
+      "mode": "0o644",
+      "sha256": "dd5e6540d0c872678a08f52e08dc8320b7def30eaf376016885eab1990ca512a"
+    },
+    "demo/pr-workbench/dist/evidence/broken/ci-bundle.json": {
+      "mode": "0o644",
+      "sha256": "0aa91fa35a775850eb79c26fe605f0779c6612c65673ba837ddc39d190b8a818"
+    },
+    "demo/pr-workbench/dist/evidence/broken/contracts.json": {
+      "mode": "0o644",
+      "sha256": "7b624134e1be8c79e1d4698510039c9c8894c00dd42bcb599be2a8dab13985b2"
+    },
+    "demo/pr-workbench/dist/evidence/catalog.json": {
+      "mode": "0o644",
+      "sha256": "3b0e7ead5f7bc293e93bac7874b91a86ee067139a82cbe9551eff15116951448"
+    },
+    "demo/pr-workbench/dist/evidence/fixed/ci-bundle.json": {
+      "mode": "0o644",
+      "sha256": "c1122acae0d5d0b2a0fd31f33694a25c84e44181d01ea480f6a7c93e5d5e4e65"
+    },
+    "demo/pr-workbench/dist/evidence/fixed/contracts.json": {
+      "mode": "0o644",
+      "sha256": "eec23bdada22fee3a764412069489a65e2e951e2828a7a4a3f41638afece6681"
+    },
+    "demo/pr-workbench/dist/evidence/missing/contracts.json": {
+      "mode": "0o644",
+      "sha256": "7ce0692b658084e61feb5774707942c64bb1fd673151caf583f4dd521dd12575"
+    },
+    "demo/pr-workbench/dist/evidence/refund-fixture.json": {
+      "mode": "0o644",
+      "sha256": "a7f44b4179f7ad34876b1f3f16ce930e8025c5aea93abbd760c144187248685d"
+    },
+    "demo/pr-workbench/dist/index.html": {
+      "mode": "0o644",
+      "sha256": "0d4520d543b4c229c3647d058baef7f8779863fa27cc6aaaa1732fd19f3cd985"
+    },
+    "demo/pr-workbench/dist/model.mjs": {
+      "mode": "0o644",
+      "sha256": "dfe7b4accf07ebcc95c57abc019d025a37e16912abed9a73fa24be59b096daba"
+    },
+    "demo/pr-workbench/dist/refund.mjs": {
+      "mode": "0o644",
+      "sha256": "004c45126ed38224f64eb6a00c4ef0b056fdd8610a60305b5f2000103fd9f2b0"
+    },
+    "demo/pr-workbench/dist/styles.css": {
+      "mode": "0o644",
+      "sha256": "a1ae5b33c2700d77d5dbf862adbfbaff835b745f42fa20eeb15db76182171b61"
+    },
+    "demo/pr-workbench/dist/workspace.html": {
+      "mode": "0o644",
+      "sha256": "e73f37f9c31b19e524a462be75512ff1a31aad27aed45303a97102bc323b66c9"
+    },
+    "demo/refund-extraction/README.md": {
+      "mode": "0o644",
+      "sha256": "ec44e4dfb934cc04c3525e5233ede15248c066de4d6d09c1aa2379712e0ad1d7"
+    },
+    "demo/refund-extraction/cases.json": {
+      "mode": "0o644",
+      "sha256": "1e57e1319cbce1070ede1f1894ea4843aee3e7064e780a65dd56c5555477ee49"
+    },
+    "demo/refund-extraction/change-contracts.json": {
+      "mode": "0o644",
+      "sha256": "13219764cae484e7fa246ce18d6e42df881f9fac09378195968729aa45351d54"
+    },
+    "demo/refund-extraction/change-intent.md": {
+      "mode": "0o644",
+      "sha256": "669c8a124db96ae59b7f06240182c87fcc43bdb7b064a1b2fce782bbee30538f"
+    },
+    "demo/refund-extraction/contracts.json": {
+      "mode": "0o644",
+      "sha256": "28c7d2c988e1544d1ab2da9f13f435bcaf8351bd0941f9d259818c4417db9b86"
+    },
+    "demo/refund-extraction/pom.xml": {
+      "mode": "0o644",
+      "sha256": "698b9008c8c9fffa9f59212219873592702a81755ff28ea8b105111a3a414fe4"
+    },
+    "demo/refund-extraction/src/main/java/example/refunds/RefundService.java": {
+      "mode": "0o644",
+      "sha256": "82256e37737b93f3af4b4faaf4fa46fee6bcac7564131c9a749fb6b905e1d4b7"
+    },
+    "demo/refund-extraction/src/test/java/example/refunds/ExistingRefundContractTest.java": {
+      "mode": "0o644",
+      "sha256": "d809874c7235ac0fce9070ddd0469b426b95097282da9121677093ff565b5a63"
+    },
+    "demo/refund-extraction/src/test/java/example/refunds/PartialRefundContractTest.java": {
+      "mode": "0o644",
+      "sha256": "3307faa58c358bb196f4f532b6f3166021aed304d4a79d93bbe9cd449617f5b3"
+    },
+    "demo/ticket-transfer/.github/workflows/contracts.yml": {
+      "mode": "0o644",
+      "sha256": "d0124e298a41af7e56c012fd0f39dac87824f4e2b0463b5cdc97711c4521a2f4"
+    },
+    "demo/ticket-transfer/.gitignore": {
+      "mode": "0o644",
+      "sha256": "b53ee26e6ff1da219b0563333a76d2c9ec19eec713d6ee54e11a1edacb0e9f3d"
+    },
+    "demo/ticket-transfer/.undertow/contracts.yaml": {
+      "mode": "0o644",
+      "sha256": "26e3cf8de7599a391b05caf21bc4e8b01d3518ad7de580f67507d885b8c64be5"
+    },
+    "demo/ticket-transfer/README.md": {
+      "mode": "0o644",
+      "sha256": "6cdd0c203e749aad052b6a3505afc77c5647aa34c2bf7273e4e42edf9c4aee40"
+    },
+    "demo/ticket-transfer/pom.xml": {
+      "mode": "0o644",
+      "sha256": "96f4e1f2e4034fdde7d4390121fc1907054f270169efb489f10e471adbc65e88"
+    },
+    "demo/ticket-transfer/src/main/java/example/tickets/TicketTransfer.java": {
+      "mode": "0o644",
+      "sha256": "2af7e5e6b562acf902772703729a769a2c86ec5867af6709c075dde6f26086e2"
+    },
+    "demo/ticket-transfer/src/test/java/example/tickets/TransferContractTest.java": {
+      "mode": "0o644",
+      "sha256": "8555fc6654fbe2133b5d4820715a16e71994d965ba5d377c1793b8d4cd196559"
+    },
+    "deploy/phase3/Dockerfile": {
+      "mode": "0o644",
+      "sha256": "c457bfa39a7a7289b02a860b00e900ebf2c6d60b0934f4869cfd95ff2e6e3f8a"
+    },
+    "deploy/phase3/publisher-container.sh": {
+      "mode": "0o755",
+      "sha256": "50287a9c115c08f1f44bd9c225db2aa5dbbdb759f55fd97e3992cf508abf6797"
+    },
+    "deploy/phase3/service.example.json": {
+      "mode": "0o644",
+      "sha256": "74a9030c40af1655744714e051c6a8a3d310ae90227ae880840db3ddffbca6db"
+    },
+    "deploy/phase3/worker-container.sh": {
+      "mode": "0o755",
+      "sha256": "5b7458f7885bca297c0155a57e6eedd608fdeba24477a30cde3a6fa642d60439"
+    },
+    "docs/ai-era-consolidated-roadmap.md": {
+      "mode": "0o644",
+      "sha256": "782e9d7f34e8901bd7beffa0aab0938df1942d324726a1e9ac13ce4d159ac5ca"
+    },
+    "docs/ai-era-implementation-status.md": {
+      "mode": "0o644",
+      "sha256": "cbb5d0b89be2e950af90b614157b234e7892b4bbf92c545945b9f197709df4ba"
+    },
+    "docs/architecture.md": {
+      "mode": "0o644",
+      "sha256": "149617d57eaaeccd952a7ef4ad0f09a6cd0f5352880154159d1887e024a6e8c3"
+    },
+    "docs/assets/assurance-gallery.png": {
+      "mode": "0o644",
+      "sha256": "f26df0105f4f137f92bc7e440135daf2ff8e64f74c89b5db3334371267c18eef"
+    },
+    "docs/assets/interactive-refund-demo.jpg": {
+      "mode": "0o644",
+      "sha256": "2dd0dfb8c603f31030db57854000d9707a4aac4558ab739682b7bfbb8d2a95c5"
+    },
+    "docs/assets/undertow-logo.png": {
+      "mode": "0o644",
+      "sha256": "4f367768238f23a5e1dc9ba6731acf29872cf876bde3766dc907b38ad1733c2a"
+    },
+    "docs/assurance.md": {
+      "mode": "0o644",
+      "sha256": "30e89926a0e6e7da66d82c5a45470fe23246856079203aecae89d4dbdf168499"
+    },
+    "docs/behavior-counterexample-plan.md": {
+      "mode": "0o644",
+      "sha256": "a25c18722d522cdc9b4e9ae79d8cdb15911f02e5d3eee09fd375b67eb2519320"
+    },
+    "docs/behavior-preservation-and-monoliths.md": {
+      "mode": "0o644",
+      "sha256": "772404b2e27b49b63a2260faf9f8eaffe24aa9901fce3623373311bb833865f5"
+    },
+    "docs/cases/README.md": {
+      "mode": "0o644",
+      "sha256": "0e2d52010618bbd71c9cd8cc78a7fb7345ee461058a1e9bca060c2ccff4d3225"
+    },
+    "docs/cases/behavior-gallery.json": {
+      "mode": "0o644",
+      "sha256": "129efb1bc8d53a52c9de634fa91b3316f10d5cafdb9728089de4ed129235251c"
+    },
+    "docs/ci-behavior-review.md": {
+      "mode": "0o644",
+      "sha256": "27390b5a3d30b51f0c421a6f1c54426e38ff36ed2e0b33f4a751f9f6bf54ec3e"
+    },
+    "docs/client-showcase.md": {
+      "mode": "0o644",
+      "sha256": "9c2679a57d1da3f68a9e789a62313c7d69c921954377133bfba2a2109a6e5755"
+    },
+    "docs/code-quality-review.md": {
+      "mode": "0o644",
+      "sha256": "1609f55c6cc89f581cbc80f7f9463ebbeff83e7cb39fb38f72a8b57512258284"
+    },
+    "docs/contracts.md": {
+      "mode": "0o644",
+      "sha256": "dc1065a57d63a29b5d65853179db10fc8b6c3bbe90ef4041c8ab41e31a2c005f"
+    },
+    "docs/demo.cast": {
+      "mode": "0o644",
+      "sha256": "e9a952a76386d9d136b4b51dd3b9302d87f47864ebae702c0aa4e0a0a2b93319"
+    },
+    "docs/evaluation-report.md": {
+      "mode": "0o644",
+      "sha256": "db33bf70a1c46bbff710b01c684b42371353b6ddea9b850309e3f7cc0f9dcaf9"
+    },
+    "docs/examples/pilot-manifest.json": {
+      "mode": "0o644",
+      "sha256": "53d08a4f64d275f4ca7b8beed2415ed0d0b51cd72b74237c828bb474d72c8f2c"
+    },
+    "docs/examples/showcase-behavior-gallery.yml": {
+      "mode": "0o644",
+      "sha256": "a57c69ac0c1db03629597ac779b0c7cbe0d9b19f3b97b3eb5100e01f1657367d"
+    },
+    "docs/examples/showcase-behavior-review.yml": {
+      "mode": "0o644",
+      "sha256": "3f5b323e2a70208c4eeb03748c8597aedfcc0f98138f0789cba7fc2f0dbd97ae"
+    },
+    "docs/examples/tenant-corrected.java": {
+      "mode": "0o644",
+      "sha256": "5fdd80e26901ece2fd39fe25e79820ffb7fd20e450b2b879be71eb6dfa1d1cc1"
+    },
+    "docs/examples/tenant-rules-v2.yaml": {
+      "mode": "0o644",
+      "sha256": "dfe59364b160b3ff089b4ae5feb60f8e864f8ebad1a0ceb66f03b2acbe132e5d"
+    },
+    "docs/examples/tenant-unsafe.java": {
+      "mode": "0o644",
+      "sha256": "16da52c5c0ea0450a60fdf864d324e57cb65fff7737736a7f0b1e57d94a0cffc"
+    },
+    "docs/explore.md": {
+      "mode": "0o644",
+      "sha256": "2d29f147923c9bf367a386a9fbc8b05e71a3f230cbea297528a06b8c0ff42ffb"
+    },
+    "docs/independent-review.md": {
+      "mode": "0o644",
+      "sha256": "f8bb0ceabb20559b16c2d9e37013de26360f383f5a6d3766fde2113811041ce5"
+    },
+    "docs/learning-journal.md": {
+      "mode": "0o644",
+      "sha256": "4492d2be369e17200a9bc12b3abc678628aa0599de72f6859a6a40463d90067d"
+    },
+    "docs/next-pilot-and-public-playground.md": {
+      "mode": "0o644",
+      "sha256": "9577eecad6d7d19da2f2bff80d4058a264bada44279c8dad8a007f01189b944d"
+    },
+    "docs/phase2-prd.md": {
+      "mode": "0o644",
+      "sha256": "13e3966cb11535515b22701810dd362aa57d453c754e3a43216b5b298b82fb20"
+    },
+    "docs/phase2-report-contract.md": {
+      "mode": "0o644",
+      "sha256": "4fb7a1a50085a73f784a875e921a74877cd423a3bb271899026f186199488625"
+    },
+    "docs/phase2-setup.md": {
+      "mode": "0o644",
+      "sha256": "f9a4861ae6b79c10b3b9548cb57aa150d756897ff0b8a42a583136b188662393"
+    },
+    "docs/phase2-status.md": {
+      "mode": "0o644",
+      "sha256": "34bd9c62da2a31b41baa4dc5df18eda2b04b74503b2e6616df009c5a9b538872"
+    },
+    "docs/phase3-prd.md": {
+      "mode": "0o644",
+      "sha256": "60f32c24253fe0cf4cb3b19f6ae171102f618476cee5df1008796a7b5d5fbabe"
+    },
+    "docs/phase3-setup.md": {
+      "mode": "0o644",
+      "sha256": "3a15d17c2febe233d5183fd2662cbef1e92011c40683adc087b73b1e88338cb5"
+    },
+    "docs/phase3-status.md": {
+      "mode": "0o644",
+      "sha256": "7b237d271aceb440fc1bf5cb8298c12e1dad800fa424c2d29f36aa1fafbed3fd"
+    },
+    "docs/public-source-audit.md": {
+      "mode": "0o644",
+      "sha256": "525bb510bbe1df51cbe812ea79d136f153788b6040da1c69a94de5cb5de062fd"
+    },
+    "docs/reference-workflows.md": {
+      "mode": "0o644",
+      "sha256": "33294bea8000737786a3e180f8162df04d6081bfea4805990cd9a4771b8c8787"
+    },
+    "docs/replay-evaluation.json": {
+      "mode": "0o644",
+      "sha256": "ed6cf23e6f3ebe3c167a3787ec87af5f304c7f34a267a38ec683abc017309490"
+    },
+    "docs/sample-evidence.json": {
+      "mode": "0o644",
+      "sha256": "5d2100f01ede72b886ac5b725f3ffb8e16f1cf7e4b4d827cb51adf524bea549a"
+    },
+    "docs/sample-review.json": {
+      "mode": "0o644",
+      "sha256": "2976bf649105ce4d0e3dec4cc8902fc2cce6e304c4c677fadf532c5e55f1b4b5"
+    },
+    "docs/sample-review.md": {
+      "mode": "0o644",
+      "sha256": "968e0acffd4dc0f2fecb4f6e5fdc1857d907e61f327ebd838491df0e87583206"
+    },
+    "docs/spring-java25-migration.md": {
+      "mode": "0o644",
+      "sha256": "4e59d67e74de7797eb14026b286ee99e8f219aaa2554b8fdc38edf71034ba163"
+    },
+    "docs/templates/independent-review-record.md": {
+      "mode": "0o644",
+      "sha256": "d9b9720d10ef5d42c4492680cb450e8d9c553531f6b96e67747064cbcad806fe"
+    },
+    "docs/tool-contracts.md": {
+      "mode": "0o644",
+      "sha256": "2f83f6d034251757bdd78dc0df01c073832cbe5441eaa8c351492fc4febccd5d"
+    },
+    "evals/cases/database-key-removal/after.sql": {
+      "mode": "0o644",
+      "sha256": "c8f3e6704e8f8e0be9f469ee934c114e95291b930c86d2ab241dc6cccd414950"
+    },
+    "evals/cases/database-key-removal/before.sql": {
+      "mode": "0o644",
+      "sha256": "4bc6c237db72389cd015559368c411d118d395b2a79295f9cf654470746d5886"
+    },
+    "evals/cases/database-key-restored/after.sql": {
+      "mode": "0o644",
+      "sha256": "4bc6c237db72389cd015559368c411d118d395b2a79295f9cf654470746d5886"
+    },
+    "evals/cases/database-key-restored/before.sql": {
+      "mode": "0o644",
+      "sha256": "c8f3e6704e8f8e0be9f469ee934c114e95291b930c86d2ab241dc6cccd414950"
+    },
+    "evals/cases/database-unique-removal/after.sql": {
+      "mode": "0o644",
+      "sha256": "d287535e0896334af18eee63b555f9f6b6ccce6e945f9cb6fb8680f12b4f4a4f"
+    },
+    "evals/cases/database-unique-removal/before.sql": {
+      "mode": "0o644",
+      "sha256": "cc6cc211a1a0c8062bad0e43c56ebd4958060670dbd4d2090b0c7660112fe563"
+    },
+    "evals/cases/database-unique-restored/after.sql": {
+      "mode": "0o644",
+      "sha256": "cc6cc211a1a0c8062bad0e43c56ebd4958060670dbd4d2090b0c7660112fe563"
+    },
+    "evals/cases/database-unique-restored/before.sql": {
+      "mode": "0o644",
+      "sha256": "d287535e0896334af18eee63b555f9f6b6ccce6e945f9cb6fb8680f12b4f4a4f"
+    },
+    "evals/cases/dependency-major-inventory/after.xml": {
+      "mode": "0o644",
+      "sha256": "1554f1916cbe629c84c7b4eed80c67898fd25e97b13b5e4ac4445d1bb6232fa0"
+    },
+    "evals/cases/dependency-major-inventory/before.xml": {
+      "mode": "0o644",
+      "sha256": "9c92956924e5a364b71e9dace52c6ba18fd2a5e59839d8214112d3eb8eb37664"
+    },
+    "evals/cases/dependency-property-inventory/after.xml": {
+      "mode": "0o644",
+      "sha256": "7419ab277abdd556c7545db56852f0a8246b5b9ddcaa95c2e1bfb83db30d6ac3"
+    },
+    "evals/cases/dependency-property-inventory/before.xml": {
+      "mode": "0o644",
+      "sha256": "297b18f5ec5bdf112c4d87c5ef9d91dcb0f83eabc80c7fe12821bdf8b9755564"
+    },
+    "evals/cases/http-connect-timeout-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "852c9a63d5d8d3b961dcc0233137cda8d085624d2e0e802f108886a5520e145c"
+    },
+    "evals/cases/http-connect-timeout-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "d31710bdc7e205f78c8de40d25775456880dd67474a16db369a10c3328c114ef"
+    },
+    "evals/cases/http-connect-timeout-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "d31710bdc7e205f78c8de40d25775456880dd67474a16db369a10c3328c114ef"
+    },
+    "evals/cases/http-connect-timeout-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "852c9a63d5d8d3b961dcc0233137cda8d085624d2e0e802f108886a5520e145c"
+    },
+    "evals/cases/http-timeout-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "c6621938afe2bd36b4351e7dfe48d598b257af1715b58e44814be45c8a35135b"
+    },
+    "evals/cases/http-timeout-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "043750b22cc39addb5e1cb4fc8b53f90085b88e037b7fb81a80e21a95ceb6c47"
+    },
+    "evals/cases/http-timeout-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "043750b22cc39addb5e1cb4fc8b53f90085b88e037b7fb81a80e21a95ceb6c47"
+    },
+    "evals/cases/http-timeout-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "c6621938afe2bd36b4351e7dfe48d598b257af1715b58e44814be45c8a35135b"
+    },
+    "evals/cases/log-api-key-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "d00a26dea45e0bc084fe5c01e1e4dbe71139f9a854f4220e59417dfc35d1e413"
+    },
+    "evals/cases/log-api-key-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "d79282bb859dd1110574f680b6c073110a9c1ec3e0b6f1628b48db0dba526b23"
+    },
+    "evals/cases/log-api-key-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "d79282bb859dd1110574f680b6c073110a9c1ec3e0b6f1628b48db0dba526b23"
+    },
+    "evals/cases/log-api-key-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "d00a26dea45e0bc084fe5c01e1e4dbe71139f9a854f4220e59417dfc35d1e413"
+    },
+    "evals/cases/log-card-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "d00a26dea45e0bc084fe5c01e1e4dbe71139f9a854f4220e59417dfc35d1e413"
+    },
+    "evals/cases/log-card-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "803234289c90f9c12ccc8b0890859df4a3992f2dcc2fdc196c86817a4f7b9d74"
+    },
+    "evals/cases/log-card-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "803234289c90f9c12ccc8b0890859df4a3992f2dcc2fdc196c86817a4f7b9d74"
+    },
+    "evals/cases/log-card-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "d00a26dea45e0bc084fe5c01e1e4dbe71139f9a854f4220e59417dfc35d1e413"
+    },
+    "evals/cases/log-token-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "d00a26dea45e0bc084fe5c01e1e4dbe71139f9a854f4220e59417dfc35d1e413"
+    },
+    "evals/cases/log-token-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "58e8e20213ba52f9dbef8e21a9911c9e595b982dee5a4b31435633ee98a702f1"
+    },
+    "evals/cases/log-token-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "58e8e20213ba52f9dbef8e21a9911c9e595b982dee5a4b31435633ee98a702f1"
+    },
+    "evals/cases/log-token-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "d00a26dea45e0bc084fe5c01e1e4dbe71139f9a854f4220e59417dfc35d1e413"
+    },
+    "evals/cases/money-division-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "af0755b4f6650c53f7ce6ea764c8ebe528a3ecb4d8f07840d9d47f79b010ab3d"
+    },
+    "evals/cases/money-division-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "3d5cd95bbfd2de916a518477cbfa498849a7ea5194810819b94f6546a5c609bd"
+    },
+    "evals/cases/money-division-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "3d5cd95bbfd2de916a518477cbfa498849a7ea5194810819b94f6546a5c609bd"
+    },
+    "evals/cases/money-division-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "af0755b4f6650c53f7ce6ea764c8ebe528a3ecb4d8f07840d9d47f79b010ab3d"
+    },
+    "evals/cases/money-double-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "1a327ffe4b6d4793af892365830363b0e88984b929d42b08e6d4d1bb847c1697"
+    },
+    "evals/cases/money-double-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "bc4a7faeedcf5a3440e0d2a9567dfee49436e81dceb7ce00f6a088908b816abf"
+    },
+    "evals/cases/money-double-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "bc4a7faeedcf5a3440e0d2a9567dfee49436e81dceb7ce00f6a088908b816abf"
+    },
+    "evals/cases/money-double-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "1a327ffe4b6d4793af892365830363b0e88984b929d42b08e6d4d1bb847c1697"
+    },
+    "evals/cases/money-equality-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "3c54213539f92f523402b3ff5f13f6a646ffbadb3ef63c2c37b5c9fc633f3b0c"
+    },
+    "evals/cases/money-equality-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "7a79905fac603e7344a10b6a8901ac229d9413cbba12807b64471c51764ed17f"
+    },
+    "evals/cases/money-equality-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "7a79905fac603e7344a10b6a8901ac229d9413cbba12807b64471c51764ed17f"
+    },
+    "evals/cases/money-equality-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "3c54213539f92f523402b3ff5f13f6a646ffbadb3ef63c2c37b5c9fc633f3b0c"
+    },
+    "evals/cases/money-rounding-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "1420d86468ee4541e4782513bd30720bd24cdb522e4fd1f637bd6d89487f19e1"
+    },
+    "evals/cases/money-rounding-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "2c3e7dc0054df06facd4e40b18eae3a2022b2ba0a8e99a1d69fb1dca909bc384"
+    },
+    "evals/cases/money-rounding-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "2c3e7dc0054df06facd4e40b18eae3a2022b2ba0a8e99a1d69fb1dca909bc384"
+    },
+    "evals/cases/money-rounding-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "1420d86468ee4541e4782513bd30720bd24cdb522e4fd1f637bd6d89487f19e1"
+    },
+    "evals/cases/record-benign/after.java": {
+      "mode": "0o644",
+      "sha256": "72ee509d2c2f1de9dcdac588030c8d1e26c584176f893787853013a759a830f8"
+    },
+    "evals/cases/record-benign/before.java": {
+      "mode": "0o644",
+      "sha256": "660244385fb40f910309ee43bd3eeefa257b7b8aecdfac5049e12bbfd1a80abe"
+    },
+    "evals/cases/rename-benign/after.java": {
+      "mode": "0o644",
+      "sha256": "d3186d3e1ea9dbb6ae28ccdf32dfaf81f3fd11fff536bc4dc92f8fa178853d11"
+    },
+    "evals/cases/rename-benign/before.java": {
+      "mode": "0o644",
+      "sha256": "4f22890e87a45f8b2a5fc700d5d279cce99d1fe65c6d1d1a72d583a7fe891dc5"
+    },
+    "evals/cases/retry-key-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "f53d49d202c67e51665e94d8bdd0fb879a1074d0c2f9b21dc828027bb6c8173c"
+    },
+    "evals/cases/retry-key-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "91bb37b3667c27a6037b49afd6cab684dbff3e9460fb5bf176e881fbbbd2c554"
+    },
+    "evals/cases/retry-key-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "91bb37b3667c27a6037b49afd6cab684dbff3e9460fb5bf176e881fbbbd2c554"
+    },
+    "evals/cases/retry-key-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "f53d49d202c67e51665e94d8bdd0fb879a1074d0c2f9b21dc828027bb6c8173c"
+    },
+    "evals/cases/retry-loop-key-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "56108948502f2d5944490fa6e93722ce225027a69777bfe00321e785191001c5"
+    },
+    "evals/cases/retry-loop-key-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "dca641ca21cddebda50278a606468a31c8352303c5a6a540a020e9ba6294b373"
+    },
+    "evals/cases/retry-loop-key-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "dca641ca21cddebda50278a606468a31c8352303c5a6a540a020e9ba6294b373"
+    },
+    "evals/cases/retry-loop-key-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "56108948502f2d5944490fa6e93722ce225027a69777bfe00321e785191001c5"
+    },
+    "evals/cases/retry-scope-key-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "8f91b372fe530412ce61c5366bbe2eb52f75bdf824c159929e51e4400eaa8d2f"
+    },
+    "evals/cases/retry-scope-key-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "83de5068c406920b91fdce454b4ba081d84433b0200d931523a4c4952fc3bd35"
+    },
+    "evals/cases/retry-scope-key-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "83de5068c406920b91fdce454b4ba081d84433b0200d931523a4c4952fc3bd35"
+    },
+    "evals/cases/retry-scope-key-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "8f91b372fe530412ce61c5366bbe2eb52f75bdf824c159929e51e4400eaa8d2f"
+    },
+    "evals/cases/switch-benign/after.java": {
+      "mode": "0o644",
+      "sha256": "b3e1317dbf44ba0df86d0210c1d92646a2ee6fb3e6cceaf3a4485f52eb05fa15"
+    },
+    "evals/cases/switch-benign/before.java": {
+      "mode": "0o644",
+      "sha256": "22ea087ec7129023b3f16fa5bb96347178694a2626550aedacbe03e887c185c1"
+    },
+    "evals/cases/transaction-private-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "2a3e62c52e3ce6e55cda42f092a14b37c55794b96f3ad34e546f5893df77b5a2"
+    },
+    "evals/cases/transaction-private-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "c6d0116cd336e0b9600e886fea9ead972ddf6e0e8c3dc324625c1a6f39ec0397"
+    },
+    "evals/cases/transaction-private-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "c6d0116cd336e0b9600e886fea9ead972ddf6e0e8c3dc324625c1a6f39ec0397"
+    },
+    "evals/cases/transaction-private-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "2a3e62c52e3ce6e55cda42f092a14b37c55794b96f3ad34e546f5893df77b5a2"
+    },
+    "evals/cases/transaction-this-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "2a3e62c52e3ce6e55cda42f092a14b37c55794b96f3ad34e546f5893df77b5a2"
+    },
+    "evals/cases/transaction-this-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "421c01a5f58494a37c7897eb6f43df830ff0d21be4e1b13dc36bea5b8f81fd9f"
+    },
+    "evals/cases/transaction-this-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "421c01a5f58494a37c7897eb6f43df830ff0d21be4e1b13dc36bea5b8f81fd9f"
+    },
+    "evals/cases/transaction-this-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "2a3e62c52e3ce6e55cda42f092a14b37c55794b96f3ad34e546f5893df77b5a2"
+    },
+    "evals/cases/transaction-unqualified-corrected/after.java": {
+      "mode": "0o644",
+      "sha256": "2a3e62c52e3ce6e55cda42f092a14b37c55794b96f3ad34e546f5893df77b5a2"
+    },
+    "evals/cases/transaction-unqualified-corrected/before.java": {
+      "mode": "0o644",
+      "sha256": "eaf69690cb401dbf5f49954e181f6c77ecfe875a41e35da72c7a331598e2a4e5"
+    },
+    "evals/cases/transaction-unqualified-unsafe/after.java": {
+      "mode": "0o644",
+      "sha256": "eaf69690cb401dbf5f49954e181f6c77ecfe875a41e35da72c7a331598e2a4e5"
+    },
+    "evals/cases/transaction-unqualified-unsafe/before.java": {
+      "mode": "0o644",
+      "sha256": "2a3e62c52e3ce6e55cda42f092a14b37c55794b96f3ad34e546f5893df77b5a2"
+    },
+    "evals/cases/virtual-thread-benign/after.java": {
+      "mode": "0o644",
+      "sha256": "323c548ad161ebe1c93c420167d82a3e6c0da6a893292f5198798d250c6327f0"
+    },
+    "evals/cases/virtual-thread-benign/before.java": {
+      "mode": "0o644",
+      "sha256": "8dccc60eed1f99d78efc1e415d52b46dae282416952435048e30aa82a8536852"
+    },
+    "evals/expected/database-key-removal.json": {
+      "mode": "0o644",
+      "sha256": "0a6b975f6da83ab28804c4655ac75ac0385bbf21d6e3d2a1573517535e147711"
+    },
+    "evals/expected/database-key-restored.json": {
+      "mode": "0o644",
+      "sha256": "552592522e72fde080339830c02cd05dc2874108787fafd46d140114f5eb35ae"
+    },
+    "evals/expected/database-unique-removal.json": {
+      "mode": "0o644",
+      "sha256": "a3ebee9d27c5d891f5855e8f29dd083eff7baf3e14e7c19dd0bbc2949478458c"
+    },
+    "evals/expected/database-unique-restored.json": {
+      "mode": "0o644",
+      "sha256": "c24c9532bdeb67274f1536589a010bef5493bc17541856416ea3cfd6c3e90d94"
+    },
+    "evals/expected/dependency-major-inventory.json": {
+      "mode": "0o644",
+      "sha256": "c1465b32e907ea7499a461ea102930fb4871deda2a07eb0ffe8c0168ae381f58"
+    },
+    "evals/expected/dependency-property-inventory.json": {
+      "mode": "0o644",
+      "sha256": "bfd35708d498de114b867e60c64a24fa4aa6a9025d3f9eec0a7099ba7be1bf6e"
+    },
+    "evals/expected/http-connect-timeout-corrected.json": {
+      "mode": "0o644",
+      "sha256": "f7774166792e7bc24f560e2a366af8277545c6655fa58e3df532f5bb0dcc7991"
+    },
+    "evals/expected/http-connect-timeout-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "ac14b51254dc5dacbcf2f79c9371b6d81008d1b3c96f2b3b339771928be53319"
+    },
+    "evals/expected/http-timeout-corrected.json": {
+      "mode": "0o644",
+      "sha256": "b48d7144299777700fc83b11b8d09e5e2165bf0881b51714e624ea09a9823957"
+    },
+    "evals/expected/http-timeout-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "9bea1f1b0fdca54dca9085efea2a9a5d853899e1bde7f4799a920ab800d59a40"
+    },
+    "evals/expected/log-api-key-corrected.json": {
+      "mode": "0o644",
+      "sha256": "7718a4314a1e5effc221c1a80e34db7a26b3ed937d9aeda9f68656770092f2ec"
+    },
+    "evals/expected/log-api-key-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "811fd52c2b04206e72b24852a00d22ab9a6fe90689a12ca00fcc9094071ffef3"
+    },
+    "evals/expected/log-card-corrected.json": {
+      "mode": "0o644",
+      "sha256": "f25507fb5d6a8f015c1d4e5e78facdd301ee343af76d329ab16789053ae9b3ab"
+    },
+    "evals/expected/log-card-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "e2d251ffd0d16276517e8f6f12080044d10a8e48574a3ba27b25df4975b04c8a"
+    },
+    "evals/expected/log-token-corrected.json": {
+      "mode": "0o644",
+      "sha256": "0d5fbaadc3956e6b8f8fed3891a058780d360bd5c89bd68359141f2aee6c36cf"
+    },
+    "evals/expected/log-token-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "7a78a6d9699752ec7c753813fce6cacfb190c97e13770c7d52989e9419a62ae2"
+    },
+    "evals/expected/money-division-corrected.json": {
+      "mode": "0o644",
+      "sha256": "750b0df6b9e2ef5475b4917e754868670edf29f486db957f96633d2718f9b374"
+    },
+    "evals/expected/money-division-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "78fda9753a73b4f5e8e4fd89c60a66b57e6e373956473614a09cc7af83a8918d"
+    },
+    "evals/expected/money-double-corrected.json": {
+      "mode": "0o644",
+      "sha256": "893a9447571e3fb8c3b0d16f9683d14a3f8962f08befea76550cdbb51f5d8d82"
+    },
+    "evals/expected/money-double-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "8a0fbbf7664a02aa2926e1c0eb69a13071bed9701222df75dd63d72f7973e4c2"
+    },
+    "evals/expected/money-equality-corrected.json": {
+      "mode": "0o644",
+      "sha256": "e8230baa3fcaa358fbdb891497a53569e5447d7083db1c6477021778f3d0fefe"
+    },
+    "evals/expected/money-equality-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "6a19dd53346f259c99d47150b79c099fc1216a41e6bdc768b0c3bac1bb8bfe32"
+    },
+    "evals/expected/money-rounding-corrected.json": {
+      "mode": "0o644",
+      "sha256": "27be69757342f78f343cdd2616f398c5c31d8de5778831de3622129b5a9fa0ee"
+    },
+    "evals/expected/money-rounding-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "0afa6145a90f906cb238ea1cc2a07883ced39ea3fe02487bd04535124fba35d2"
+    },
+    "evals/expected/record-benign.json": {
+      "mode": "0o644",
+      "sha256": "4565ccc9f08f33ed567ed8075ed32b2e24d5b43566bfc410652daeebb8944a67"
+    },
+    "evals/expected/rename-benign.json": {
+      "mode": "0o644",
+      "sha256": "2d5cd9c41dbd466c48f37e7ca6ad7d3f339a21ded7ec48c5cbd6dcdf04257d40"
+    },
+    "evals/expected/retry-key-corrected.json": {
+      "mode": "0o644",
+      "sha256": "9672eeca11dbea7adb39949a95408bc6d4ed9aa930f6b1c8118f015fb19ea1a1"
+    },
+    "evals/expected/retry-key-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "c180e381799690ddc887c5fcc66ee4744d151c603988ab1895229e32b6ad1126"
+    },
+    "evals/expected/retry-loop-key-corrected.json": {
+      "mode": "0o644",
+      "sha256": "48a9e1f387b020f9b30af2dce8ddaf793d95d81dd0f44bab212ac60b2af0a1c5"
+    },
+    "evals/expected/retry-loop-key-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "ef4215721e0227a371ffa3f43776bcaf0af3174627285a11aee67e76bbba3301"
+    },
+    "evals/expected/retry-scope-key-corrected.json": {
+      "mode": "0o644",
+      "sha256": "aaedefbc80cf8d3bc57aee139ee748d395fdb415e78d1ac1c9ee12baa626c7c7"
+    },
+    "evals/expected/retry-scope-key-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "c220e772615aa26250fa052b1bf36939169b0d9e8282dd1da4e22573b2bcd29b"
+    },
+    "evals/expected/switch-benign.json": {
+      "mode": "0o644",
+      "sha256": "00179aa15b9124be759ccf5be5f190558f3f723f9f3df373ddbfbd43c23eb074"
+    },
+    "evals/expected/transaction-private-corrected.json": {
+      "mode": "0o644",
+      "sha256": "30b4609d882948ae517f17a13f4f5df497a46ae4a61f0d9c22f4db787fd51fd4"
+    },
+    "evals/expected/transaction-private-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "d418a518901273fc9d57217023ff3994ed1bda9e62a69a8e18635cbaa3d0d2af"
+    },
+    "evals/expected/transaction-this-corrected.json": {
+      "mode": "0o644",
+      "sha256": "158180441c9c44655a51ec2de339bb82586bc7a0ab415340f905dda24938a801"
+    },
+    "evals/expected/transaction-this-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "e55152db65af335282e46d713745e294e5806f5c65613a06e4b72a3dd10f1e30"
+    },
+    "evals/expected/transaction-unqualified-corrected.json": {
+      "mode": "0o644",
+      "sha256": "bc66f892e351a0daa92393677ed23be0a50c1dd83579c434ac40556bcbe23476"
+    },
+    "evals/expected/transaction-unqualified-unsafe.json": {
+      "mode": "0o644",
+      "sha256": "957078c5dce9f2133d9299bc568d185926b62e7ae7849fb4615d82ac389b6f5e"
+    },
+    "evals/expected/virtual-thread-benign.json": {
+      "mode": "0o644",
+      "sha256": "ffe863c31d889b41a6bd716a39daf692cfbd4f741083e9ac40818f6cec98be93"
+    },
+    "experiments/behavior-search/MILESTONE-3.md": {
+      "mode": "0o644",
+      "sha256": "405657b6b175d0fdb20daf722d6cb76d106a8fe153e0ab5bfd072086b89e7ee3"
+    },
+    "experiments/behavior-search/README.md": {
+      "mode": "0o644",
+      "sha256": "9d375c9feaedfde15acbe9c3305892d48db0b3ca7012f6b15a396ec5c171271e"
+    },
+    "experiments/behavior-search/explore.py": {
+      "mode": "0o644",
+      "sha256": "4387cd62b4ecf64be7da70d53d720d14b4e293b2f2cb2235ad0252e06361d080"
+    },
+    "experiments/behavior-search/java/ExecutionAdapter.java": {
+      "mode": "0o644",
+      "sha256": "dd379bd98a5323c285a6e40a8b39dcc5c1e8d8f989bd83b0a5b8f8d620c41d85"
+    },
+    "experiments/behavior-search/java/RefundAdapter.java": {
+      "mode": "0o644",
+      "sha256": "1d881fe95af7c9424f4c49787fdaf1918cf549d9d17b109432331c7c2b6dbb0f"
+    },
+    "experiments/behavior-search/java/ScenarioProtocol.java": {
+      "mode": "0o644",
+      "sha256": "e5e929d4c46b15a73d76b52836168fc363071c6fde80cf1a4704d5eacda8b96b"
+    },
+    "experiments/behavior-search/java/ScenarioRunner.java": {
+      "mode": "0o644",
+      "sha256": "cd74cc6eb562f18d3bc50efeab926d6027e4f98f81e56189f8532c5f24103e61"
+    },
+    "experiments/behavior-search/java/TicketAdapter.java": {
+      "mode": "0o644",
+      "sha256": "a2aa88332e16f05597b8536cd61c74dabf7ad218e9b12679cd2739d0257e9fc6"
+    },
+    "experiments/behavior-search/java/TicketScenarioRunner.java": {
+      "mode": "0o644",
+      "sha256": "435dfff9f73533d114813dfd9f81cd09d16d2d4865b09d60ebef00e21bf2e414"
+    },
+    "experiments/behavior-search/oracle.py": {
+      "mode": "0o644",
+      "sha256": "f4713996487645a949fbb371305c54028beda4d97624eade39614bb398ab91f2"
+    },
+    "experiments/behavior-search/retry-scenario.json": {
+      "mode": "0o644",
+      "sha256": "864d2d6a1bd3d254df0fce580625158ee55a3b69c8e75f610932d2ab6280d9f5"
+    },
+    "experiments/behavior-search/retry_behavior.py": {
+      "mode": "0o644",
+      "sha256": "7eb046fd96700d31d602a4b1fe30fd8459e426d7502c56fd1aa2ec7c55c9c8a0"
+    },
+    "experiments/behavior-search/run_generalization.py": {
+      "mode": "0o644",
+      "sha256": "6165420524e88f38bfc136b615caae28ccc859865d5579aa4800b84f736724cb"
+    },
+    "experiments/behavior-search/run_slice.py": {
+      "mode": "0o644",
+      "sha256": "7dbf413a6281fdae2dbe8d5cd635bc6edf9421f032a27708687a3dededf9a27e"
+    },
+    "experiments/behavior-search/scenario.json": {
+      "mode": "0o644",
+      "sha256": "0e2b78d4451db5e93efbd7de06972591932517930c7aba5792e074d68a31e549"
+    },
+    "experiments/behavior-search/search.py": {
+      "mode": "0o644",
+      "sha256": "603e652678fbdb3b41300c8129587ff9a30e008d8051d534ca30f89a8c3527e5"
+    },
+    "experiments/behavior-search/sequence_strategy.py": {
+      "mode": "0o644",
+      "sha256": "24618140d5773ecab4e3ec0d8cfb9080e1261be6cfd88c6e7a07e33dd49cc62f"
+    },
+    "experiments/behavior-search/strategy-lock.json": {
+      "mode": "0o644",
+      "sha256": "b7eca303ac098f8fe03841133c1ab9f0ccf60875ab1540cf3670a8029e1464c9"
+    },
+    "experiments/behavior-search/ticket-scenario.json": {
+      "mode": "0o644",
+      "sha256": "64e2f234066e4262da8ab0505756be9e0214070a86ce43b2d5308920d4a16ba0"
+    },
+    "experiments/behavior-search/ticket_behavior.py": {
+      "mode": "0o644",
+      "sha256": "0e65a849b55ffe55d14af79025febbd1527273773c510b965b0c52d571dc9631"
+    },
+    "pom.xml": {
+      "mode": "0o644",
+      "sha256": "50b860501d76018033d6c70a3cf810084e24f9feef0091ea4179a10acc34b3c1"
+    },
+    "scripts/assurance-showcase.py": {
+      "mode": "0o644",
+      "sha256": "b21793516740b9f0a585376e70892d784edadc00ec68eff727c44a2cf793fee3"
+    },
+    "scripts/behavior-gallery.py": {
+      "mode": "0o644",
+      "sha256": "86770d35445ef0b2b7c324f40263b51c695c8c81230ac6f9eae27df98a9a5c1f"
+    },
+    "scripts/behavior-review.py": {
+      "mode": "0o644",
+      "sha256": "3c8176c604df40ab65431af856b1d8a3821283181ab187c9a691699edbe43dd3"
+    },
+    "scripts/capture-build.py": {
+      "mode": "0o644",
+      "sha256": "ad7dc364c6e98bf48a3368a534dac4a8e2c754cbc02a188a937a09b65ee03935"
+    },
+    "scripts/capture-ci.py": {
+      "mode": "0o644",
+      "sha256": "f17a9f7e9a31a1f1f628472d1c80b30327b488751296e2360c1d0091b9560087"
+    },
+    "scripts/ci-formats.py": {
+      "mode": "0o644",
+      "sha256": "1e44016db550e0382a80acb0443915ab868e025f5dea1e87404ef80af0b62fed"
+    },
+    "scripts/evaluate.py": {
+      "mode": "0o644",
+      "sha256": "b6a646eacec95e40b4d10e81c6657584cb77c558759861b4d083d532f74789cb"
+    },
+    "scripts/explore-smoke.py": {
+      "mode": "0o644",
+      "sha256": "0b949c7206dbd82fec0f08a6e2daabf34c493ae89c1abdf1b3d419ead2e62104"
+    },
+    "scripts/feedback.py": {
+      "mode": "0o644",
+      "sha256": "34127c1ce48320cafe88f7c8ef6d017637c7bfc4d3a1a83dbf266d78d24904a8"
+    },
+    "scripts/generate-cases.py": {
+      "mode": "0o644",
+      "sha256": "e9a338dfa649a4199664aca3d565c6ba72d45e864457fcdc78669470b92cfd24"
+    },
+    "scripts/github-snapshots.py": {
+      "mode": "0o644",
+      "sha256": "5929aff64c3e50440f35a40d21993b9798af4b3f7989786e8f57954d4511f489"
+    },
+    "scripts/import-ci.py": {
+      "mode": "0o644",
+      "sha256": "05843e05e4e5ab74e77e66b267caebd6a9a193fca96e37312c7c5528a61c9fc7"
+    },
+    "scripts/isolation-showcase.py": {
+      "mode": "0o644",
+      "sha256": "1e0372306ebc63edf72d62874feae7fbf5c9f6435a9244f79c763d6cbc7aee52"
+    },
+    "scripts/package-behavior-review.py": {
+      "mode": "0o644",
+      "sha256": "f1ecd9be8d0408914b0c679632aa8c8c64193484dea67b954892f461746b9e06"
+    },
+    "scripts/payment-mutation.py": {
+      "mode": "0o644",
+      "sha256": "653844e7b01221555fb87b39e6391c60ddad253a1eff5f86060b6e4ce64e7323"
+    },
+    "scripts/phase3-demo.py": {
+      "mode": "0o644",
+      "sha256": "af988f750d2b2cd63b34294782a7e76841855a705965cf8bd0344c4614ca28d4"
+    },
+    "scripts/pilot-measure.py": {
+      "mode": "0o644",
+      "sha256": "dd0c7e31507999d60e2af48df87f9d8b4051a4ca33390aaff232e3baefe25378"
+    },
+    "scripts/pilot-replay.py": {
+      "mode": "0o644",
+      "sha256": "91471ca3d2bebd070f50fc343e0eff7d1e0831336be86d35f88e5261ad874423"
+    },
+    "scripts/prepare-demo.py": {
+      "mode": "0o644",
+      "sha256": "a3803c256f2283d3f02ac6773b25a3256fe0e074c477ad699b0333177980eaaa"
+    },
+    "scripts/public-check.py": {
+      "mode": "0o644",
+      "sha256": "d3d0b34550cc401d24c487aa2e77f622658b4441738e8ce258981dcac2d15c9a"
+    },
+    "scripts/refund-showcase.py": {
+      "mode": "0o644",
+      "sha256": "e102835a82293965063e4282f8248945872f98ff22459f40e22d1c1f0b305ec2"
+    },
+    "scripts/run-approved-regression.py": {
+      "mode": "0o644",
+      "sha256": "77a8d3ed80e69679035fdb3924a2c7f9afbf8ec629bcc3bd872dd097934e2508"
+    },
+    "scripts/showcase.py": {
+      "mode": "0o644",
+      "sha256": "8be81017faa6d0c53671d6a2502e179ac180e2bae70f42e709158dc4514458c6"
+    },
+    "scripts/tenant-mutation.py": {
+      "mode": "0o644",
+      "sha256": "10aa4027b5f7d9adbaf77210a4aed9dbd36604e84487555f0da05e5493627d9b"
+    },
+    "scripts/tests/pr-workbench.test.mjs": {
+      "mode": "0o644",
+      "sha256": "7dbd862bcbf570d573104e77ad01bc072af7177c2aa63a19426fd79668e855af"
+    },
+    "scripts/tests/test_assurance.py": {
+      "mode": "0o644",
+      "sha256": "0549961d4b0da66f5b2b0b7a2370e76781bb09d6a41d9def439dafac2c00e0ee"
+    },
+    "scripts/tests/test_behavior_gallery.py": {
+      "mode": "0o644",
+      "sha256": "4e5a1baadfed4c9704bd85f234ba3dd2bcac43a96011e5923af5ca0b8efac891"
+    },
+    "scripts/tests/test_behavior_generalization.py": {
+      "mode": "0o644",
+      "sha256": "b9c352b7b62a5507f98d776c4dd461c101a1f5e1dbcc0156f74688ecc5b10f9c"
+    },
+    "scripts/tests/test_behavior_review.py": {
+      "mode": "0o644",
+      "sha256": "28e038a1bd3a3d6b4c2b1d81e76a53dc92016489a3dd23a2266515f9213f7b96"
+    },
+    "scripts/tests/test_behavior_search.py": {
+      "mode": "0o644",
+      "sha256": "9bad731eee4d72c8ce97ebd809928f6a5c72b6e944122a66c4c1db4e529b31c2"
+    },
+    "scripts/tests/test_explore.py": {
+      "mode": "0o644",
+      "sha256": "3b0d756ef025b84dc9d95660d855c2e5542cd8d1b370dd48a30c718a7665e501"
+    },
+    "scripts/tests/test_phase2.py": {
+      "mode": "0o644",
+      "sha256": "cae2935af3212d09f5c8fec017ee2bde4da59ddd92462518b91c74e351dc0bfd"
+    },
+    "scripts/tests/test_public_check.py": {
+      "mode": "0o644",
+      "sha256": "225a067a34b041187d7139b70b793cc254abae4d860f4b17afc2412568db70e7"
+    },
+    "scripts/tests/test_workflow_helpers.py": {
+      "mode": "0o644",
+      "sha256": "f9ea466459a0efcbb4a52a44c08fdfebd893d640be853f4cd79623b330e261e0"
+    },
+    "scripts/trigger-policy.py": {
+      "mode": "0o644",
+      "sha256": "348c5e7c7301ca514d87f229e551276d80efd64c94cc8f82ca263a69faee2fd7"
+    },
+    "scripts/undertow": {
+      "mode": "0o755",
+      "sha256": "ced4fec0444a8cb33697ff01d62ae203ef54cdf1e1aa09f5a1171b4e391cd32a"
+    },
+    "scripts/validate-fixtures.py": {
+      "mode": "0o644",
+      "sha256": "12bc12ae4394fdf7232abec1530dbc87c06b2c7f888e782348eb74649d8679dc"
+    },
+    "scripts/verify-artifacts.py": {
+      "mode": "0o644",
+      "sha256": "f8a5d9be1f1c92ef0a31900622bd998a1d0bc7ddba0729a9542dade890073b56"
+    },
+    "src/main/java/dev/undertow/changes/ChangeAdapters.java": {
+      "mode": "0o644",
+      "sha256": "4e8e461961c46d4762d4bf9f2ec2c13c25fe62a69fa5a1f7a2708653846a065c"
+    },
+    "src/main/java/dev/undertow/changes/ChangeRequest.java": {
+      "mode": "0o644",
+      "sha256": "0bb75ddf6675da68404b15636e3f2f763ef6a4a44bfb46d862c4cd2e05d06737"
+    },
+    "src/main/java/dev/undertow/changes/ChangeRequestRef.java": {
+      "mode": "0o644",
+      "sha256": "297a2b09ce43ee133dc5869c20a8c46dc5973612032503d859d36070378223db"
+    },
+    "src/main/java/dev/undertow/changes/ChangeSnapshot.java": {
+      "mode": "0o644",
+      "sha256": "6bf81f50d230762dd067fcb38034adc5b133a0253710a4f6380ce80c5f321c5c"
+    },
+    "src/main/java/dev/undertow/changes/FindingIdentity.java": {
+      "mode": "0o644",
+      "sha256": "32ee9abe5f7d9e803c2acb79803037f6b27093e962d2ca6758b83dec98040477"
+    },
+    "src/main/java/dev/undertow/changes/PublicationValidation.java": {
+      "mode": "0o644",
+      "sha256": "323fbcd66da4363a0bd9c0a53c84f13e8053e31bba2765d3ab7c9d50bb52c0fa"
+    },
+    "src/main/java/dev/undertow/cli/AssuranceCommands.java": {
+      "mode": "0o644",
+      "sha256": "bfc98a54463ae2f32805bdba5ddcf090dc0dc13ae8fa641cd1852a45dd903220"
+    },
+    "src/main/java/dev/undertow/cli/ContractCommands.java": {
+      "mode": "0o644",
+      "sha256": "550733b67818fc9cdeaa8f2b4d23d66af00edf10ef7f80b0052e22662241240e"
+    },
+    "src/main/java/dev/undertow/cli/ExploreCommand.java": {
+      "mode": "0o644",
+      "sha256": "bb193759922689f7f586e3092ff090d4db336c25dabdaaececd878a36acf9e8e"
+    },
+    "src/main/java/dev/undertow/cli/ModelClientFactory.java": {
+      "mode": "0o644",
+      "sha256": "1ba2b0bc901c9c4a0c7386668edca8c6c51f8168086b1fcc1948f0b073e50547"
+    },
+    "src/main/java/dev/undertow/cli/SetupCommands.java": {
+      "mode": "0o644",
+      "sha256": "8ece48b415799225110561a5614ce6e877d770022eee94a3614f6eaddc794fd3"
+    },
+    "src/main/java/dev/undertow/cli/Undertow.java": {
+      "mode": "0o644",
+      "sha256": "def7ff154551e63674531928c16ac45515fc259a30d3c79e4d78613bb7066538"
+    },
+    "src/main/java/dev/undertow/cli/UndertowApplication.java": {
+      "mode": "0o644",
+      "sha256": "ea6397d1f6e75e1c360f13a391c90173adee7123362e26f85831f8c384696c39"
+    },
+    "src/main/java/dev/undertow/contracts/AssurancePolicy.java": {
+      "mode": "0o644",
+      "sha256": "a4d6d8081ab2c12fbc35dbd71214e18fe183735d6724aacff95a15b9b6a5a01e"
+    },
+    "src/main/java/dev/undertow/contracts/ContractMcp.java": {
+      "mode": "0o644",
+      "sha256": "1d9e7c5b30693c795db4ec0d3b2e5e55eb1d74d38b3dbee8fd6110e3e77dec72"
+    },
+    "src/main/java/dev/undertow/contracts/ContractPolicy.java": {
+      "mode": "0o644",
+      "sha256": "4476555884abe4151fc3c3c1ffc90ee11b62b25d151d1498480fc968426f0886"
+    },
+    "src/main/java/dev/undertow/contracts/ContractSarif.java": {
+      "mode": "0o644",
+      "sha256": "fa17573eb8f4eecadeb4f6861e5a075a69c2417284bb9f6b0a5e59ab16d82d0e"
+    },
+    "src/main/java/dev/undertow/contracts/ContractVerifier.java": {
+      "mode": "0o644",
+      "sha256": "61f608441a9f1a14e8133798d7f04ef866c39987260fecaf8b13643f3f978d07"
+    },
+    "src/main/java/dev/undertow/contracts/LocalPreview.java": {
+      "mode": "0o644",
+      "sha256": "f9ae2433ff78aaff16ddc85c249c7398ccd6780b6178b05320144e93689527cc"
+    },
+    "src/main/java/dev/undertow/contracts/PilotStudy.java": {
+      "mode": "0o644",
+      "sha256": "7352ee57b2a73fa0f365b359f5dee5a2ec90c786ba567a0c3fbd928ac46f44e7"
+    },
+    "src/main/java/dev/undertow/contracts/RegressionEvidence.java": {
+      "mode": "0o644",
+      "sha256": "2d28644bd0dd17334f41e4bf062c74d4ad4fb229c698350ca93a58dfca0c5ca1"
+    },
+    "src/main/java/dev/undertow/contracts/ReleaseAssurance.java": {
+      "mode": "0o644",
+      "sha256": "82a6d6a854b9b91a399a3b227d5e4febe8948eb594229eea366bf08d4f1f5d59"
+    },
+    "src/main/java/dev/undertow/contracts/RolloutAssurance.java": {
+      "mode": "0o644",
+      "sha256": "d8674478093c67c0ea420c2763f081278c3d3f946594671b5b0eb6b6ec4d66bf"
+    },
+    "src/main/java/dev/undertow/findings/Finding.java": {
+      "mode": "0o644",
+      "sha256": "36d4a6178d34de16ff9fe207ff83795bc17ce35be6206d911a9862ff29282061"
+    },
+    "src/main/java/dev/undertow/findings/ReviewValidator.java": {
+      "mode": "0o644",
+      "sha256": "5897bbb72577a85e4e5c417af646f9073ddfa492c9f47f63db325aa2157ec837"
+    },
+    "src/main/java/dev/undertow/github/GitHubClient.java": {
+      "mode": "0o644",
+      "sha256": "267cfdbb3ea2dd0f050b002015338b207819035c06641e76a21b768f0c6809c7"
+    },
+    "src/main/java/dev/undertow/harness/EvidenceStore.java": {
+      "mode": "0o644",
+      "sha256": "b544c9cd9403efada07ae915bb61dc3a66f772d5c9f000469375c825f54bf782"
+    },
+    "src/main/java/dev/undertow/harness/Report.java": {
+      "mode": "0o644",
+      "sha256": "8f35e12bef27087f25855a05209bf4681bcdc98edb606bde31b2218dfb62ca94"
+    },
+    "src/main/java/dev/undertow/harness/ReviewDetails.java": {
+      "mode": "0o644",
+      "sha256": "efcaff6375a929e88d041f9c5094a56c3f567e94523c3aeee238d8c761737618"
+    },
+    "src/main/java/dev/undertow/harness/Reviewer.java": {
+      "mode": "0o644",
+      "sha256": "bc3ef775f842ebe068414da25f40bfd122acdad943d4d4e4ff288809014a5dda"
+    },
+    "src/main/java/dev/undertow/languages/java/JavaAnalysis.java": {
+      "mode": "0o644",
+      "sha256": "77c21620a1221bace2de4169f668c32ec1f9368a134b7057609f55ecb4a07628"
+    },
+    "src/main/java/dev/undertow/languages/java/MavenInventory.java": {
+      "mode": "0o644",
+      "sha256": "f452dd535be375452949cb6c4768e84a6691f6094e5fe6c13fbf86b34059d200"
+    },
+    "src/main/java/dev/undertow/model/GeminiClient.java": {
+      "mode": "0o644",
+      "sha256": "2ed39d75c7ab24a05cd484b4b78b0ac9f1719fb6183589c4721be003cbdca621"
+    },
+    "src/main/java/dev/undertow/model/ModelClient.java": {
+      "mode": "0o644",
+      "sha256": "c14858c741a2265649eee2888bf6010d72a2a347f5ff5ac91c378695a5b5ee50"
+    },
+    "src/main/java/dev/undertow/model/ReplayClient.java": {
+      "mode": "0o644",
+      "sha256": "b0c3130dcf09231e6f9e28b586431b4f5a7e2c5ce3894743cee9120f438610e0"
+    },
+    "src/main/java/dev/undertow/policy/Policy.java": {
+      "mode": "0o644",
+      "sha256": "61a7ea7e5d8e1817ac5e45360641d871d1eb2ff158c4428d117aa24e4b37fb82"
+    },
+    "src/main/java/dev/undertow/policy/RuleCatalog.java": {
+      "mode": "0o644",
+      "sha256": "3b8751a8d15ad3d3705c6ad7fcd67055bf04a26852eadce9d73de3b624cd545d"
+    },
+    "src/main/java/dev/undertow/reporting/Json.java": {
+      "mode": "0o644",
+      "sha256": "2e667e317d5cd693d15544d44e88611e926d776717eea7bc5855d15cbf99ed56"
+    },
+    "src/main/java/dev/undertow/reporting/Markdown.java": {
+      "mode": "0o644",
+      "sha256": "32e129753cc44206305037c11fc9a38ed32ceaf9e84a675e0586faa11e26d14b"
+    },
+    "src/main/java/dev/undertow/reporting/Schemas.java": {
+      "mode": "0o644",
+      "sha256": "1071438dd638bf7d07a30b695178f5e493fa944bbff2c7ad728b2d43fadf7157"
+    },
+    "src/main/java/dev/undertow/service/GitHubAppGateway.java": {
+      "mode": "0o644",
+      "sha256": "f9f83f74ac309925f3cc06cb6691fb40db0855acdf53b85b765b79f065e547a5"
+    },
+    "src/main/java/dev/undertow/service/HostedWorker.java": {
+      "mode": "0o644",
+      "sha256": "5d0aa8e953dbe6b2e3eae61fb95cc8c3896a0181b8fbf62df3d97c89b3d7aca8"
+    },
+    "src/main/java/dev/undertow/service/ServiceCommands.java": {
+      "mode": "0o644",
+      "sha256": "a6d279f642fb37ffefeb3c0d3d322bd2b8a337ad4f7a0079db29d626de9f50de"
+    },
+    "src/main/java/dev/undertow/service/ServiceControl.java": {
+      "mode": "0o644",
+      "sha256": "651ce470150cca5ee4a220f59af4718605f3a27df82e7de42b8be214e301e440"
+    },
+    "src/main/java/dev/undertow/service/ServiceDatabase.java": {
+      "mode": "0o644",
+      "sha256": "c194dd0c7916ac17d81e6b5b9feae325f069e30a0474bbfe6952da56ef89bc6f"
+    },
+    "src/main/java/dev/undertow/service/ServiceException.java": {
+      "mode": "0o644",
+      "sha256": "258fa5774bda10089001c572193eaf9f831f86b02fa968e411aa6fff38c15048"
+    },
+    "src/main/java/dev/undertow/service/ServiceGateway.java": {
+      "mode": "0o644",
+      "sha256": "766943882c41ca8f1cf0a94a020480c34a0cdfa0caa01ec2fad63fa8e70c9a57"
+    },
+    "src/main/java/dev/undertow/service/ServiceHttpServer.java": {
+      "mode": "0o644",
+      "sha256": "04271b865568f373926ba3fe148f0c1d5b92d92e715d706495c067fbee41041b"
+    },
+    "src/main/java/dev/undertow/service/ServiceOrchestrator.java": {
+      "mode": "0o644",
+      "sha256": "d5cd96b1561106f6b1f34aebd54d516c13679fcd81cbd71deae932f5a4d58bfc"
+    },
+    "src/main/java/dev/undertow/service/ServicePolicy.java": {
+      "mode": "0o644",
+      "sha256": "e9f0083db8d18038d08464a3fe80e046a54cfb15785772e28ef0e55d0e74b13e"
+    },
+    "src/main/java/dev/undertow/service/ServiceSecurity.java": {
+      "mode": "0o644",
+      "sha256": "eee8903f212975acd6425f7ae1031d9f59cc1ae4ebe408a902cd0cc443a65936"
+    },
+    "src/main/java/dev/undertow/tools/CiEvidence.java": {
+      "mode": "0o644",
+      "sha256": "877e5cefb559cbef3b3b84b097a43c10649d403ea6bab8ebc1a3f2c61fae377d"
+    },
+    "src/main/java/dev/undertow/tools/GitRepository.java": {
+      "mode": "0o644",
+      "sha256": "d2154b78ea69e09ccd51a625a3becadbe17541c8de84ba8cd862330923952e61"
+    },
+    "src/main/java/dev/undertow/tools/SafeHttp.java": {
+      "mode": "0o644",
+      "sha256": "7927aea8446610f0ca88cd1230c0ac38ba7530665884e3a27e6ff019def09eee"
+    },
+    "src/main/java/dev/undertow/tools/ToolRegistry.java": {
+      "mode": "0o644",
+      "sha256": "2bf9f46e2698c1c5aa85b03f1553767131e6f2b37742e34ac172ab25381f370b"
+    },
+    "src/main/resources/contracts/showcase.html": {
+      "mode": "0o644",
+      "sha256": "36b341ff398a9693f0f97531a6736292242d3e02275d14b9c6c585c88113d3f5"
+    },
+    "src/main/resources/contracts/starter.json": {
+      "mode": "0o644",
+      "sha256": "6ac142cb61ec156f58799dce7b986ddcc27562ed17bac48137d31dab5b35a439"
+    },
+    "src/main/resources/schemas/contract-verification.json": {
+      "mode": "0o644",
+      "sha256": "1f857d83011b85cb2233929d124679ecb5452b8a48661689de421eb50ef8460d"
+    },
+    "src/main/resources/schemas/contracts.json": {
+      "mode": "0o644",
+      "sha256": "8e0ca6e03397f17cb72218943cf527b3cc14da0246fab5a8a48228a5a796fb9b"
+    },
+    "src/main/resources/schemas/operations-policy.json": {
+      "mode": "0o644",
+      "sha256": "692dc8b5901d4983eca88adc9da4abd4e70d653d3c3525c6413073bc3c584ff2"
+    },
+    "src/main/resources/schemas/release-policy.json": {
+      "mode": "0o644",
+      "sha256": "f5bfad643d00bf579d4d0a9f3c3698c3e11405dfc937d616eddda97a9ccf0c07"
+    },
+    "src/main/resources/schemas/report.json": {
+      "mode": "0o644",
+      "sha256": "ea8d847f1c54b8c5888f797a3e038ade866a121015a5f34b972279e7c0f8f647"
+    },
+    "src/main/resources/schemas/review.json": {
+      "mode": "0o644",
+      "sha256": "1e07a61a3da846484b0c3ccb426c6f31967a6d57023e0490ae9181e31be451f5"
+    },
+    "src/main/resources/schemas/rules.json": {
+      "mode": "0o644",
+      "sha256": "db9aa2b24b9a4ad095646d37149804d18391a546fb9f80dfbeaed09dba10d223"
+    },
+    "src/main/resources/schemas/service-envelope.json": {
+      "mode": "0o644",
+      "sha256": "47023259574972b6bdbdabde4d280ca56fe201bca9347378fc543a8e668b84dc"
+    },
+    "src/main/resources/schemas/tools.json": {
+      "mode": "0o644",
+      "sha256": "6e7b3e2737acced545659e2ae8ede79aac541695e9195ace3a1d93affa16cef2"
+    },
+    "src/main/resources/service/app.css": {
+      "mode": "0o644",
+      "sha256": "c7f0d40fe0c9342d2a892d9de4cbac6f83e9d955f1e11bb99c7c96af2d3d29a8"
+    },
+    "src/main/resources/service/app.js": {
+      "mode": "0o644",
+      "sha256": "7d7c2721c8939d2bb08f74cfa7b30ed62cf94644430b307edbd90cb1e5e2b725"
+    },
+    "src/main/resources/service/index.html": {
+      "mode": "0o644",
+      "sha256": "5130641681338311833e691dd786352b1625130cf89d8fd44a95d22aa0da28c4"
+    },
+    "src/main/resources/undertow.properties": {
+      "mode": "0o644",
+      "sha256": "1d74451574ce3ca4d2c3c094271af9256fd04d67874b627dd93164b52e01de50"
+    },
+    "src/test/java/dev/undertow/AssuranceWorkflowTest.java": {
+      "mode": "0o644",
+      "sha256": "2039e47f8c1b720cd67e0b4bf3455625a49b01a5c5af0f066d0cce50b30929c3"
+    },
+    "src/test/java/dev/undertow/BoundaryTest.java": {
+      "mode": "0o644",
+      "sha256": "2a3825cf7ab3db1078eda69090965e7504f1284de7bd4a6cc17d43ee6b222406"
+    },
+    "src/test/java/dev/undertow/ContractVerificationTest.java": {
+      "mode": "0o644",
+      "sha256": "136ece9279bea8770db05f0d113b7f16feb0ff8a2d919b6b497955a8890a6581"
+    },
+    "src/test/java/dev/undertow/ExploreCommandTest.java": {
+      "mode": "0o644",
+      "sha256": "aa9619d7864f0ef4b6ce7bb4fc0a091466b78bb0431e3a4015647e819d116cf5"
+    },
+    "src/test/java/dev/undertow/Phase2AdapterTest.java": {
+      "mode": "0o644",
+      "sha256": "dd95f50a147e56c56cacb3fb7c1918fc8e7c1394703a324fb0c3e61d970573ff"
+    },
+    "src/test/java/dev/undertow/Phase2CiAndModelTest.java": {
+      "mode": "0o644",
+      "sha256": "54d236832e91cc8371fe6e134ce7c6ead255edcd5dea60ac9d19e6c12b7b4b24"
+    },
+    "src/test/java/dev/undertow/Phase2PolicyTest.java": {
+      "mode": "0o644",
+      "sha256": "3b7924bb977f3795311b9683e124d2274bd52387c40b7950cf0ac344beb679e0"
+    },
+    "src/test/java/dev/undertow/Phase3ServiceTest.java": {
+      "mode": "0o644",
+      "sha256": "b8ee28657dc0539333dce88f85e4d685bce02790831d977a30383923fefa05a3"
+    },
+    "src/test/java/dev/undertow/PublisherTest.java": {
+      "mode": "0o644",
+      "sha256": "8a67baadd7788e2e78bcb94c49b617c58b26cae4246a36f8bc00dde411bd2327"
+    },
+    "src/test/java/dev/undertow/ReviewValidationTest.java": {
+      "mode": "0o644",
+      "sha256": "5ad307a8ffa0b7d118b3a8ea456975784b41b065cb4c691825cf8ff0da9ff77b"
+    },
+    "src/test/java/dev/undertow/SpringCliTest.java": {
+      "mode": "0o644",
+      "sha256": "9632a16806a5a4a2909d46266a39d465264f58d096e198c392ceb95b159e16ab"
+    },
+    "src/test/java/dev/undertow/TestRepository.java": {
+      "mode": "0o644",
+      "sha256": "f4de413378e37a1c97e2344b3cc358fb369d4bd279569daa16e11bd0defa9eaf"
+    },
+    "src/test/java/dev/undertow/WorkflowAndCoverageTest.java": {
+      "mode": "0o644",
+      "sha256": "f520b3c919154b23f5848740277216b77ab5410deaadc2059ca2204edbc2b226"
+    },
+    "src/test/java/dev/undertow/model/GeminiProtocolTest.java": {
+      "mode": "0o644",
+      "sha256": "a503700335da3212f79896e838ddc71136bba950d663db331ea625d5701c06f1"
+    },
+    "src/test/java/dev/undertow/model/ModelOwnershipTest.java": {
+      "mode": "0o644",
+      "sha256": "32ec32ea629303986adfd7ed9046ce7c78148971effb7ae3ef6b99822fa7f070"
+    }
+  },
+  "format_version": 1,
+  "includes_uncommitted_changes": true,
+  "purpose": "Complete publishable working-source snapshot before retiring hosted, AI-review and release/operations features."
+}

@@ -1,19 +1,34 @@
 # Contributing
 
-Keep all committed documentation, comments, user-facing messages, examples, filenames, and commit messages in English. Use synthetic data and clearly labeled placeholders in examples. Never commit credentials, private keys, local environment files, private customer data, generated review artifacts, or personal workstation paths. Run `python3 scripts/public-check.py` and the secret scans in [Security and data handling](SECURITY.md) before publishing. Changes to `.gitignore` do not remove files or sensitive content already present in Git history.
+Keep source, documentation, comments, filenames and commit messages in English. The active product is CI-driven behavior search, regression proposals and approved contract verification. Its supported examples are the refund and ticket components. Keep engineer-facing flows centered on reports and decisions; CLI instructions belong in maintainer references.
 
-Use JDK 25 and Maven 3.9+ for the Spring Boot 4.1.1 harness. The separate order/payment demo uses JDK 21 and Spring Boot 3.4.4. JavaParser currently analyzes Java 21 source; the harness runtime does not establish support for newer source syntax. See the [README quick start](README.md#quick-start). Preserve CODING-SKILL.md as the policy source. Link rule changes to its numbered sections and distinguish MUST/SHOULD/optional guidance from business impact.
+## Development
 
-Run `mvn spotless:apply verify` for the harness and `mvn -f demo/order-service/pom.xml verify` for the demo with JDK 21 (requires Docker). Test observable behavior and trust boundaries. Add paired labeled fixtures for new capabilities; keep tuning examples separate from held-out cases. Never report authored replay scores as model detection accuracy.
+Use JDK 25 and Maven 3.9+ for the CLI; fixture execution targets Java 21 and also works on the harness JDK. Python 3.10+ runs the search and workflow helpers.
 
-Run `python3 -m unittest discover -s scripts/tests -v` for the workflow helpers. `mvn verify` checks Java formatting and project-file whitespace before compilation and runs SpotBugs at the High threshold. Use `.editorconfig` in your editor; Markdown trailing spaces may be intentional line breaks. Keep demo sources and labeled fixture contents out of harness-wide formatting changes.
+```sh
+mvn --batch-mode --no-transfer-progress spotless:apply clean verify
+mvn --batch-mode --no-transfer-progress -f demo/refund-extraction/pom.xml test
+mvn --batch-mode --no-transfer-progress -f demo/ticket-transfer/pom.xml test
+python3 -m unittest discover -s scripts/tests -v
+python3 scripts/check-product-scope.py --jar target/undertow.jar
+python3 scripts/public-check.py
+```
 
-Use four spaces per Java block indentation level, matching Spotless's google-java-format AOSP style and `.editorconfig`. `JAVA-FORMAT-001` retains the reference to CODING-SKILL.md section 33 for policy inspection. Mechanical style rules are excluded from model assessment; formatter/build checks enforce them.
+Maven checks formatting and runs SpotBugs at the High threshold. Java formatting uses google-java-format AOSP with four-space indentation. Keep fixture source formatting independent from harness-wide formatting. Follow `.editorconfig` and the retained engineering guidance in `CODING-SKILL.md`.
 
-Follow CODING-SKILL.md sections 3–5, 8, 10, 30–34, 41 and 45 for maintenance changes: use focused methods, descriptive names, explicit imports, braces and named limits. Copy mutable JSON when passing ownership to records or adapters. Propagate cancellation separately from provider/tool failures. Keep broad exception catches at deliberate integration boundaries and sanitize their diagnostics. New static-analysis suppressions must identify the exact class/bug and explain why the warning is safe; never suppress mutable-state exposure across the project.
+Preserve the frozen search-core hashes in `experiments/behavior-search/strategy-lock.json` unless explicitly creating a new strategy version and validation round. Keep expected labels and authored mutations outside search generation. A failure must replay and produce the relevant generated assertion; skips, execution errors and missing reports are not behavioral discoveries.
 
-Use explicit branches or a named method for nested conditional expressions, resource creation and multi-step decisions (section 3). Keep simple two-value expressions when both choices are immediately clear. Passing Spotless does not establish readability; review the decisions and responsibilities separately.
+Exercise the gallery when changing adapters or expectations. Exercise `scripts/explore-smoke.py` against the built JAR when changing runtime packaging. Tests should cover observable behavior, source identity, input boundaries and real execution rather than mirror implementation details.
 
-Do not add shell, arbitrary HTTP, source writes, test execution or publication to the model tool registry. Workflow/publisher changes need tests for stale commits, malicious artifact contents and duplicate runs. Pin dependencies/actions and verify their official release documentation.
+## Evidence and review
 
-A contribution should describe the trigger, resulting behavior, evidence, validation and any coverage limitation. Do not add generated test success labels without execution evidence.
+Keep complete, violating and incomplete outcomes distinct. Never infer contract approval from a generated test or an Actions artifact. Keep host-pinned policy and trusted import receipts outside candidate control. MCP remains read-only; do not add execution, publication or source-write tools.
+
+Document changes with the user-visible behavior, validation and practical scope. Workflow summaries must be usable without terminal commands. The eight-case gallery is authored validation, not independent accuracy evidence or measured human time saved.
+
+## Archive and public source
+
+The retired platform snapshot is immutable recovery data. `scripts/check-product-scope.py` checks its file-level integrity and verifies that retired paths and packaged dependencies remain absent. Do not import archived code into active modules or execute the archive from CI. Restore to a separate directory for inspection; reintroduction requires a deliberate new change.
+
+Use synthetic example data. Never commit credentials, environment files, private customer data, generated execution reports or workstation paths. Before publishing, follow the content and secret-scanning checks in [Security](SECURITY.md), including scanning any new archive payload before compression.

@@ -2,6 +2,10 @@
 # Host-side launcher. Repository contracts cannot select its runtime or JAR.
 set -eu
 undertow_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ "${1:-}" = explore ] && [ -z "${UNDERTOW_JAR:-}" ]; then
+    shift
+    exec python3 -I "$undertow_root/experiments/behavior-search/explore.py" "$@"
+fi
 undertow_jar=${UNDERTOW_JAR:-"$undertow_root/target/undertow.jar"}
 java_major() {
     "$1" -version 2>&1 | sed -n 's/.*version "\([0-9][0-9]*\).*/\1/p' | head -n 1

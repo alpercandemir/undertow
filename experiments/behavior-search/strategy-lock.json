@@ -1,0 +1,19 @@
+{
+  "files": {
+    "java/ExecutionAdapter.java": "dd379bd98a5323c285a6e40a8b39dcc5c1e8d8f989bd83b0a5b8f8d620c41d85",
+    "java/ScenarioProtocol.java": "e5e929d4c46b15a73d76b52836168fc363071c6fde80cf1a4704d5eacda8b96b",
+    "search.py": "603e652678fbdb3b41300c8129587ff9a30e008d8051d534ca30f89a8c3527e5",
+    "sequence_strategy.py": "24618140d5773ecab4e3ec0d8cfb9080e1261be6cfd88c6e7a07e33dd49cc62f"
+  },
+  "frozen_at": "2026-11-16T20:55:28.071112+00:00",
+  "generator": "declared-sequences-v1",
+  "max_operations": 12,
+  "provenance": "Strategy locked before second adapter selection/implementation and validation mutation authoring. Repository fixtures were already visible during inspection. Internal validation; no independent-engineer or blind-evaluation claim.",
+  "scenarios": 100,
+  "validation_seeds": [
+    211,
+    307,
+    401
+  ],
+  "version": 1
+}

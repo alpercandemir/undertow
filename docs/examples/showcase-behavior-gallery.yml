@@ -1,0 +1,49 @@
+name: Behavior case gallery
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: behavior-gallery-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  gallery:
+    name: Eight cases — happy paths, violations and incomplete execution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Execute all cases and compare actual outcomes with the catalog
+        run: python3 tools/undertow/scripts/behavior-gallery.py --java-home "$JAVA_HOME" --output .undertow/behavior-gallery
+      - name: Show the eight-case decision gallery
+        if: always()
+        run: |
+          if [ -f .undertow/behavior-gallery/summary.md ]; then
+            cat .undertow/behavior-gallery/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '## Gallery incomplete\n\nExecution stopped before a summary was available. No case outcomes are established.\n' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Retain all cases, including failures and incomplete execution
+        id: evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: behavior-case-gallery-${{ github.run_attempt }}
+          path: .undertow/behavior-gallery/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - name: Link complete case evidence
+        if: always() && steps.evidence.outputs.artifact-url != ''
+        env:
+          ARTIFACT_URL: ${{ steps.evidence.outputs.artifact-url }}
+        run: printf '\n[Download all case evidence, tests and patches](%s)\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"

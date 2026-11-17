@@ -1,36 +1,48 @@
 # Architecture
 
-Undertow is one Java 25 CLI module packaged with Spring Boot 4.1.1. Spring owns application lifecycle and constructor injection at the CLI boundary; picocli owns command parsing and exit codes. The review engine remains plain Java, with JavaParser configured for Java 21 syntax analysis. Commands receive fresh option state for each invocation, and model clients are created only after loading pinned policy.
-
-The order/payment demo is a separate Java 21 / Spring Boot 3.4.4 Maven module with PostgreSQL, Spring JDBC and Flyway. Its database integration tests use Testcontainers. See the [README quick start](../README.md#quick-start) for the libraries and tooling used by each part.
-
-Spring reads only bundled `undertow.properties`, never working-directory `application.properties` or `config/` files. No web server or component scanning of reviewed projects is enabled. See the [migration decisions and validation](spring-java25-migration.md).
-
-The model proposes investigations; the harness owns all permissions, budgets, termination and validation. Tools never build or run the reviewed application.
+Undertow has two execution paths with distinct authority: behavior exploration executes selected component code; contract verification reads approved definitions and existing CI evidence.
 
 ```mermaid
 flowchart TD
-  CLI[Local refs or deterministic PR metadata] --> Git[Pinned Git objects]
-  Git --> Policy[Policy and business context from base]
-  Policy --> Loop[Bounded application-owned loop]
-  Loop --> Model[Gemini function declarations / replay client]
-  Model --> Dispatch[JSON Schema validation and permitted tool dispatch]
-  Dispatch --> Evidence[Evidence IDs, hashes, excerpts, provenance]
-  Evidence --> Loop
-  Loop --> Validate[Schema, pinned location, rule and evidence checks]
-  Validate --> Files[JSON / Markdown / JSONL artifacts]
-  Files --> Publisher[Separate trusted GitHub publisher]
-  CI[Unprivileged build/test/dependency CI] -. optional verified evidence .-> Dispatch
+    PR[Owned candidate commit] --> CI[GitHub Actions orchestrator]
+    CI --> Base[Existing component suite]
+    CI --> Search[Python search + Java adapter]
+    Search --> Case[Reduced sequence and exact replay]
+    Case --> Test[Generated JUnit assertion]
+    Base --> Report[Decision summary + evidence + patch]
+    Test --> Report
+    Owner[Approved contract policy] --> Verify[Java contract verifier]
+    Import[Trusted CI importer] --> Verify
+    Verify --> Agent[JSON / Markdown / SARIF / read-only MCP]
 ```
 
-`ModelClient` separates native Gemini calling from authored replay. Gemini preserves returned content (including thought signatures) when continuing function calls; automatic SDK dispatch is disabled. Only transient 408/5xx errors are retried, with a bounded delay and call accounting. Authentication/quota failures stop visibly. A rejected final result receives one repair attempt.
+## Behavior exploration
 
-`ToolRegistry` performs schema validation before dispatch. `GitRepository` pins full commit IDs once and reads blobs using fixed Git commands. It rejects traversal, absolute paths, control characters and symlink/nonregular blobs. JavaParser returns syntactic references with explicit unresolved receiver/overload/classpath status. Version 1 does not provide semantic symbol solving, JAR API comparison or Gradle/multi-module analysis.
+`scripts/behavior-review.py` coordinates a clean existing-suite run, search, replay and exported JUnit execution. `experiments/behavior-search/` contains the seeded generators, independent expectations, reducer and bounded Java transport. The frozen shared core is recorded in `strategy-lock.json`.
 
-`MavenInventory` compares direct literal POM inputs by default and labels parent/BOM/profile/transitive resolution unavailable. Optional hash-checked dependency-tree JSON for both snapshots provides direct/transitive paths and resolved versions. No Maven invocation occurs inside a tool.
+Each adapter resets its component and reads actual state. The runner snapshots source, records source/tool identities and keeps build failures separate from business violations. A reproduced finding yields a standalone test draft and a repository-relative patch. Authored calibration additionally checks the same draft against a correction and its full suite. `scripts/behavior-gallery.py` aggregates eight labeled examples into one readable report without feeding labels or walkthroughs into search.
 
-`ReviewValidator` rejects unknown/duplicate fields, invalid enums, bogus locations, unknown rules/evidence, missing diff/source-range evidence, unsupported critical certainty, migration findings without retrieved documents and agent claims of executed tests. Evidence validation establishes traceability; it cannot automatically prove every semantic conclusion true. Human review and held-out evaluation remain necessary.
+The Java CLI bundles the Python runtime and owned examples for `explore`. Source checkouts can run the Python wrapper directly. Java/Maven execution is limited to selected compatible components; the runner is not an arbitrary-repository sandbox.
 
-The loop accounts for actual provider usage where returned and conservative character estimates otherwise, reserves output capacity, limits cumulative context and stops at the deadline. These are conservative application controls, not provider billing enforcement. Output is complete/partial/failed/skipped; unresolved or excluded coverage cannot produce a clean-looking empty report.
+## Contract verification and agents
 
-No durable source cache or cross-repository memory is implemented. Each run produces a replayable evidence bundle. Replaying authored responses validates harness behavior, not future live model conclusions.
+The JDK 25 CLI uses Spring Boot for non-web application lifecycle and picocli for commands. Only `explore`, `contracts` and `verify` are registered. Every invocation gets fresh option state, and Spring reads only bundled `undertow.properties` rather than reviewed working-directory configuration.
+
+`ContractPolicy` reads a host-pinned manifest and oracle inventory from Git objects. `scripts/import-ci.py` validates independently produced GitHub evidence. `ContractVerifier` binds exact tests and evidence to the approved policy and emits satisfied, unsatisfied or incomplete outcomes. It performs no source execution or model request.
+
+`ContractMcp` exposes only `contracts_read` and `contracts_verify`; requests cannot override host-bound policy or evidence. `LocalPreview` captures working/staged content identity for agent freshness checks. `RegressionEvidence` prepares approved external-oracle plans and compares repeated executions from a separate runner. `ContractSarif` exports existing verification findings without inventing source locations.
+
+## Source layout
+
+| Path | Responsibility |
+|---|---|
+| `.github/workflows/` | Candidate review, eight-case gallery and active build verification |
+| `experiments/behavior-search/` | Search, expectations, reduction, Java adapters and fixed strategy record |
+| `scripts/` | CI orchestration, evidence import, packaging and source checks |
+| `src/main/java/dev/undertow/cli/` | Active CLI and runtime extraction |
+| `src/main/java/dev/undertow/contracts/` | Approved policy, verification, agent reads and regression evidence |
+| `src/main/java/dev/undertow/tools/` | Immutable Git reads and CI evidence validation |
+| `demo/refund-extraction/`, `demo/ticket-transfer/` | Supported owned fixtures |
+| `archive/` | Immutable historical source; never executed or packaged |
+
+Hosted service/database code, model clients, generic review/publication, release/rollout evaluators and the browser UI are absent from active source. H2, Jsoup, JavaParser and the Gemini SDK were removed from direct dependencies. CI checks the archive and built JAR to prevent accidental reintroduction of retired implementations.

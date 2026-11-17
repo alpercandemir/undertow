@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "provenance": "Authored demonstration cases. Labels and walkthroughs are not search inputs or independent validation.",
+  "seed": 17,
+  "scenarios": 100,
+  "cases": [
+    {
+      "id": "refund-happy",
+      "title": "Partial refunds and safe retries",
+      "profile": "refund-retry",
+      "expected": "PASS",
+      "rule": "Valid refunds settle once; retries have no additional effect; exhausted or conflicting requests reject without changing state.",
+      "change": "none",
+      "walkthrough": {"initial": 100, "operations": [
+        {"action": "refund", "key": 1, "amount": 30},
+        {"action": "refund", "key": 1, "amount": 30},
+        {"action": "refund", "key": 2, "amount": 70},
+        {"action": "refund", "key": 2, "amount": 70},
+        {"action": "refund", "key": 3, "amount": 1},
+        {"action": "refund", "key": 1, "amount": 40}
+      ]},
+      "expected_trace": [
+        {"refunded": 0, "effects": 0},
+        {"status": "accepted", "refunded": 30, "effects": 1},
+        {"status": "accepted", "refunded": 30, "effects": 1},
+        {"status": "accepted", "refunded": 100, "effects": 2},
+        {"status": "accepted", "refunded": 100, "effects": 2},
+        {"status": "rejected", "refunded": 100, "effects": 2},
+        {"status": "rejected", "refunded": 100, "effects": 2}
+      ]
+    },
+    {
+      "id": "ticket-happy",
+      "title": "Preview, accept and preserve ownership",
+      "profile": "ticket-transfer",
+      "expected": "PASS",
+      "rule": "Preview is read-only; the recipient can accept; duplicate and unauthorized attempts preserve settled ownership.",
+      "change": "none",
+      "walkthrough": {"initial": 0, "operations": [
+        {"action": "preview"},
+        {"action": "accept", "actor": "recipient"},
+        {"action": "preview"},
+        {"action": "accept", "actor": "recipient"},
+        {"action": "accept", "actor": "other"}
+      ]},
+      "expected_trace": [
+        {"owner": 0, "accepted": 0},
+        {"status": "accepted", "owner": 0, "accepted": 0},
+        {"status": "accepted", "owner": 1, "accepted": 1},
+        {"status": "accepted", "owner": 1, "accepted": 1},
+        {"status": "rejected", "owner": 1, "accepted": 1},
+        {"status": "rejected", "owner": 1, "accepted": 1}
+      ]
+    },
+    {
+      "id": "refund-double-charge",
+      "title": "Retry charges the refund twice",
+      "profile": "refund-retry",
+      "expected": "VIOLATION",
+      "expectation": "retry_idempotency",
+      "rule": "Retrying a settled operation with the same amount must not add another refund.",
+      "change": "refund-double-charge"
+    },
+    {
+      "id": "refund-over-cap",
+      "title": "Split refunds exceed the captured payment",
+      "profile": "refund-cap",
+      "expected": "VIOLATION",
+      "expectation": "aggregate_refunds_never_exceed_capture",
+      "rule": "The total refunded amount must never exceed the captured payment, including across multiple requests.",
+      "change": "refund-over-cap"
+    },
+    {
+      "id": "refund-key-conflict",
+      "title": "An operation key accepts a different amount",
+      "profile": "refund-retry",
+      "expected": "VIOLATION",
+      "expectation": "operation_key_amount_immutable",
+      "rule": "A settled operation key cannot be reused with a different amount; that request must reject without effects.",
+      "change": "refund-key-conflict"
+    },
+    {
+      "id": "ticket-preview-transfer",
+      "title": "A link preview transfers the ticket",
+      "profile": "ticket-transfer",
+      "expected": "VIOLATION",
+      "expectation": "previews_are_read_only",
+      "rule": "Opening a preview must leave ownership and invitation status unchanged.",
+      "change": "ticket-preview-transfer"
+    },
+    {
+      "id": "ticket-unauthorized",
+      "title": "Another account accepts the invitation",
+      "profile": "ticket-transfer",
+      "expected": "VIOLATION",
+      "expectation": "only_recipient_accepts",
+      "rule": "Only the named recipient may accept a ticket transfer; another account must be rejected.",
+      "change": "ticket-unauthorized"
+    },
+    {
+      "id": "refund-build-error",
+      "title": "The component cannot compile",
+      "profile": "refund-retry",
+      "expected": "INCOMPLETE",
+      "rule": "No business-rule verdict is available because the component cannot execute.",
+      "change": "refund-build-error"
+    }
+  ]
+}

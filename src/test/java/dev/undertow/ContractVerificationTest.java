@@ -29,15 +29,6 @@ class ContractVerificationTest {
 
     Fixture fixture() throws Exception {
         var repo = new TestRepository(temp.resolve("repo"));
-        for (String legacy :
-                List.of(
-                        "config/review.yaml",
-                        "config/business-context.yaml",
-                        "config/dependency-sources.yaml",
-                        "config/languages/java/rules.yaml",
-                        "CODING-SKILL.md")) {
-            Files.delete(repo.root.resolve(legacy));
-        }
         repo.write("pom.xml", "<project/>\n");
         repo.write("tests/PaymentTest.java", "// Approved payment oracle\n");
         repo.write(

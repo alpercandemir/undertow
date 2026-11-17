@@ -2,6 +2,8 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
+from unittest.mock import patch
 
 SPEC = importlib.util.spec_from_file_location(
     "public_check", Path(__file__).resolve().parents[1] / "public-check.py")
@@ -15,11 +17,10 @@ class PublicContentCheckTest(unittest.TestCase):
         for name in (".env", ".env.production", "app.pem", "id_rsa", "service.local.json"):
             self.assertIn("credential_or_runtime_file", CHECK.path_issues(name))
 
-    def test_customer_policy_is_allowed_but_local_artifacts_are_not(self):
-        self.assertEqual(CHECK.path_issues("demo/customer-service/.undertow/rules.yaml"), [])
+    def test_only_active_manifests_are_allowed_as_source(self):
+        self.assertIn("local_review_artifact", CHECK.path_issues("demo/customer-service/.undertow/rules.yaml"))
         self.assertIn("local_review_artifact", CHECK.path_issues(".undertow/report.json"))
-        for manifest in (".undertow/contracts.yaml", "demo/order-service/.undertow/contracts.yaml",
-                         "demo/ticket-transfer/.undertow/contracts.yaml"):
+        for manifest in (".undertow/contracts.yaml", "demo/ticket-transfer/.undertow/contracts.yaml"):
             self.assertEqual(CHECK.path_issues(manifest), [])
         self.assertIn("local_review_artifact", CHECK.path_issues("demo/order-service/.undertow/report.json"))
         self.assertIn("local_review_artifact", CHECK.path_issues("demo/ticket-transfer/.undertow/receipt.json"))
@@ -34,12 +35,21 @@ class PublicContentCheckTest(unittest.TestCase):
         self.assertEqual(CHECK.content_issues(fixture, [fixture]), ["exact_environment_credential"])
 
     def test_english_examples_and_placeholder_configuration_are_allowed(self):
-        example = b"GEMINI_API_KEY: REPLACE_WITH_YOUR_KEY; API errors remain visible."
+        example = b"GITHUB_TOKEN: REPLACE_WITH_YOUR_TOKEN; API errors remain visible."
         self.assertEqual(CHECK.content_issues(example, []), [])
 
     def test_binary_files_are_still_checked_for_exact_credentials(self):
         fixture = b"synthetic-test-credential-value"
         self.assertIn("exact_environment_credential", CHECK.content_issues(b"\xff" + fixture, [fixture]))
+
+    def test_tracked_deletions_are_ignored_but_broken_symlinks_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(CHECK, 'ROOT', Path(directory)):
+            issues, files = CHECK.check_files(['demo/customer-service/.undertow/rules.yaml'], [])
+            self.assertEqual(([], []), (issues, files))
+            (Path(directory) / 'broken.md').symlink_to(Path(directory) / 'missing.md')
+            issues, files = CHECK.check_files(['broken.md'], [])
+            self.assertEqual('symlink_requires_review', issues[0]['rule'])
+            self.assertEqual([], files)
 
 
 if __name__ == "__main__":

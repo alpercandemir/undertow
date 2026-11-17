@@ -10,7 +10,7 @@
   <artifactId>undertow</artifactId>
   <version>0.1.0-alpha.1</version>
   <name>Undertow</name>
-  <description>Contract verification and evidence-backed Java change assurance</description>
+  <description>Reproducible business behavior failures and approved contract verification</description>
   <properties>
     <java.version>25</java.version>
     <start-class>dev.undertow.cli.UndertowApplication</start-class>
@@ -18,19 +18,8 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>2.5.252</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-      <version>1.21.2</version>
     </dependency>
     <dependency>
       <groupId>info.picocli</groupId>
@@ -51,16 +40,6 @@
       <version>1.5.1</version>
     </dependency>
     <dependency>
-      <groupId>com.github.javaparser</groupId>
-      <artifactId>javaparser-core</artifactId>
-      <version>3.26.3</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.genai</groupId>
-      <artifactId>google-genai</artifactId>
-      <version>1.65.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
@@ -76,9 +55,25 @@
     <resources>
       <resource><directory>src/main/resources</directory></resource>
       <resource>
-        <directory>scripts</directory>
-        <targetPath>service/ci</targetPath>
-        <includes><include>import-ci.py</include><include>ci-formats.py</include></includes>
+        <directory>experiments/behavior-search</directory>
+        <targetPath>behavior-search</targetPath>
+        <includes>
+          <include>explore.py</include><include>search.py</include><include>oracle.py</include>
+          <include>scenario.json</include><include>sequence_strategy.py</include>
+          <include>retry_behavior.py</include><include>retry-scenario.json</include>
+          <include>ticket_behavior.py</include><include>ticket-scenario.json</include>
+          <include>java/*.java</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>demo/refund-extraction</directory>
+        <targetPath>behavior-search/fixtures/refund-extraction</targetPath>
+        <includes><include>pom.xml</include><include>src/main/java/example/refunds/RefundService.java</include></includes>
+      </resource>
+      <resource>
+        <directory>demo/ticket-transfer</directory>
+        <targetPath>behavior-search/fixtures/ticket-transfer</targetPath>
+        <includes><include>pom.xml</include><include>src/main/java/example/tickets/TicketTransfer.java</include></includes>
       </resource>
     </resources>
     <plugins>

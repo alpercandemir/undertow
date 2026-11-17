@@ -51,16 +51,12 @@ public final class ContractCommands {
                 Validate.class,
                 ListContracts.class,
                 Export.class,
-                AssuranceCommands.Init.class,
-                AssuranceCommands.Preview.class,
-                AssuranceCommands.Freshness.class,
-                AssuranceCommands.Mcp.class,
-                AssuranceCommands.RegressionPlan.class,
-                AssuranceCommands.Reproduce.class,
-                AssuranceCommands.Pilot.class,
-                AssuranceCommands.Release.class,
-                AssuranceCommands.Attest.class,
-                AssuranceCommands.Rollout.class
+                ContractTools.Init.class,
+                ContractTools.Preview.class,
+                ContractTools.Freshness.class,
+                ContractTools.Mcp.class,
+                ContractTools.RegressionPlan.class,
+                ContractTools.Reproduce.class
             },
             description = "Read and validate inert owner-approved contracts without a model")
     public static final class Contracts {}
