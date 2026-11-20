@@ -1,0 +1,140 @@
+name: Undertow Java Change Review
+description: Compare Java/Maven behavior between two Git commits and retain paired test evidence.
+branding:
+  icon: git-pull-request
+  color: blue
+inputs:
+  java-version:
+    description: JDK version used by the project for Maven builds and tests.
+    default: '21'
+  java-distribution:
+    description: Project JDK distribution supported by actions/setup-java.
+    default: temurin
+  base:
+    description: Full base commit SHA for a manual comparison. Pull requests default to their merge base.
+    default: ''
+  head:
+    description: Full candidate commit SHA for a manual comparison. Pull requests default to their exact head.
+    default: ''
+  fail-on-breakage:
+    description: Fail the check for a reproduced breakage. Set to false for an advisory rollout.
+    default: 'true'
+  artifact-name:
+    description: Name of the retained report artifact. Use distinct names across matrix jobs.
+    default: undertow-change-review
+outputs:
+  status:
+    description: Classification from the paired comparison.
+    value: ${{ steps.compare.outputs.status }}
+  base:
+    description: Full SHA actually compared as the base.
+    value: ${{ steps.compare.outputs.base }}
+  head:
+    description: Full SHA actually compared as the candidate.
+    value: ${{ steps.compare.outputs.head }}
+runs:
+  using: composite
+  steps:
+    - name: Resolve comparison inputs
+      id: inputs
+      shell: bash
+      env:
+        EXPLICIT_BASE: ${{ inputs.base }}
+        EXPLICIT_HEAD: ${{ inputs.head }}
+        PR_BASE: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        FAIL_ON_BREAKAGE: ${{ inputs.fail-on-breakage }}
+      run: |
+        base="$EXPLICIT_BASE"
+        head="$EXPLICIT_HEAD"
+        merge_base=false
+        if [[ -z "$base" && -z "$head" ]]; then
+          base="$PR_BASE"
+          head="$PR_HEAD"
+          merge_base=true
+        fi
+        if [[ ! "$base" =~ ^[a-f0-9]{40}$ || ! "$head" =~ ^[a-f0-9]{40}$ ]]; then
+          echo '::error::Supply both full commit SHAs, or run on a pull_request with automatic commit selection.'
+          exit 1
+        fi
+        if [[ "$FAIL_ON_BREAKAGE" != true && "$FAIL_ON_BREAKAGE" != false ]]; then
+          echo '::error::fail-on-breakage accepts true or false.'
+          exit 1
+        fi
+        printf 'base=%s\nhead=%s\nmerge-base=%s\n' "$base" "$head" "$merge_base" >> "$GITHUB_OUTPUT"
+
+    - name: Check out the candidate commit
+      uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      with:
+        ref: ${{ steps.inputs.outputs.head }}
+        fetch-depth: 0
+        persist-credentials: false
+
+    - name: Set up the Undertow parser JDK
+      id: parser
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      with:
+        distribution: temurin
+        java-version: '25'
+        overwrite-settings: false
+
+    - name: Set up the project's JDK
+      id: project
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      with:
+        distribution: ${{ inputs.java-distribution }}
+        java-version: ${{ inputs.java-version }}
+        overwrite-settings: false
+
+    - name: Run the comparison
+      id: compare
+      shell: bash
+      env:
+        EVENT_BASE: ${{ steps.inputs.outputs.base }}
+        HEAD_SHA: ${{ steps.inputs.outputs.head }}
+        MERGE_BASE: ${{ steps.inputs.outputs.merge-base }}
+        PARSER_JDK: ${{ steps.parser.outputs.path }}
+        PROJECT_JDK: ${{ steps.project.outputs.path }}
+      run: |
+        [[ "$(git rev-parse HEAD)" == "$HEAD_SHA" ]]
+        base="$EVENT_BASE"
+        if [[ "$MERGE_BASE" == true ]]; then
+          base="$(git merge-base "$EVENT_BASE" "$HEAD_SHA")"
+        fi
+        parent="$(mktemp -d "$RUNNER_TEMP/undertow.XXXXXXXX")"
+        output="$parent/evidence"
+        printf 'evidence=%s\nbase=%s\nhead=%s\n' "$output" "$base" "$HEAD_SHA" >> "$GITHUB_OUTPUT"
+        code=0
+        python3 -I "$GITHUB_ACTION_PATH/../../scripts/change-review.py" --repo "$GITHUB_WORKSPACE" \
+          --base "$base" --head "$HEAD_SHA" --output "$output" \
+          --analysis-java-home "$PARSER_JDK" --build-java-home "$PROJECT_JDK" || code=$?
+        if [[ ! -f "$output/report.json" || "$code" -gt 2 ]]; then
+          echo '::error::Undertow could not produce a comparison report.'
+          exit 1
+        fi
+        status="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["status"])' "$output/report.json")"
+        printf 'status=%s\nexit-code=%s\n' "$status" "$code" >> "$GITHUB_OUTPUT"
+        printf 'Event base `%s`\n\n' "$EVENT_BASE" >> "$GITHUB_STEP_SUMMARY"
+        cat "$output/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Retain comparison evidence
+      if: ${{ always() && steps.compare.outputs.evidence != '' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.compare.outputs.evidence }}
+        if-no-files-found: warn
+        retention-days: 14
+
+    - name: Set the check result
+      shell: bash
+      env:
+        RESULT: ${{ steps.compare.outputs.exit-code }}
+        FAIL_ON_BREAKAGE: ${{ inputs.fail-on-breakage }}
+      run: |
+        if [[ "$RESULT" == 2 ]]; then
+          echo '::warning::Undertow comparison is incomplete. Inspect the investigation gaps and logs.'
+        elif [[ "$RESULT" == 1 && "$FAIL_ON_BREAKAGE" == true ]]; then
+          echo '::error::Undertow reproduced a breakage. Open the job summary for evidence.'
+          exit 1
+        fi

@@ -1,6 +1,10 @@
 # Architecture
 
-Undertow has two execution paths with distinct authority: behavior exploration executes selected component code; contract verification reads approved definitions and existing CI evidence.
+Undertow supports repository change comparison, profile-based behavior exploration and approved contract verification.
+
+## Repository change comparison
+
+`scripts/undertow compare` pins two commits, reads tracked Git blobs, and uses the JDK syntax parser to connect changed method bodies to callers, Javadoc and existing test inputs. It runs selected tests and generated probes in fresh Maven directories for each revision, then validates standalone JUnit proposals in fresh paired runs. The report separates runtime observations from possible impact and execution gaps. This experimental path uses repository context without a profile or contract manifest. See the [comparison guide](change-review.md).
 
 ```mermaid
 flowchart TD

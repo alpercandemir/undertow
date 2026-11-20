@@ -34,3 +34,7 @@ The content check rejects private/runtime paths, credential matches and non-Engl
 If a real credential entered history, revoke or rotate it before cleanup. Ignore rules and deleting files do not remove historical data. Changes to public hosting, external secrets or deployments are separate operational actions from archiving source.
 
 Report discovered security issues privately to the repository maintainer through their published contact channel.
+
+## Repository change comparison
+
+The experimental `scripts/undertow compare` runner uses immutable tracked blobs and fresh Maven working directories. Git snapshots and runtime limits control inputs and resource use. Maven plugins, tests and project code retain the runner user's privileges. Run reviews of external code on an ephemeral worker without account credentials or sensitive data. Keep the tool checkout pinned separately from reviewed code. The example workflow uses `pull_request`, read-only permissions and no publishing credentials.
