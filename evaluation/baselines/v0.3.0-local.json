@@ -1,0 +1,192 @@
+{
+  "cases": {
+    "click-2365": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.716,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2604": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 1.372,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2680": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 1.845,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2846": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 0.457,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2930": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.231,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2935": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 0.237,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2972": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 1.098,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2990": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 1.578,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-3004": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.667,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-3009": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 0,
+      "seconds": 0.13,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-2998": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 4,
+      "seconds": 1.532,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3116": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 3,
+      "seconds": 0.344,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3178": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 5,
+      "seconds": 0.227,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3364": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.183,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3367": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.295,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3373": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 6,
+      "seconds": 1.269,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3375": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 0,
+      "seconds": 0.132,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3377": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 12,
+      "seconds": 1.095,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3378": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 0.78,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3387": {
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 10,
+      "seconds": 1.48,
+      "status": "no_findings",
+      "version": "0.3.0"
+    }
+  },
+  "git": "git version 2.54.0 (Apple Git-157)",
+  "manifest_sha256": "02bfdb79cb3daf9f63d7fac39013c5d894af9680c4adacfc9464f61924b412f2",
+  "platform": "darwin",
+  "python": "3.14.7",
+  "requested_mode": "local",
+  "requested_model": null,
+  "schema": 1,
+  "undertow_commit": "cbf43c4b7174c306c9f24bf4f3ebcb5d400a48a6"
+}

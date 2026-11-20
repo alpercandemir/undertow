@@ -1,0 +1,23 @@
+{
+  "cases": {
+    "click-2934": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 0.233,
+      "status": "no_findings",
+      "version": "0.3.0"
+    }
+  },
+  "git": "git version 2.54.0 (Apple Git-157)",
+  "manifest_sha256": "27a79847c20895cc4af9acffe49983d62d18ee709b71a92e7e73ad3dae1c2d35",
+  "platform": "darwin",
+  "python": "3.14.7",
+  "requested_mode": "local",
+  "requested_model": null,
+  "schema": 1,
+  "undertow_commit": null,
+  "worker_sha256": "724f222e77ddacc42c7823fdb4c36fd7022ca7dd77bb9fbc148a63bd9f0b6b45"
+}

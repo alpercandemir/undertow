@@ -169,12 +169,14 @@ def main():
     except (ActionError, subprocess.SubprocessError, OSError, KeyError, TypeError, ValueError) as error:
         note = str(error) if isinstance(error, ActionError) else "Undertow could not finish this run."
         report = {
-            "version": None, "status": "unavailable", "mode": None,
+            "version": None, "schema_version": 1, "status": "unavailable", "mode": None,
             "base": None, "head": None, "coverage": {}, "findings": [], "evidence": {},
             "related_references": [], "notes": [note],
+            "analysis_limitations": ["No source comparison was completed."],
         }
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-        summary_path.write_text(f"## Undertow business change report\n\n**Analysis unavailable.** {note}\n",
+        summary_path.write_text(f"## Undertow business change report\n\n**Analysis unavailable.** {note}\n\n"
+                                "No source comparison was completed.\n",
                                 encoding="utf-8")
     summary = summary_path.read_text(encoding="utf-8")
     publish = "disabled"

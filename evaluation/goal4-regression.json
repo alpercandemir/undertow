@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "kind": "historical",
+  "cases": [
+    {
+      "id": "click-2934",
+      "repository": "pallets/click",
+      "source_url": "https://github.com/pallets/click",
+      "pr": 2934,
+      "base": "cfa6f4ad3e0078db43f866246b483544afa33ed3",
+      "head": "262bdf02288daf9a37b9e815b44acafd62b5c6fe",
+      "classification": "regression",
+      "label": "Reading stdin by iteration in CliRunner aborts on normal end of input.",
+      "changes": [
+        {
+          "id": "1",
+          "flow": "CliRunner.invoke / click.File stdin iteration / _NamedTextIOWrapper.__next__",
+          "input": "Use CliRunner to invoke a command that iterates over a click.File('r') argument set to '-' with one line of stdin.",
+          "before": "The loop consumes the line and ends normally. The command exits with code 0.",
+          "after": "Normal iterator exhaustion raises EOFError. Click aborts and exits with code 1.",
+          "evidence": "https://github.com/pallets/click/issues/2939 and https://github.com/pallets/click/pull/2940; source in src/click/testing.py at the pinned revisions.",
+          "supported": false,
+          "support_reason": "The change replaces an iteration protocol exception and propagates through the CLI runner."
+        }
+      ]
+    }
+  ]
+}
