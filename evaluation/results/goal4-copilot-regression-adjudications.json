@@ -1,0 +1,21 @@
+{
+  "click-2934": {
+    "4720410bc694ca016e7883502858ec5d4a1cbdf5dc8cc5dadc5e59ba8ff346de": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The pinned chain test uses -f -, the exact two input lines, and asserts successful base completion. Head _NamedTextIOWrapper raises EOFError on exhaustion and the changed test acknowledges Aborted!. The later #2940 fix explicitly removes the offending override.",
+      "verdict": "correct"
+    },
+    "d9bcb32fa2a07f626adb71a85a838879817db86085e51143f596e011bebea5d5": {
+      "additional_outcomes": [
+        "eof-with-prompt-default"
+      ],
+      "changes": [],
+      "concrete": true,
+      "reason": "The base visible input returns an empty string at EOF and prompt selects its default. In head next(text_input) raises EOFError and prompt maps it to Abort. This is distinct from ordinary stdin iteration.",
+      "verdict": "correct"
+    }
+  }
+}

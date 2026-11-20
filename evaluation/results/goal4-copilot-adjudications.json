@@ -1,0 +1,291 @@
+{
+  "click-2365": {
+    "8f577c9763930663bbc7c61636e6c8e9795e72ebb4b7d51fcdeceb2e34671a6d": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "Choice.get_metavar uses the type metavar when show_choices is false. The head test supplies the exact string choices and expects [TEXT].",
+      "verdict": "correct"
+    }
+  },
+  "click-2604": {
+    "56e0f7fca418f589ab33ce20692c56e866c14417e34ecce0d04ec4a3ecb58af2": {
+      "reason": "The head uses rpartition('-') and strips the suffix only if sep is truthy. A bare function name such as command remains command.",
+      "verdict": "incorrect"
+    },
+    "b2af1c1f2da0ce9a6d2ecd02dda17620ebb67b4b8e6a9e3fcfa9900c26387809": {
+      "additional_outcomes": [
+        "explicit-empty-command-name"
+      ],
+      "changes": [],
+      "concrete": true,
+      "reason": "The base uses a truthiness fallback; the head chooses any name other than None. An empty explicit string is passed to Command instead of the generated name.",
+      "verdict": "correct"
+    }
+  },
+  "click-2680": {
+    "c95515ee71c18ee5fc8f3e77128700cbd8e3e4028c25ff8361f4dabee3721c5d": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "Context.exit calls close before raising Exit in the head. The eager-option scenario registers cleanup in the non-cleaning parsing context and the head tests verify the callbacks.",
+      "verdict": "correct"
+    }
+  },
+  "click-2846": {
+    "7259096bc67e1e31153ff9f4c4983e41519c48a1a2b75346a267c67b9c6ea18b": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The head escapes colons when help is present. The head shell test exercises c:d with a description, and the base returns item.value verbatim.",
+      "verdict": "correct"
+    }
+  },
+  "click-2930": {
+    "cde826298162eb565cb811cabb8d1b17ad972931d948f8ce19910c3262fcabdb": {
+      "additional_outcomes": [
+        "string-flag-output"
+      ],
+      "changes": [],
+      "concrete": true,
+      "reason": "For type=str with a false default, the old None parser constant falls through to no value. The new True constant is cast to the string 'True'; omission still yields an empty echo.",
+      "verdict": "correct"
+    },
+    "e3314ca6187ccca6c44885e7ce521884eb62a8a40172ad7d8d0a93d9c4c362ae": {
+      "changes": [
+        "1"
+      ],
+      "concrete": false,
+      "reason": "The flag constructor now chooses the inverse default for an explicitly typed flag with no flag_value. The example gets the base CLI outcome wrong because Parameter.consume_value falls back from the parsed None to the configured default.",
+      "verdict": "correct"
+    }
+  },
+  "click-2935": {
+    "07df1ae33b437fe1be6b402d8c99538936c50b4bd1a3aad856e9240f0a504724": {
+      "reason": "The cited existing test already expects ['get'] after ['set', 'start'] in both revisions. Even when base traversal stops after set, completion uses the original args to exclude both used siblings.",
+      "verdict": "incorrect"
+    },
+    "a0a3aa14c67a6798b1765e402bdeca7c75841ec298a6561a5d2ecee1c6d8f50d": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The base reuses root arguments after entering get and cannot resolve get again within that group. The head advances through full and exposes data, as tested.",
+      "verdict": "correct"
+    },
+    "cf178d7bfacdf74b154c33fa3acbe91fac8798d56cb1f8d845da55fef39ff072": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The stale root arguments also leave option completion in get for the cited inputs. The head tests check --verbose for full and -a for data. This is grouped with the same nested context fix.",
+      "verdict": "correct"
+    }
+  },
+  "click-2972": {
+    "0de6f757cf33013d4afcd492ab67806d6868e0fb6694171ba5240386830c29c3": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The added test asserts the same required option and stripped message. The base get_error_hint always appends the suffix with show_envvar.",
+      "verdict": "correct"
+    },
+    "54f27af21bd4a3054fae49753f75358691ff246e3566c4d5d3047edc46bf3522": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "BadParameter.format_message calls the same option hint method for the invalid Choice value. Grouped with the same unset-envvar formatting change.",
+      "verdict": "correct"
+    }
+  },
+  "click-2990": {
+    "72ab664280360e061fa39c6fbe6c185568a951f07347d8dd5986ed95173e33b7": {
+      "reason": "The constructor annotation changes, with no runtime formatting change. Static typing is real but outside this runtime-behavior benchmark.",
+      "verdict": "incorrect"
+    },
+    "a65839f02fe9cea001b666ac17e4a3467e10839a2d43285dd31838281e534862": {
+      "reason": "The annotation and local annotation reflect the pre-existing formatting support. This is outside the runtime-behavior scope.",
+      "verdict": "incorrect"
+    }
+  },
+  "click-3004": {
+    "2de58019e90609d99eac633c11d66085578619319868a4408ed132f63a12b1b6": {
+      "changes": [
+        "1"
+      ],
+      "concrete": false,
+      "reason": "A custom Enum.__str__ is bypassed by the new .name branch. The offered scenario gives no concrete enum member or string value, so exact before and after outputs are unspecified.",
+      "verdict": "correct"
+    },
+    "7e33c3e85567d9b830627ca7caa28c199fa7c974696bc56ae804fbfa7a68dd4b": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The new Enum branch applies to option defaults without a Choice check. A plain Enum uses its class-qualified string representation in base and the member name in head.",
+      "verdict": "correct"
+    },
+    "c16f0fd2f08b977d43ba244de1fad4c8981e53ea9306f41e8bdd38f4406dc2c3": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The listed IntEnum and IntFlag members have value 2 and output their names in the head. The Python 3.11+ qualification supports the old numeric rendering. Grouped with the same enum-default outcome.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-2998": {
+    "de7274549d01bdeddbc25cdd87865a8d86a6e3aa654ccba7690c0f445e36a208": {
+      "additional_outcomes": [
+        "partial-codepoint-empty-chunk"
+      ],
+      "changes": [],
+      "concrete": false,
+      "reason": "TextChunker now filters empty decoded output, including the empty first decode of a split UTF-8 character. The example omits the additional final empty string from base decoder.flush(), the separately labeled case.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3116": {
+    "3e7045127696edab19b1dabe9a6b45407e88dd8d96ae76169dda36d025f4e19d": {
+      "additional_outcomes": [
+        "sync-standalone-request-timeout"
+      ],
+      "changes": [],
+      "concrete": false,
+      "reason": "Client.send also calls _set_timeout at head. Its direct relative URL is not sendable through the default HTTP transport; the before/after timeout result is therefore inaccurate as written.",
+      "verdict": "correct"
+    },
+    "b6b2cb2ca2c68df0c86e41791ce132a8eb9fca124c99b678845f10a71a26658a": {
+      "changes": [
+        "1"
+      ],
+      "concrete": false,
+      "reason": "AsyncClient.send now calls _set_timeout, as exercised by the new standalone-request test. The example passes a bare relative URL directly to send, unlike the absolute URL in the test, so it cannot produce the claimed network outcomes.",
+      "verdict": "correct"
+    },
+    "f30acff373da90360dcaacbcc0979c98f2933e3f6d0cc3711d876d739a25b4ef": {
+      "additional_outcomes": [
+        "raw-request-reuses-first-timeout"
+      ],
+      "changes": [],
+      "concrete": false,
+      "reason": "The first head send populates request.extensions with a timeout dictionary; later sends skip the helper's assignment when the key exists. The example uses an unsendable relative URL and the base did not apply either client's configured timeout to the raw request.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3178": {
+    "b7f7897b62f847eb29fc9c78ab61d42a5becc5975aa859eb394498e8529cb02d": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "Proxy accepts socks5h at head and both transports now choose an httpcore SOCKS pool for that scheme. The base rejects it in Proxy.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3364": {
+    "02036a58cf6d56cf8637d67776741b0dbdfa1f239fce0046e1f9d9e23a76bd09": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The base copy_merge_params preserves existing keys and adds c; the head URL constructor replaces the query with the new params. This is grouped with the query replacement policy.",
+      "verdict": "correct"
+    },
+    "101b1abdeb356da64a66d161fd51b8363348f727006560bada187a1e4e716af7": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The base QueryParams.merge retains b and replaces a. The head only serializes the supplied a. This is grouped with the query replacement policy.",
+      "verdict": "correct"
+    },
+    "ef305d41010ec64432a3c2166ed3c3af916a0ceb366fd50fa391ca5c519f6a60": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "An empty supplied mapping now replaces the old query with an empty query instead of preserving it. The later #3440 specifically tests this contract.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3367": {
+    "8eeb80e9f217bcf898b4bbc26c398fd65b6d9ee291ad8ad4cdd763e35c4c6465": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "Both request and response use encode_json, which now specifies compact separators. The new request test asserts the exact byte string and length.",
+      "verdict": "correct"
+    },
+    "df435d58ff7fdf8951eb8e29305f9adf9fc912ab10aca43ec06dc7969f0e9e5e": {
+      "changes": [
+        "3"
+      ],
+      "concrete": true,
+      "reason": "The new allow_nan=False causes json.dumps to raise ValueError for non-finite floats. The base used json.dumps defaults and the head test verifies NaN rejection.",
+      "verdict": "correct"
+    },
+    "e9ea2c7c69a396e8eec135174c518dd453377cfa96af891b08c883b9a2c08462": {
+      "changes": [
+        "2"
+      ],
+      "concrete": true,
+      "reason": "The new ensure_ascii=False, separators, and UTF-8 encoding explain the exact cafe example for the two revisions.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3373": {
+    "15543468828cc476acfdf9270ebd45ba3fe2474a4efe20c4e601d2970b33035f": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The base custom encoder uses percent escapes for spaces. The head urllib.parse.urlencode uses form-style plus encoding. Together with the character-escaping finding this covers the frozen example.",
+      "verdict": "correct"
+    },
+    "66f45330ffd5947bea23a089107a8a99d007891429e6e5bdb0136bd4b14aff32": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The base custom encoder escapes slash, question mark and colon for parameter values. The head URLENCODE_SAFE set includes all three. Together with the space finding this covers the frozen example.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3377": {
+    "108c6386642ac145976b77095b5c57e994a309ffd0fffff6b151e30667be0ad4": {
+      "additional_outcomes": [
+        "reported-package-version"
+      ],
+      "changes": [],
+      "concrete": false,
+      "reason": "The public __version__ re-export and Hatch version source both use httpx/__version__.py, which changes from 0.28.0 to 0.27.2. Intent and downstream use remain unverified. The finding offered no input.",
+      "verdict": "correct"
+    },
+    "edf897090691a15bd85d0316cadd2ebf82e20a0e3531b719c8333213792decb9": {
+      "additional_outcomes": [
+        "runtime-transport-type-hints"
+      ],
+      "changes": [],
+      "concrete": true,
+      "reason": "The constructor still annotates ssl_context using ssl.SSLContext, but the head imports ssl only during type checking. Runtime get_type_hints resolves that annotation in base and encounters the missing ssl global at head.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3378": {
+    "67750b3e5631f422cbf68f78d2095674cd180d04ccfa722b275be42826bafc7c": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The head calls bytes.upper without decoding; the base decodes ASCII. A bytes POST also stops matching the string-only Content-Length condition. The head does not reject the construction.",
+      "verdict": "correct"
+    }
+  }
+}

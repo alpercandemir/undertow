@@ -1,0 +1,149 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "local",
+  "base": "23850797847d9065b054f64b5959454b00192b69",
+  "head": "13d4f5a70dc8095aafd6af60c3a7c70543bc4ca7",
+  "coverage": {
+    "changed_files": 3,
+    "ignored_files": 0,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 3,
+    "reviewed_files": 3,
+    "related_regions": 1
+  },
+  "findings": [
+    {
+      "title": "Eligibility lost for return at age days = 30",
+      "flow": "can_return",
+      "before": "The condition was age_days <= 30.",
+      "after": "The condition is age_days <= 14.",
+      "scenario": "The condition is evaluated with age_days = 30.",
+      "example_before": "The return value is true.",
+      "example_after": "The return value is false.",
+      "symbol": "can_return",
+      "evidence": [
+        "L4"
+      ],
+      "priority": "P1",
+      "priority_reason": "A previously eligible example now returns false.",
+      "related_references": [
+        {
+          "symbol": "can_return",
+          "caller": "checkout",
+          "hop": 1,
+          "evidence": "R1",
+          "relationship": "candidate",
+          "target_path": "returns.py",
+          "relationship_by_revision": {
+            "base": "verified",
+            "head": "candidate"
+          }
+        }
+      ],
+      "potential_impact": "Previously eligible cases may lose access where callers use this result to decide eligibility.",
+      "review_question": "Should the case above lose eligibility, and do callers handle that outcome as intended?",
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "potentially_breaking",
+      "example": {
+        "input": "age_days = 30",
+        "precondition": null,
+        "base_outcome": "The return value is true.",
+        "head_outcome": "The return value is false."
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "The example assumes the edited logic is reached. Its effect on callers is unverified."
+      ]
+    },
+    {
+      "title": "POST /returns declaration added",
+      "priority": "P3",
+      "priority_reason": "A new entry point is declared.",
+      "change_kind": "added_route",
+      "symbol": null,
+      "flow": "POST /returns",
+      "before": "This declaration is absent from the corresponding source.",
+      "after": "The reviewed source declares this route.",
+      "scenario": "A client sends POST /returns to this application.",
+      "example_before": "This declaration is absent from the corresponding source.",
+      "example_after": "The reviewed source declares this route.",
+      "evidence": [
+        "L5"
+      ],
+      "potential_impact": "Clients may gain an entry point if this declaration is registered.",
+      "review_question": "Should clients be able to use this route, and does the registered handler enforce the intended access?",
+      "id": "F2",
+      "classification": "route_declaration_added",
+      "compatibility_risk": "additive",
+      "example": {
+        "input": "POST /returns",
+        "precondition": null,
+        "base_outcome": "This declaration is absent from the corresponding source.",
+        "head_outcome": "The reviewed source declares this route."
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "The example covers the declaration. Registration, handler behavior, and HTTP responses are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "L4": {
+      "base": {
+        "path": "returns.py",
+        "start": 2,
+        "end": 2
+      },
+      "head": {
+        "path": "returns.py",
+        "start": 2,
+        "end": 2
+      }
+    },
+    "L5": {
+      "head": {
+        "path": "web/routes.ts",
+        "start": 1,
+        "end": 1
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "web/checkout.py",
+        "start": 1,
+        "end": 4
+      },
+      "head": {
+        "path": "web/checkout.py",
+        "start": 1,
+        "end": 2
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "can_return",
+      "caller": "checkout",
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "candidate",
+      "target_path": "returns.py",
+      "relationship_by_revision": {
+        "base": "verified",
+        "head": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ]
+}
