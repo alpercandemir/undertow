@@ -1,0 +1,525 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "90538a3b4610ba49ce16c997bcfdb9101f9503be",
+  "head": "1e110964736a95d822144390b99d7ecf17fca527",
+  "coverage": {
+    "changed_files": 3,
+    "ignored_files": 1,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 4,
+    "reviewed_files": 2,
+    "related_regions": 16
+  },
+  "findings": [
+    {
+      "priority_reason": "Changes the return value for empty content in LineDecoder.decode, potentially affecting how callers handle empty strings or unexpected inputs.",
+      "title": "LineDecoder decode behavior for empty content",
+      "flow": "Chunked content decoding",
+      "before": "Always returns [content] if chunk_size is None.",
+      "after": "Returns an empty list if content is empty when chunk_size is None.",
+      "scenario": "concrete_input",
+      "example_before": "decoder.decode(\"\") -> [\"\"]",
+      "example_after": "decoder.decode(\"\") -> []",
+      "potential_impact": "Downstream logic iterating over the result of decode may skip processing loops entirely if an empty string is provided, whereas it previously executed the loop once with an empty string.",
+      "review_question": "Does any downstream code rely on decoding an empty string returning a list containing an empty string rather than an empty list?",
+      "priority": "P2",
+      "evidence": [
+        "D1"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "concrete_input",
+        "precondition": null,
+        "base_outcome": "decoder.decode(\"\") -> [\"\"]",
+        "head_outcome": "decoder.decode(\"\") -> []"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    },
+    {
+      "priority_reason": "Adds explicit pragma: no cover markers to dead code branches, which does not change runtime behavior but modifies metadata.",
+      "title": "Annotation of unreachable code paths",
+      "flow": "Iterating over decoded content",
+      "before": "Unmarked code branches.",
+      "after": "Unreachable branches marked with pragma: no cover.",
+      "scenario": "precondition_only",
+      "example_before": "yield chunk",
+      "example_after": "yield chunk # pragma: no cover",
+      "potential_impact": "Changes coverage reporting metrics; functionality remains unchanged.",
+      "review_question": "Are these code paths genuinely unreachable under all production scenarios as indicated by the new comments?",
+      "priority": "P3",
+      "evidence": [
+        "D2",
+        "D3",
+        "D4"
+      ],
+      "id": "F2",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "additive",
+      "example": {
+        "input": null,
+        "precondition": "precondition_only",
+        "base_outcome": "yield chunk",
+        "head_outcome": "yield chunk # pragma: no cover"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "httpx/_decoders.py",
+        "start": 215,
+        "end": 215
+      },
+      "head": {
+        "path": "httpx/_decoders.py",
+        "start": 215,
+        "end": 215
+      }
+    },
+    "D2": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 856,
+        "end": 856
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 856,
+        "end": 856
+      }
+    },
+    "D3": {
+      "base": {
+        "path": "httpx/_decoders.py",
+        "start": 283,
+        "end": 283
+      },
+      "head": {
+        "path": "httpx/_decoders.py",
+        "start": 283,
+        "end": 285
+      }
+    },
+    "D4": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 960,
+        "end": 960
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 960,
+        "end": 960
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "httpx/_decoders.py",
+        "start": 157,
+        "end": 165
+      },
+      "head": {
+        "path": "httpx/_decoders.py",
+        "start": 157,
+        "end": 165
+      }
+    },
+    "R2": {
+      "base": {
+        "path": "httpx/_client.py",
+        "start": 540,
+        "end": 548
+      },
+      "head": {
+        "path": "httpx/_client.py",
+        "start": 540,
+        "end": 548
+      }
+    },
+    "R3": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 319,
+        "end": 327
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 319,
+        "end": 327
+      }
+    },
+    "R4": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 214,
+        "end": 222
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 214,
+        "end": 222
+      }
+    },
+    "R5": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 964,
+        "end": 972
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 964,
+        "end": 972
+      }
+    },
+    "R6": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 96,
+        "end": 104
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 96,
+        "end": 104
+      }
+    },
+    "R7": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 181,
+        "end": 189
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 181,
+        "end": 189
+      }
+    },
+    "R8": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 543,
+        "end": 551
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 543,
+        "end": 551
+      }
+    },
+    "R9": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 143,
+        "end": 151
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 143,
+        "end": 151
+      }
+    },
+    "R10": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 860,
+        "end": 868
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 860,
+        "end": 868
+      }
+    },
+    "R11": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 123,
+        "end": 131
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 123,
+        "end": 131
+      }
+    },
+    "R12": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 158,
+        "end": 166
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 158,
+        "end": 166
+      }
+    },
+    "R13": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 552,
+        "end": 560
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 552,
+        "end": 560
+      }
+    },
+    "R14": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 575,
+        "end": 583
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 575,
+        "end": 583
+      }
+    },
+    "R15": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 128,
+        "end": 136
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 128,
+        "end": 136
+      }
+    },
+    "R16": {
+      "base": {
+        "path": "httpx/_auth.py",
+        "start": 136,
+        "end": 144
+      },
+      "head": {
+        "path": "httpx/_auth.py",
+        "start": 136,
+        "end": 144
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "decode",
+      "caller": "flush",
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "_redirect_headers",
+      "hop": 1,
+      "evidence": "R2",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R3",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "__getitem__",
+      "hop": 1,
+      "evidence": "R4",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "aiter_lines",
+      "hop": 1,
+      "evidence": "R5",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "encoding",
+      "hop": 1,
+      "evidence": "R6",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "get_list",
+      "hop": 1,
+      "evidence": "R7",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "http_version",
+      "hop": 1,
+      "evidence": "R8",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "items",
+      "hop": 1,
+      "evidence": "R9",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "iter_lines",
+      "hop": 1,
+      "evidence": "R10",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "keys",
+      "hop": 1,
+      "evidence": "R11",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "multi_items",
+      "hop": 1,
+      "evidence": "R12",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "reason_phrase",
+      "hop": 1,
+      "evidence": "R13",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "text",
+      "hop": 1,
+      "evidence": "R14",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": "values",
+      "hop": 1,
+      "evidence": "R15",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "decode",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R16",
+      "relationship": "candidate",
+      "target_path": "httpx/_decoders.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (1).",
+    "Repository reference tracing reached a search limit."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

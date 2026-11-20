@@ -1,0 +1,17 @@
+{
+  "click-2934": {
+    "142c4952b80c0955f8e4bfd2f114d74a278eb33357764a69bf5eac430a221ef3": {
+      "additional_outcomes": [
+        "stdin-iterator-exhaustion-exception"
+      ],
+      "changes": [],
+      "concrete": false,
+      "reason": "The stream wrapper now raises EOFError instead of StopIteration when the underlying iterator is exhausted. The report stops at the wrapper. It does not establish the frozen command-abort outcome for the CliRunner and click.File scenario.",
+      "verdict": "correct"
+    },
+    "299a382d6228249f250e48681aa2cecdf0489646ef569b75c68ebb2ff42f1dd2": {
+      "reason": "The prompt helpers switch from readline to next, but the example only restates the implementation and speculates about arbitrary custom streams. CliRunner supplies its own wrapped stream. No changed prompt outcome is established.",
+      "verdict": "incorrect"
+    }
+  }
+}

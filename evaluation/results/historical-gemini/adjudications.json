@@ -1,0 +1,98 @@
+{
+  "click-2604": {
+    "40cf6a8d499bda2a642b87f931fa7231d36c76114597cd409ed53976b0aac727": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The pinned decorators derive the name by lowercasing and replacing underscores, and the head additionally strips the final '-command' suffix. The same my_sync_command function gives the two names stated.",
+      "verdict": "correct"
+    }
+  },
+  "click-2680": {
+    "c5993cdb8e911452f4b86b2f335918c2683671eac0ec700e1156f36a27bedddb": {
+      "changes": [
+        "1"
+      ],
+      "concrete": false,
+      "reason": "Context.exit now calls close before raising Exit. The example does not specify the eager option or parsing scope that leaves callbacks unclosed in the base. The upstream test uses a specific callback registered before --help.",
+      "verdict": "correct"
+    }
+  },
+  "click-2846": {
+    "66bc317940536077f12b37eb563b975ef0f6057af87b1eef5b1f88e0f10782fa": {
+      "changes": [
+        "1"
+      ],
+      "concrete": false,
+      "reason": "The Zsh formatter now escapes a colon when help is present. The literal output in the example omits the leading item.type field present on both revisions.",
+      "verdict": "correct"
+    }
+  },
+  "click-2930": {
+    "27d7ecdeddf860291c80c5ba47e17fd4005b4663c6a786204a8d711467884cb9": {
+      "reason": "With an explicit flag_value and type=None both revisions infer the type from that same value. The moved condition supplies an implicit flag_value when a type is explicitly set.",
+      "verdict": "incorrect"
+    }
+  },
+  "click-2935": {
+    "a4335a36a452d492e0d210e17728b4a7c6ba4be73050b65d50f48b17baea8520": {
+      "reason": "The diff changes which context supplies the arguments, but the finding reports only that internal reorder and speculates about lost completion options. It gives no changed completion result such as the newly added get full -> data case.",
+      "verdict": "incorrect"
+    }
+  },
+  "click-2972": {
+    "2886630ce92d013f62f7cdb1ae56ca94df151b6941fcebb1d26c667629121e88": {
+      "changes": [
+        "1"
+      ],
+      "concrete": false,
+      "reason": "Option.get_error_hint omits the envvar hint when no envvar is configured. The purported error string omits the quotes produced by Parameter.get_error_hint, and the example does not specify the input causing the error.",
+      "verdict": "correct"
+    }
+  },
+  "click-2990": {
+    "7bcc41669611e2d37c7a470e766faa950df9a4ac493aaa97dd9cb4bc46cb0200": {
+      "reason": "The changes are annotations. Both revisions already accept sequences and join them through _join_param_hints. The example changes the supplied value between revisions.",
+      "verdict": "incorrect"
+    }
+  },
+  "httpx-2998": {
+    "45c385a61ce908a508e094e97ff3540da6824b20a6acee91ce50faf0d5e5ed25": {
+      "reason": "The decode change cited is in TextChunker, not LineDecoder. The finding claims a LineDecoder behavior and does not trace the public iter_text result on end-of-stream.",
+      "verdict": "incorrect"
+    },
+    "b1b93ff951adacd212cda2dd9ca2e96c2a6a4d324a0ba8eae2e0f348e03ef154": {
+      "reason": "Adding pragma: no cover changes coverage instrumentation only. The finding describes no behavior change in the library.",
+      "verdict": "incorrect"
+    }
+  },
+  "httpx-3178": {
+    "a03297857d9d4ba66a542df7cf763b194a7e76943f1e404877d84ce7cbb036ef": {
+      "changes": [
+        "1"
+      ],
+      "concrete": false,
+      "reason": "Proxy validation and the sync and async transport selections add socks5h. The same scheme must be tested on both sides, and the old revision already selected the SOCKS transport for socks5. The diff does not establish different DNS resolution for the two schemes.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3367": {
+    "b2e114b1bd5e89479a2931aa8b22b7676424f6a9a6d40d9a3d8635e1e5a5616f": {
+      "changes": [
+        "1",
+        "2",
+        "3"
+      ],
+      "concrete": false,
+      "reason": "The changed encode_json call selects compact separators, emits non-ASCII literals in UTF-8, and rejects non-finite numbers. The accented-character witness incorrectly retains a space after the colon in the exact head output.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3387": {
+    "7213ab6f26d541b068cc88b14c942021f139a313461592d488f2fad487da5eec": {
+      "reason": "The cited code moves private helpers and updates internal calls. The report does not demonstrate a changed public header or response outcome or an actual downstream dependency on a removed private helper.",
+      "verdict": "incorrect"
+    }
+  }
+}

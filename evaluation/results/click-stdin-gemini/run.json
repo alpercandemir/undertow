@@ -1,0 +1,28 @@
+{
+  "cases": {
+    "click-2934": {
+      "example_ids": [
+        "142c4952b80c0955f8e4bfd2f114d74a278eb33357764a69bf5eac430a221ef3"
+      ],
+      "finding_ids": [
+        "142c4952b80c0955f8e4bfd2f114d74a278eb33357764a69bf5eac430a221ef3",
+        "299a382d6228249f250e48681aa2cecdf0489646ef569b75c68ebb2ff42f1dd2"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 2,
+      "seconds": 2.921,
+      "status": "findings",
+      "version": "0.3.0"
+    }
+  },
+  "git": "git version 2.56.1",
+  "manifest_sha256": "27a79847c20895cc4af9acffe49983d62d18ee709b71a92e7e73ad3dae1c2d35",
+  "platform": "linux",
+  "python": "3.12.3",
+  "requested_mode": "gemini",
+  "requested_model": "gemini-3.1-flash-lite",
+  "schema": 1,
+  "undertow_commit": "5d508b349e7985a67ff110654f6af25b0d90d2b9",
+  "worker_sha256": "724f222e77ddacc42c7823fdb4c36fd7022ca7dd77bb9fbc148a63bd9f0b6b45"
+}

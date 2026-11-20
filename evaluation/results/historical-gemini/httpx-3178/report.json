@@ -1,0 +1,111 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321",
+  "head": "12be5c44caa7a34bfe19f82eace5150ddeba2612",
+  "coverage": {
+    "changed_files": 4,
+    "ignored_files": 2,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 5,
+    "reviewed_files": 2,
+    "related_regions": 0
+  },
+  "findings": [
+    {
+      "priority_reason": "Adds support for SOCKS5 proxy domain resolution (socks5h), expanding proxy configuration capabilities.",
+      "title": "Add support for SOCKS5 proxy domain resolution scheme",
+      "flow": "Proxy configuration and connection transport",
+      "before": "The client only allowed 'http', 'https', and 'socks5' schemes, with the latter requiring client-side DNS resolution.",
+      "after": "The client additionally supports the 'socks5h' scheme, which allows remote DNS resolution through the proxy server.",
+      "scenario": "Configure a proxy with a remote DNS resolution scheme",
+      "example_before": "proxy_url = \"socks5://my-proxy.com:1080\"; client = httpx.Client(proxy=proxy_url) # Raises ValueError if scheme is unknown or requires 'socks5h'",
+      "example_after": "proxy_url = \"socks5h://my-proxy.com:1080\"; client = httpx.Client(proxy=proxy_url) # Successfully configures proxy for remote resolution",
+      "potential_impact": "Users can now route DNS lookups through SOCKS5 proxies, improving privacy or connectivity in segmented networks.",
+      "review_question": "Does the downstream transport implementation for 'socks5h' correctly propagate the remote DNS flag to the underlying socksio library?",
+      "priority": "P3",
+      "evidence": [
+        "D1",
+        "D2",
+        "D3",
+        "D4"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "additive",
+      "example": {
+        "input": "Configure a proxy with a remote DNS resolution scheme",
+        "precondition": null,
+        "base_outcome": "proxy_url = \"socks5://my-proxy.com:1080\"; client = httpx.Client(proxy=proxy_url) # Raises ValueError if scheme is unknown or requires 'socks5h'",
+        "head_outcome": "proxy_url = \"socks5h://my-proxy.com:1080\"; client = httpx.Client(proxy=proxy_url) # Successfully configures proxy for remote resolution"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "httpx/_config.py",
+        "start": 265,
+        "end": 265
+      },
+      "head": {
+        "path": "httpx/_config.py",
+        "start": 265,
+        "end": 265
+      }
+    },
+    "D2": {
+      "base": {
+        "path": "httpx/_transports/default.py",
+        "start": 192,
+        "end": 192
+      },
+      "head": {
+        "path": "httpx/_transports/default.py",
+        "start": 192,
+        "end": 192
+      }
+    },
+    "D3": {
+      "base": {
+        "path": "httpx/_transports/default.py",
+        "start": 218,
+        "end": 218
+      },
+      "head": {
+        "path": "httpx/_transports/default.py",
+        "start": 218,
+        "end": 218
+      }
+    },
+    "D4": {
+      "base": {
+        "path": "httpx/_transports/default.py",
+        "start": 341,
+        "end": 341
+      },
+      "head": {
+        "path": "httpx/_transports/default.py",
+        "start": 341,
+        "end": 341
+      }
+    }
+  },
+  "related_references": [],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (2)."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

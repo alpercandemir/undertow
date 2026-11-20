@@ -1,0 +1,97 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "565f36d5bc4a15d304337b749e113fb4477b1843",
+  "head": "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d",
+  "coverage": {
+    "changed_files": 3,
+    "ignored_files": 2,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 2,
+    "reviewed_files": 1,
+    "related_regions": 14
+  },
+  "findings": [
+    {
+      "priority_reason": "Changes how Zsh completion items containing colons are formatted, affecting how the shell interprets and displays these completions.",
+      "title": "Escape colons in Zsh completion values",
+      "flow": "Zsh shell completion generation",
+      "before": "Completion values containing colons were returned as-is to the Zsh shell, which sometimes caused issues with Zsh's _describe function.",
+      "after": "Completion values now have their colons escaped (represented as \\:) unless the item lacks a help string, ensuring better compatibility with Zsh completion processing.",
+      "scenario": "A completion item contains a colon in its value (e.g., file path or specific flag format).",
+      "example_before": "CompletionItem(value='a:b', help='some help') -> 'a:b\\nsome help'",
+      "example_after": "CompletionItem(value='a:b', help='some help') -> 'a\\:b\\nsome help'",
+      "potential_impact": "Users relying on Zsh completion may see colons rendered correctly in their shell rather than interpreted as delimiter markers by Zsh's internal completion logic.",
+      "review_question": "Does escaping colons in Zsh completion values resolve the identified compatibility issues with _describe without breaking existing shell parsing logic for items without help text?",
+      "priority": "P2",
+      "evidence": [
+        "D2"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "A completion item contains a colon in its value (e.g., file path or specific flag format).",
+        "precondition": null,
+        "base_outcome": "CompletionItem(value='a:b', help='some help') -> 'a:b\\nsome help'",
+        "head_outcome": "CompletionItem(value='a:b', help='some help') -> 'a\\:b\\nsome help'"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D2": {
+      "base": {
+        "path": "src/click/shell_completion.py",
+        "start": 376,
+        "end": 376
+      },
+      "head": {
+        "path": "src/click/shell_completion.py",
+        "start": 382,
+        "end": 396
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "src/click/shell_completion.py",
+        "start": 290,
+        "end": 298
+      },
+      "head": {
+        "path": "src/click/shell_completion.py",
+        "start": 296,
+        "end": 304
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "format_completion",
+      "caller": "complete",
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "candidate",
+      "target_path": "src/click/shell_completion.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (2)."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

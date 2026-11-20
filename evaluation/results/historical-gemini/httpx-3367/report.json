@@ -1,0 +1,97 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5",
+  "head": "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797",
+  "coverage": {
+    "changed_files": 7,
+    "ignored_files": 6,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 1,
+    "reviewed_files": 1,
+    "related_regions": 1
+  },
+  "findings": [
+    {
+      "priority_reason": "Changes serialization parameters for all JSON request bodies, specifically removing ASCII escaping, optimizing separators, and disabling NaN support.",
+      "title": "Strict JSON serialization updates",
+      "flow": "Request content encoding for JSON payloads",
+      "before": "Uses default json_dumps serialization which defaults to ASCII-escaping non-latin characters and standard spacing.",
+      "after": "Forces ensure_ascii=False, compact separators, and strict float validation (disallowing NaN).",
+      "scenario": "Sending a dictionary containing non-ASCII characters or infinity float values.",
+      "example_before": "json_dumps({'key': '\u00e1'}) produces '{\"key\": \"\\u00e1\"}'",
+      "example_after": "json_dumps({'key': '\u00e1'}, ensure_ascii=False) produces '{\"key\": \"\u00e1\"}'",
+      "potential_impact": "Downstream consumers expecting ASCII-only JSON or standard spacing may encounter parsing errors. Payloads containing NaN, which previously might have been serialized into invalid JSON or literal 'NaN', will now cause an exception during encoding.",
+      "review_question": "Does this serialization change align with the expected requirements of the API endpoints consumed by this library?",
+      "priority": "P2",
+      "evidence": [
+        "D1"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "Sending a dictionary containing non-ASCII characters or infinity float values.",
+        "precondition": null,
+        "base_outcome": "json_dumps({'key': '\u00e1'}) produces '{\"key\": \"\\u00e1\"}'",
+        "head_outcome": "json_dumps({'key': '\u00e1'}, ensure_ascii=False) produces '{\"key\": \"\u00e1\"}'"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "httpx/_content.py",
+        "start": 177,
+        "end": 177
+      },
+      "head": {
+        "path": "httpx/_content.py",
+        "start": 177,
+        "end": 179
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "httpx/_content.py",
+        "start": 210,
+        "end": 218
+      },
+      "head": {
+        "path": "httpx/_content.py",
+        "start": 212,
+        "end": 220
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "encode_json",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "verified",
+      "target_path": "httpx/_content.py",
+      "relationship_by_revision": {
+        "base": "verified",
+        "head": "verified"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (6)."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}
