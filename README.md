@@ -12,7 +12,9 @@
 
 Undertow reviews a pull request and shows which customer or client could get a different outcome. Its GitHub comment gives you a scenario to check, the before and after outcomes inferred from source, and links to the code behind them.
 
-[Try a product review](#try-a-product-review) · [Historical benchmark](#historical-benchmark) · [Install the Action](#get-a-report-on-your-next-pr) · [Supported changes](#supported-changes)
+Use Undertow alongside reviewers such as GitHub Copilot to look for changes in observable behavior.
+
+[Try a product review](#try-a-product-review) · [Historical benchmark](#historical-benchmark-for-complementary-behavioral-coverage) · [Install the Action](#get-a-report-on-your-next-pr) · [Supported changes](#supported-changes)
 
 ## Same cart, different total
 
@@ -107,21 +109,22 @@ Open or update a PR. The workflow writes an Actions summary, saves Markdown and 
 
 The Action reads Git source. Optional Gemini analysis sends selected source excerpts to Google to interpret related edits. Both modes produce source-based findings. See the guide for supported patterns, evidence labels, and coverage limits. [Analysis and configuration](docs/change-review.md) · [Controlled test cases](evaluation/README.md#controlled-fixtures-and-known-limitations)
 
-## Historical benchmark
+## Historical benchmark for complementary behavioral coverage
 
-**20 merged PRs · 18 known behavior changes · 4 behavior-preserving controls**
+We ran Undertow with Gemini and GitHub Copilot CLI independently on 20 historical Click and HTTPX PRs to see which behavior changes each review surfaced. The Copilot results come from the CLI with a fixed review prompt. [Full benchmark](evaluation/benchmark.md)
 
-The corpus contains ten Click PRs and ten HTTPX PRs. Nine PRs fixed bugs, seven changed behavior intentionally, and four preserved runtime behavior. One additional Click regression was scored separately. [Case manifest](evaluation/historical.json) · [Full benchmark](evaluation/benchmark.md)
-
-| Review setup | PRs completed in that mode | Known changes found across all 20 PRs |
+| PRs evaluated | Labeled changes found by Undertow + GitHub Copilot CLI | Additional labeled changes from Undertow |
 | --- | ---: | ---: |
-| Undertow local rules | 20 / 20 | 0 / 18 |
-| **Undertow + `gemini-3.1-flash-lite`** | **11 / 20** | **8 / 18** |
-| GitHub Copilot CLI | 20 / 20 | 15 / 18 |
+| 11 PRs both model-backed reviews completed | **10 / 11** | +1 |
+| All 20 PRs | **16 / 18** | +1 |
 
-In Click #2604, a function called `my_sync_command` generated the command **`my-sync-command` → `my-sync`**. Undertow's report links that change to scripts that still call the old name. Copilot missed this labeled rename. [Example report](evaluation/results/historical-gemini/click-2604/report.json)
+The combined scores count each labeled change once across the two independent reports. Undertow's additional finding came from Click #2604. The command generated from `my_sync_command` changed from `my-sync-command` to `my-sync`, so scripts that use the old name may need updating. [Undertow report](evaluation/results/historical-gemini/click-2604/report.json)
 
-On the 11 PRs where both model-backed reviews ran, Undertow with Gemini identified 8 of 11 labeled changes, and Copilot identified 9. The Gemini report gave 1 accurate before/after example out of 10, compared with 12 out of 18 for Copilot on those same PRs. Seven other PRs fell back to local rules and two had no reviewable source regions. The local rules found zero labeled changes across the corpus. All 18 fell outside the local baseline's declared patterns. [Results and scoring](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs)
+### Benchmark scope and limits
+
+The corpus contains ten Click PRs and ten HTTPX PRs with 18 labeled behavior changes. Nine PRs fixed bugs, seven changed behavior intentionally, and four preserved runtime behavior. One additional Click regression was scored separately. [Case manifest](evaluation/historical.json)
+
+Undertow with Gemini completed 11 of 20 PRs. Seven fell back to local rules and two had no reviewable source regions. On the 11 shared PRs, **1 of 10** before/after examples from Undertow with Gemini and **12 of 18** from Copilot CLI were accurate. The combined scores measure detection coverage. [Run results](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs) · [Example scoring](evaluation/benchmark.md#comparison-on-the-same-11-prs)
 
 | From the benchmark | Before → after | Result |
 | --- | --- | --- |
@@ -129,37 +132,7 @@ On the 11 PRs where both model-backed reviews ran, Undertow with Gemini identifi
 | [HTTPX #3387](https://github.com/encode/httpx/pull/3387) · Refactor control | Helpers move while header and response handling stays the same. | Gemini reported a private-helper move as a finding. Local rules and Copilot issued no findings. |
 | [Click #2934](https://github.com/pallets/click/pull/2934) · Supplemental regression | A command reading a line from standard input exits normally → aborts at end of input. | Gemini identified the iterator exception change. Copilot connected it to the command abort. Scored separately. |
 
-<details>
-<summary>Browse all 20 benchmark PRs</summary>
-
-Each fraction shows how many of the labeled changes the reviewer identified. A control has no labeled change to detect. Fallback and cases with no source regions are shown separately for the Gemini run.
-
-| PR | Behavior covered | Known changes | Undertow local | Copilot CLI | Undertow + Gemini |
-| --- | --- | ---: | ---: | ---: | ---: |
-| [Click #2365](https://github.com/pallets/click/pull/2365) | Respect the choice-display setting in help. | 1 | 0 / 1 | 1 / 1 | Local fallback |
-| [Click #2604](https://github.com/pallets/click/pull/2604) | Trim decorator suffixes from generated command names. | 1 | 0 / 1 | 0 / 1 | 1 / 1 |
-| [Click #2680](https://github.com/pallets/click/pull/2680) | Run close callbacks when explicitly exiting a context. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
-| [Click #2846](https://github.com/pallets/click/pull/2846) | Escape completion values containing colons when Zsh emits a description. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
-| [Click #2930](https://github.com/pallets/click/pull/2930) | Set implicit flag values when a type is supplied. | 1 | 0 / 1 | 1 / 1 | 0 / 1 |
-| [Click #2935](https://github.com/pallets/click/pull/2935) | Use the current nested group when resolving completion. | 1 | 0 / 1 | 1 / 1 | 0 / 1 |
-| [Click #2972](https://github.com/pallets/click/pull/2972) | Omit the environment hint when no variable is configured. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
-| [Click #2990](https://github.com/pallets/click/pull/2990) | Type annotations expand to match existing exception formatting. The runtime formatting path is unchanged. | 0 | Control | Control | Control |
-| [Click #3004](https://github.com/pallets/click/pull/3004) | Render the Enum member name as the displayed option default. | 1 | 0 / 1 | 1 / 1 | Local fallback |
-| [Click #3009](https://github.com/pallets/click/pull/3009) | Changelog entry only. The referenced StreamMixer fix landed in a separate PR. | 0 | Control | Control | No source regions |
-| [HTTPX #2998](https://github.com/encode/httpx/pull/2998) | Drop the spurious final empty string from text streaming. | 1 | 0 / 1 | 0 / 1 | 0 / 1 |
-| [HTTPX #3116](https://github.com/encode/httpx/pull/3116) | Apply the client timeout to manually constructed requests. | 1 | 0 / 1 | 1 / 1 | Local fallback |
-| [HTTPX #3178](https://github.com/encode/httpx/pull/3178) | Accept the socks5h proxy scheme. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
-| [HTTPX #3364](https://github.com/encode/httpx/pull/3364) | Explicit request params replace the query in the URL. | 1 | 0 / 1 | 1 / 1 | Local fallback |
-| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) | Change JSON byte serialization and reject non-finite numbers. | 3 | 0 / 3 | 3 / 3 | 3 / 3 |
-| [HTTPX #3373](https://github.com/encode/httpx/pull/3373) | Change escaping for query parameters passed as key-value pairs. | 1 | 0 / 1 | 1 / 1 | Local fallback |
-| [HTTPX #3375](https://github.com/encode/httpx/pull/3375) | Removes a test case. The library source is unchanged. | 0 | Control | Control | No source regions |
-| [HTTPX #3377](https://github.com/encode/httpx/pull/3377) | Load optional runtime modules at their point of use. | 1 | 0 / 1 | 0 / 1 | Local fallback |
-| [HTTPX #3378](https://github.com/encode/httpx/pull/3378) | Narrow the Request method parameter to strings. | 1 | 0 / 1 | 1 / 1 | Local fallback |
-| [HTTPX #3387](https://github.com/encode/httpx/pull/3387) | Moves internal utility functions and their tests. Public header and response processing retain equivalent calls. | 0 | Control | Control | Control |
-
-[Per-case inputs and expected outcomes](evaluation/historical.json) · [Gemini reports and assessments](evaluation/results/historical-gemini/) · [Copilot assessments](evaluation/results/historical-copilot-adjudications.json)
-
-</details>
+[Browse all 20 benchmark PRs](evaluation/benchmark.md#per-pr-results)
 
 <details>
 <summary>Recompute the benchmark scores</summary>
