@@ -4,7 +4,7 @@ Undertow compares the committed source for two Git revisions. Each finding shows
 
 ## GitHub Actions
 
-Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the base branch. It uses the published `v0.3.0` action. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
+Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the base branch. It uses Undertow `v0.4.0`. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
 
 The example updates one GitHub Actions bot comment per PR. It uses `pull_request_target` with `contents: read` and `pull-requests: write` so the trusted workflow can also report on fork PRs. The action never checks out or executes the candidate. Keep this job separate from jobs that build or run PR code. If your repository's Actions policy restricts `pull_request_target`, allow this trusted reporting workflow there or use `pull_request` with `contents: read` and remove the `comment` input for a summary-only setup. [GitHub's event security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
 
@@ -12,7 +12,7 @@ The action checks that the PR is still open and that its base and head match the
 
 ## Review priority
 
-The summary orders findings before applying the twelve-finding display limit. It shows the first finding in full and makes the others expandable. Each shows the same scenario on both revisions, the potential impact, the review question, and the evidence and its limits.
+The summary displays up to twelve findings. Undertow reserves space for local findings and fills any remaining slots with Gemini findings in priority order. It orders the selected findings by priority, shows the first in full, and makes the others expandable. Each shows the same scenario on both revisions, the potential impact, the review question, and the evidence and its limits.
 
 | Priority | Local evidence | Review question |
 | --- | --- | --- |
@@ -39,6 +39,7 @@ The first explicit report schema is `schema_version: 1`. Unversioned v0.3.0 arti
 | Finding field | Meaning |
 | --- | --- |
 | `id` | Identifier within the report, such as `F1`. Identifiers follow review order and may change across runs. |
+| `analysis_mode` | `local` or `gemini`, identifying the analysis that produced the finding. The top-level `mode` records whether Gemini completed the comparison. |
 | `classification` | `behavioral_difference`, `route_declaration_added`, or `route_declaration_removed`. Gemini findings use `behavioral_difference`. |
 | `compatibility_risk` | `potentially_breaking` for P1, `changed_outcome` for P2, or `additive` for P3. These are source-based review categories. |
 | `example` | `input` is a concrete hypothetical input, sequence, or value at the edited logic. `precondition` is used when the analysis can only establish a condition such as reaching a statement or matching a parameterized route. The unused field is `null`. `base_outcome` and `head_outcome` describe comparable results for the same scenario. |
@@ -62,6 +63,8 @@ The local rules share a bounded, dependency-free source engine. It reads Git blo
 | Named thresholds | A changed top-level uppercase integer assignment in Python or a top-level uppercase `const` in JavaScript or TypeScript can resolve to a comparison in a callable in the same file. The binding must be unambiguous and the predicate present on both revisions. The report links the declaration and predicate and shows the resolved values. For `RETURN_WINDOW_DAYS = 30` changing to `14`, `age_days = 30` distinguishes the old and new result of `age_days <= RETURN_WINDOW_DAYS`. |
 | Literal returns and routes | Simple replaced literal return values and added or removed HTTP route declarations. |
 
+Route comparison uses the source file and the receiver on the declaration, when present, alongside the HTTP method and path. If two receivers declare the same method and path, the report identifies the affected source declarations. Deployment and router mount prefixes still require review.
+
 Numeric examples report return values when the local rules can infer them on both revisions. Those citations include the statements that support the return values. Otherwise the example compares the predicate results and explains that return values are unverified. Compound expressions, computed thresholds, imported constants, configuration tables, helper-local assignment tracking, and arbitrary data flow remain outside the local rules.
 
 ### Caller tracing
@@ -73,6 +76,8 @@ Undertow searches tracked source with `git grep` on both revisions. It inspects 
 | **Static binding** (`verified`) | A direct call to an unambiguous top-level Python or JavaScript-family function in the same file, or a supported import of that function. Imports include simple Python absolute and relative imports and JavaScript or TypeScript named or namespace imports with explicit relative file paths. |
 | **Name match** (`candidate`) | A matching call with an unconfirmed binding. Known competing declarations or imports suppress unrelated bare matches. Common names such as `get`, `run`, and `apply` require a supported binding. |
 
+For absolute Python imports, Undertow checks the repository root and the conventional `src/` source root. It requires one tracked module or package across those locations. Relative imports resolve within their package.
+
 Only calls verified on both revisions expand the trace. Undertow follows up to three hops, inspects up to eight matched files per hop alongside the target modules, and keeps up to 16 references within a 24 KiB context budget. Dynamic dispatch, package re-exports, custom module resolution, and more complex import or shadowing patterns can leave gaps. A call relationship describes source structure. Effects on an enclosing caller still depend on its own logic.
 
 ### Optional model interpretation
@@ -80,9 +85,9 @@ Only calls verified on both revisions expand the trace. Undertow follows up to t
 For broader business-flow analysis, add a repository Actions secret named `GEMINI_API_KEY` and pass it through the Undertow step's environment. This explicitly opts into sending changed source, filenames, and selected supporting excerpts to the Gemini Developer API. Obvious credential patterns are filtered. Check Google's data terms for your API tier before sharing private source. The default model is `gemini-3.8-flash`. Set `UNDERTOW_GEMINI_MODEL` on the step to use a different Gemini model. [Gemini model documentation](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash) · [Gemini API terms](https://ai.google.dev/gemini-api/terms)
 
 ```yaml
-- uses: alpercandemir/undertow/actions/change-review@v0.3.0
+- uses: alpercandemir/undertow/actions/change-review@v0.4.0
   env:
     GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```
 
-The model groups related changes across files. It can request nearby source and a lookup of up to four identifiers already present in the review. Undertow supplies excerpts from the automatic reference trace and searches for requested symbols within the same bounded process. Excerpts can include unchanged callers or definitions. The model receives only selected excerpts. Every finding cites a changed region and can also cite the supporting source. It falls back to local rules if the model is unavailable or returns unusable output. Source references locate the basis for a finding. The lookup can miss dynamic calls, indirect dependencies and matches beyond its budget. The report keeps conclusions tied to the source it reviewed.
+The model groups related changes across files. It can request nearby source and a lookup of up to four identifiers already present in the review. Undertow supplies excerpts from the automatic reference trace and searches for requested symbols within the same bounded process. Excerpts can include unchanged callers or definitions. The model receives only selected excerpts. Every model finding cites a changed region and can also cite supporting source. In `v0.4.0`, accepted model findings supplement the local findings. If the model is unavailable or returns unusable output, the report contains the local findings and the fallback reason. The lookup can miss dynamic calls, indirect dependencies and matches beyond its budget.

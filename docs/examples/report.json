@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "schema_version": 1,
   "status": "findings",
   "mode": "local",
@@ -47,6 +47,7 @@
       "potential_impact": "Previously eligible cases may lose access where callers use this result to decide eligibility.",
       "review_question": "Should the case above lose eligibility, and do callers handle that outcome as intended?",
       "id": "F1",
+      "analysis_mode": "local",
       "classification": "behavioral_difference",
       "compatibility_risk": "potentially_breaking",
       "example": {
@@ -78,6 +79,7 @@
       "potential_impact": "Clients may gain an entry point if this declaration is registered.",
       "review_question": "Should clients be able to use this route, and does the registered handler enforce the intended access?",
       "id": "F2",
+      "analysis_mode": "local",
       "classification": "route_declaration_added",
       "compatibility_risk": "additive",
       "example": {
