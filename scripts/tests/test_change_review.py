@@ -182,7 +182,11 @@ public class AllowanceTest {{
             "--build-java-home", os.environ["JAVA_HOME"],
         )
 
-        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+        diagnostics = "\n".join(
+            f"{log.name}\n" + "\n".join(log.read_text(encoding="utf-8").splitlines()[-18:])
+            for log in sorted(output.glob("*.log"))
+        ) if run.returncode != 1 else ""
+        self.assertEqual(run.returncode, 1, run.stdout + run.stderr + diagnostics)
         self.assertIn(f'version "{specification}', report["java"]["build"])
         self.assertIn('version "25', report["java"]["analysis"])
         self.assertEqual(report["execution"]["existing_tests"]["base"]["command"][0], "./mvnw")
