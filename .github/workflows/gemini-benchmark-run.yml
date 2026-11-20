@@ -1,0 +1,39 @@
+name: Gemini historical benchmark
+on:
+  push:
+    branches: [codex/gemini-benchmark-run]
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Clone the public benchmark repositories
+        run: |
+          mkdir -p "$RUNNER_TEMP/corpus/pallets" "$RUNNER_TEMP/corpus/encode"
+          git clone --bare https://github.com/pallets/click.git "$RUNNER_TEMP/corpus/pallets/click.git"
+          git clone --bare https://github.com/encode/httpx.git "$RUNNER_TEMP/corpus/encode/httpx.git"
+      - name: Compare the frozen revisions
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python3 -u evaluation/run.py run --repos "$RUNNER_TEMP/corpus" \
+            --output "$RUNNER_TEMP/gemini-benchmark/historical" \
+            --revision 5d508b349e7985a67ff110654f6af25b0d90d2b9 \
+            --mode gemini --model gemini-3.1-flash-lite
+          python3 -u evaluation/run.py --manifest evaluation/click-stdin-regression.json \
+            run --repos "$RUNNER_TEMP/corpus" --output "$RUNNER_TEMP/gemini-benchmark/click-stdin" \
+            --revision 5d508b349e7985a67ff110654f6af25b0d90d2b9 \
+            --mode gemini --model gemini-3.1-flash-lite
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: gemini-benchmark-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gemini-benchmark/
+          if-no-files-found: error
+          retention-days: 30
