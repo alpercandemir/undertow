@@ -12,6 +12,6 @@ Undertow is a GitHub Action that reviews changes to application behavior. Each f
 
 Copy the [ready-to-use workflow](docs/examples/change-review.yml) into `.github/workflows/undertow.yml`. It uses the released Action and adds an advisory job summary, a Markdown and JSON artifact, and an optional PR comment. GitHub's hosted Ubuntu runner supplies everything Undertow needs.
 
-The default source analysis covers common numeric condition changes, changed literal returns, and added or removed HTTP route declarations. To enable broader interpretation across languages and files, pass the optional `GEMINI_API_KEY` secret to the action. This sends a bounded selection of source to Google. [Integration and analysis details](docs/change-review.md)
+The default source analysis covers common numeric condition changes, changed literal returns, and added or removed HTTP route declarations. It also searches both revisions for references to edited methods and follows possible caller chains. To enable broader interpretation across languages and files, pass the optional `GEMINI_API_KEY` secret to the action. This sends a bounded selection of source to Google. [Integration and analysis details](docs/change-review.md)
 
 [See the showcase](https://github.com/alpercandemir/undertow-showcase) for a small before-and-after example.

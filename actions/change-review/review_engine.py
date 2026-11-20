@@ -16,14 +16,17 @@ from urllib.parse import quote, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 MAX_FILES = 60
 MAX_REGIONS = 40
 MAX_BLOB = 384 * 1024
 DIFF_BUDGET = 84 * 1024
 CONTEXT_BUDGET = 16 * 1024
 REPOSITORY_CONTEXT_BUDGET = 12 * 1024
-MAX_RELATED_FILES = 4
+MAX_REFERENCE_HOPS = 3
+MAX_REFERENCE_FILES = 8
+MAX_REFERENCES = 8
+MAX_TRACE_SYMBOLS = 4
 SYMBOL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]{2,63}\b")
 MAX_FINDINGS = 8
 REGULAR = {b"100644", b"100755"}
@@ -70,8 +73,9 @@ Return an empty findings list when the evidence is insufficient. When context is
 for surrounding source by region ID in context_requests or repository matches by identifier in
 symbol_requests. Choose up to four specific function, type, or field names that already appear in
 the supplied source. Check callers and definitions before claiming a downstream effect. Repository
-matches are supporting context and may include unchanged code. Evidence must still cite a changed
-region. When context is closed, both request lists must be empty.
+matches are supporting context and may include unchanged code. Treat name-based reference chains
+as possible paths. Verify the mechanism in the excerpts before claiming an outcome. Evidence must
+still cite a changed region. When context is closed, both request lists must be empty.
 """
 FIELDS = ("title", "flow", "before", "after", "scenario", "example_before", "example_after")
 TEXT = {"type": "string"}
@@ -312,11 +316,48 @@ OPERATORS = {
 RETURN = re.compile(
     r"""return\s+(-?(?:0|[1-9][0-9]{0,8})|true|false|True|False|nil|null|None|(["'])[A-Z][A-Z0-9_]{0,29}\2)\s*;?"""
 )
-DECLARATION = re.compile(r"(?:async\s+)?(?:def|fn|func|function)\s+([A-Za-z_]\w*)\s*\(")
+CALLABLE_DECLARATIONS = (
+    re.compile(
+        r"(?:(?:async|export|default|pub|public|static)\s+)*"
+        r"(?:(?:def|fn|fun|function)\s+|func\s+(?:\([^)]*\)\s*)?)([A-Za-z_]\w*)\s*\("
+    ),
+    re.compile(
+        r"(?:export\s+)?(?:const|let|var)\s+([A-Za-z_]\w*)\s*=\s*"
+        r"(?:async\s+)?(?:\([^)]*\)|[A-Za-z_]\w*)\s*=>"
+    ),
+    re.compile(
+        r"(?:[\w.,<>?\[\]]+\s+)*([A-Za-z_]\w*)\s*\([^()]*\)"
+        r"(?:\s*(?::|throws\b)[^{};]+)?\s*\{"
+    ),
+)
+CONTROL_WORDS = {
+    "if", "else", "for", "while", "switch", "catch", "using", "with", "when", "match", "synchronized",
+}
 LEXICAL_TOKEN = re.compile(
     r"""(?P<block>/\*|"{3}|'{3}|`)|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|(?P<comment>//|\#)"""
 )
 BLOCK_END = {"/*": "*/", '"""': '"""', "'''": "'''", "`": "`"}
+
+
+def line_comment(token, suffix):
+    return (
+        token == "//" and suffix not in {".py", ".rb"}
+        or token == "#" and suffix in {".py", ".rb", ".php"}
+    )
+
+
+def searchable_line(line, suffix):
+    # Mask string contents so an example or a log message cannot become a caller.
+    pieces = []
+    start = 0
+    for token in LEXICAL_TOKEN.finditer(line):
+        pieces.append(line[start:token.start()])
+        if line_comment(token["comment"], suffix):
+            return "".join(pieces)
+        pieces.append(" " * (token.end() - token.start()))
+        start = token.end()
+    pieces.append(line[start:])
+    return "".join(pieces)
 
 
 def non_code_lines(lines, suffix):
@@ -338,9 +379,7 @@ def non_code_lines(lines, suffix):
             if token is None:
                 break
             start = token.end()
-            comment = token["comment"]
-            if ((comment == "//" and suffix not in {".py", ".rb"})
-                    or (comment == "#" and suffix in {".py", ".rb", ".php"})):
+            if line_comment(token["comment"], suffix):
                 break
             block = token["block"]
             if block and (block != "/*" or suffix not in {".py", ".rb"}):
@@ -372,18 +411,32 @@ def indentation(line):
     return line[:len(line) - len(line.lstrip())]
 
 
-def described_path(lines, number, ignored):
+def callable_name(line):
+    for declaration in CALLABLE_DECLARATIONS:
+        match = declaration.match(line.lstrip())
+        if match and match[1] not in CONTROL_WORDS:
+            return match[1]
+    return None
+
+
+def enclosing_callable(lines, number, ignored):
     minimum = len(indentation(lines[number - 1]))
-    for previous in range(number - 1, max(number - 30, 0), -1):
+    for previous in range(number, max(number - 120, 0), -1):
         line = lines[previous - 1]
-        if previous in ignored or not line.strip():
+        if previous in ignored or not line.strip() or line.lstrip().startswith(("#", "//")):
             continue
         indent = len(indentation(line))
-        declaration = DECLARATION.match(line.lstrip())
-        if declaration and indent < minimum:
-            return f"The edited logic in {declaration[1]}."
+        if previous == number or indent < minimum:
+            name = callable_name(line)
+            if name:
+                return name
         minimum = min(minimum, indent)
-    return "The path that reaches the edited expression."
+    return None
+
+
+def described_path(lines, number, ignored):
+    name = enclosing_callable(lines, number, ignored)
+    return f"The edited logic in {name}." if name else "The path that reaches the edited expression."
 
 
 def literal_result(lines, number, form, result):
@@ -609,49 +662,128 @@ def matching_paths(repo, commit, symbols):
     return paths, len(raw) > limit
 
 
-def related_rows(repo, commit, path, symbol_pattern):
+@dataclass(frozen=True)
+class SourceReference:
+    source: Region
+    symbol: str
+    caller: str | None
+    hop: int
+
+    def description(self, identifier):
+        return {"symbol": self.symbol, "caller": self.caller, "hop": self.hop, "evidence": identifier}
+
+    def prompt_data(self):
+        return {**self.source.prompt_data(), "symbol": self.symbol, "caller": self.caller, "hop": self.hop}
+
+
+def changed_callables(regions, sources):
+    symbols, ignored_by_blob = {}, {}
+    for region in regions.values():
+        for blob, rows in ((region.head, region.head_rows), (region.base, region.base_rows)):
+            if not blob or (suffix := PurePosixPath(blob.path.lower()).suffix) not in RULE_SUFFIXES:
+                continue
+            lines = sources[blob.oid]
+            key = blob.oid, suffix
+            if key not in ignored_by_blob:
+                ignored_by_blob[key] = non_code_lines(lines, suffix)
+            ignored = ignored_by_blob[key]
+            for number, edited, _ in rows:
+                if edited and number not in ignored:
+                    name = enclosing_callable(lines, number, ignored)
+                    if name and SYMBOL.fullmatch(name):
+                        symbols[name] = None
+    return list(symbols)
+
+
+def related_rows(repo, commit, path, symbol_pattern, include_definitions):
     header = git(repo, "--literal-pathspecs", "ls-tree", "-z", commit, "--", path).partition(b"\t")[0]
     if not header:
-        return None, []
+        return None, {}
     mode, kind, oid = header.split()
     if kind != b"blob":
-        return None, []
+        return None, {}
     blob = Blob(mode, oid.decode(), path)
     lines = blob_lines(repo, blob)
     if not lines:
-        return None, []
+        return None, {}
     if lines[-1] == "":
         lines = lines[:-1]
+    suffix = PurePosixPath(path.lower()).suffix
+    source_code = suffix in RULE_SUFFIXES
+    ignored = non_code_lines(lines, suffix) if source_code else set()
+    matches = {}
     for index, line in enumerate(lines):
-        if symbol_pattern.search(line) and not SECRET_VALUE.search(line):
+        if index + 1 in ignored or SECRET_VALUE.search(line):
+            continue
+        code = searchable_line(line, suffix) if source_code else line
+        declaration = callable_name(code) if source_code else None
+        for match in symbol_pattern.finditer(code):
+            symbol = match[0]
+            definition = symbol == declaration
+            caller = enclosing_callable(lines, index + 1, ignored) if source_code and not definition else None
+            call = not definition and code[match.end():].lstrip().startswith("(")
+            if not include_definitions and (definition or not (caller or call)):
+                continue
+            priority = 0 if call else 1 if caller else 2
+            key = symbol, caller
+            if key in matches and matches[key][0] <= priority:
+                continue
             window = range(max(0, index - 4), min(len(lines), index + 5))
-            return blob, [(pos + 1, False, lines[pos]) for pos in window]
-    return None, []
+            matches[key] = priority, [(pos + 1, False, lines[pos]) for pos in window]
+    return blob, matches
 
 
-def repository_context(repo, base, head, symbols, regions):
+def reference_matches(repo, revisions, symbols, include_definitions):
+    base, head = revisions
     base_paths, base_limited = matching_paths(repo, base, symbols)
     head_paths, head_limited = matching_paths(repo, head, symbols)
-    changed_paths = {blob.path for region in regions.values() for blob in (region.base, region.head) if blob}
-    candidates = (base_paths | head_paths) - changed_paths
-    # Prefer files with evidence on both revisions to support a like-for-like comparison.
-    paths = sorted(candidates, key=lambda path: (path not in base_paths or path not in head_paths, path))
+    paths = sorted(base_paths | head_paths, key=lambda path: (path not in base_paths or path not in head_paths, path))
     symbol_pattern = re.compile(r"\b(?:" + "|".join(map(re.escape, symbols)) + r")\b")
-    selected, used = {}, 0
-    limited = base_limited or head_limited or len(paths) > MAX_RELATED_FILES
-    for path in paths[:MAX_RELATED_FILES]:
-        old_blob, old_rows = related_rows(repo, base, path, symbol_pattern)
-        new_blob, new_rows = related_rows(repo, head, path, symbol_pattern)
-        if not old_rows and not new_rows:
-            continue
-        region = Region(old_blob, new_blob, old_rows, new_rows)
-        size = len(json.dumps(region.prompt_data(), ensure_ascii=True))
-        if used + size > REPOSITORY_CONTEXT_BUDGET:
+    candidates = []
+    for path in paths[:MAX_REFERENCE_FILES]:
+        old_blob, old = related_rows(repo, base, path, symbol_pattern, include_definitions)
+        new_blob, new = related_rows(repo, head, path, symbol_pattern, include_definitions)
+        for key in old.keys() | new.keys():
+            old_priority, old_rows = old.get(key, (3, []))
+            new_priority, new_rows = new.get(key, (3, []))
+            candidates.append((
+                min(old_priority, new_priority), path, key,
+                Region(old_blob, new_blob, old_rows, new_rows),
+            ))
+    candidates.sort(key=lambda item: (item[0], item[1], item[2][0], item[2][1] or ""))
+    return candidates, base_limited or head_limited or len(paths) > MAX_REFERENCE_FILES
+
+
+def repository_context(repo, revisions, symbols, *, follow_callers):
+    pending = symbols
+    visited, references = set(), []
+    used = 0
+    limited = False
+    for hop in range(1, (MAX_REFERENCE_HOPS if follow_callers else 1) + 1):
+        if not pending:
+            break
+        frontier = pending[:MAX_TRACE_SYMBOLS]
+        visited.update(frontier)
+        limited |= len(pending) > MAX_TRACE_SYMBOLS
+        try:
+            candidates, clipped = reference_matches(repo, revisions, frontier, not follow_callers)
+        except (ReviewError, OSError, subprocess.SubprocessError):
             limited = True
-            continue
-        used += size
-        selected[f"R{len(selected) + 1}"] = region
-    return selected, limited
+            break
+        limited |= clipped
+        callers = {}
+        for _, _, (symbol, caller), region in candidates:
+            reference = SourceReference(region, symbol, caller, hop)
+            size = len(json.dumps(reference.prompt_data(), ensure_ascii=True))
+            if used + size > REPOSITORY_CONTEXT_BUDGET or len(references) == MAX_REFERENCES:
+                limited = True
+                continue
+            used += size
+            references.append(reference)
+            if caller and caller not in visited and SYMBOL.fullmatch(caller):
+                callers[caller] = None
+        pending = list(callers) if follow_callers else []
+    return references, limited or bool(pending)
 
 
 def string_list(items, allowed, limit):
@@ -666,10 +798,11 @@ def plain(value):
                             if ch.isspace() or unicodedata.category(ch) not in {"Cc", "Cf", "Cs"}).split())
 
 
-def model_findings(key, args, report, regions, sources):
+def model_findings(key, args, report, regions, sources, references):
     data = {
         "context_allowed": True, "coverage": report["coverage"],
         "changed_regions": {identifier: region.prompt_data() for identifier, region in regions.items()},
+        "repository_context": {identifier: reference.prompt_data() for identifier, reference in references.items()},
     }
     result = gemini_request(key, args.model, data)
     requests = result.get("context_requests")
@@ -677,22 +810,26 @@ def model_findings(key, args, report, regions, sources):
     if not string_list(requests, regions, 4):
         raise ReviewError("Gemini requested source outside the reviewed regions.")
     available_symbols = {
-        word for region in data["changed_regions"].values() for side in ("base", "head")
+        word for region in (*data["changed_regions"].values(), *data["repository_context"].values())
+        for side in ("base", "head")
         for _, _, content in region[side] for word in SYMBOL.findall(content)
     }
     if not string_list(symbols, available_symbols, 4):
         raise ReviewError("Gemini requested symbols outside the supplied source.")
-    related, limited = {}, False
+    related, limited = references.copy(), False
     if requests:
         data["surrounding_source"] = surrounding_source(dict.fromkeys(requests), regions, sources)
     if symbols:
-        try:
-            related, limited = repository_context(
-                args.repo, report["base"], report["head"], list(dict.fromkeys(symbols)), regions,
-            )
-        except (ReviewError, OSError, subprocess.SubprocessError):
-            limited = True
-        data["repository_context"] = {identifier: region.prompt_data() for identifier, region in related.items()}
+        extra, limited = repository_context(
+            args.repo, (report["base"], report["head"]), list(dict.fromkeys(symbols)), follow_callers=False,
+        )
+        known = {(item.symbol, item.caller, json.dumps(item.source.locations(), sort_keys=True)) for item in related.values()}
+        for reference in extra:
+            identity = (reference.symbol, reference.caller, json.dumps(reference.source.locations(), sort_keys=True))
+            if identity not in known:
+                related[f"R{len(related) + 1}"] = reference
+                known.add(identity)
+        data["repository_context"] = {identifier: reference.prompt_data() for identifier, reference in related.items()}
         data["repository_context_limited"] = limited
     if requests or symbols:
         data["context_allowed"] = False
@@ -740,6 +877,22 @@ def repo_url(value):
     raise argparse.ArgumentTypeError("Source links require an HTTPS repository URL such as https://github.com/owner/repo.")
 
 
+def source_links(report, identifiers, link_root):
+    evidence = []
+    for identifier in identifiers:
+        for side, location in report["evidence"][identifier].items():
+            path = location["path"]
+            start, end = location["start"], location["end"]
+            label = f"{side} {markdown(path)}:{start}" + (f"–{end}" if end != start else "")
+            if link_root:
+                anchor = f"#L{start}" + (f"-L{end}" if end != start else "")
+                url = f"{link_root}/blob/{report[side]}/{quote(path)}{anchor}"
+                evidence.append(f"[{label}]({url})")
+            else:
+                evidence.append(label)
+    return " · ".join(dict.fromkeys(evidence))
+
+
 def render(report, link_root):
     lines = ["## Undertow business change report", ""]
     if report["base"] and report["head"]:
@@ -749,27 +902,19 @@ def render(report, link_root):
     else:
         mode = "Gemini source interpretation" if report["mode"] == "gemini" else "Local source rules"
         coverage = report["coverage"]
+        regions, files = coverage["reviewed_regions"], coverage["changed_files"]
+        region_noun = "region" if regions == 1 else "regions"
+        file_noun = "file" if files == 1 else "files"
         lines.extend([
-            f"{mode} · {coverage['reviewed_regions']} source regions across {coverage['reviewed_files']} of "
-            f"{coverage['changed_files']} changed files.",
+            f"{mode} · {regions} source {region_noun} across {coverage['reviewed_files']} of "
+            f"{files} changed {file_noun}.",
             "",
             "Findings are inferred from source. Examples are hypothetical.",
         ])
         if not report["findings"]:
             lines.extend(["", "**No business change identified in the reviewed scope.**"])
     for number, finding in enumerate(report["findings"], start=1):
-        evidence = []
-        for identifier in finding["evidence"]:
-            for side, location in report["evidence"][identifier].items():
-                path = location["path"]
-                start, end = location["start"], location["end"]
-                label = f"{side} {markdown(path)}:{start}" + (f"–{end}" if end != start else "")
-                if link_root:
-                    anchor = f"#L{start}" + (f"-L{end}" if end != start else "")
-                    url = f"{link_root}/blob/{report[side]}/{quote(path)}{anchor}"
-                    evidence.append(f"[{label}]({url})")
-                else:
-                    evidence.append(label)
+        evidence = source_links(report, finding["evidence"], link_root)
         lines.extend([
             "", f"### {number}. {markdown(finding['title'])}", "",
             f"**Flow** · {markdown(finding['flow'])}",
@@ -778,8 +923,19 @@ def render(report, link_root):
             "", f"**Example** · {markdown(finding['scenario'])}",
             "", f"- **Before** · {markdown(finding['example_before'])}",
             f"- **After** · {markdown(finding['example_after'])}",
-            "", "**Source** · " + " · ".join(dict.fromkeys(evidence)),
+            "", "**Source** · " + evidence,
         ])
+    if report["related_references"]:
+        lines.extend([
+            "", "### Possible affected flows", "",
+            "These references match names in source. The links show the code on both revisions when available.", "",
+        ])
+        for reference in report["related_references"]:
+            symbol = markdown(reference["symbol"])
+            caller = reference["caller"]
+            relation = f"{markdown(caller)} → {symbol}" if caller else f"Reference to {symbol}"
+            evidence = source_links(report, [reference["evidence"]], link_root)
+            lines.append(f"- {relation} · {evidence}")
     if report["notes"]:
         lines.extend(["", "### Scope and availability", "",
                       *[f"- {markdown(note)}" for note in report["notes"]]])
@@ -789,7 +945,8 @@ def render(report, link_root):
 def review(args):
     report = {
         "version": VERSION, "status": "unavailable", "mode": "local",
-        "base": None, "head": None, "coverage": {}, "findings": [], "evidence": {}, "notes": [],
+        "base": None, "head": None, "coverage": {}, "findings": [], "evidence": {},
+        "related_references": [], "notes": [],
     }
     try:
         report["head"] = head = resolve(args.repo, args.head)
@@ -818,18 +975,18 @@ def review(args):
         if coverage[name]:
             report["notes"].append(f"{note} ({coverage[name]}).")
     key = os.environ.get("GEMINI_API_KEY")
+    traced, limited = repository_context(
+        args.repo, (base, head), changed_callables(regions, sources), follow_callers=True,
+    )
+    automatic = {f"R{index}": reference for index, reference in enumerate(traced, 1)}
+    related = automatic
     findings = []
     if key and regions:
         try:
             if not re.fullmatch(r"gemini-[a-z0-9.-]+", args.model):
                 raise ReviewError("The configured Gemini model name is invalid.")
-            findings, related, limited = model_findings(key, args, report, regions, sources)
-            locations.update((identifier, region.locations()) for identifier, region in related.items())
-            coverage["related_regions"] = len(related)
-            if related:
-                report["notes"].append(f"Related repository source regions reviewed by Gemini ({len(related)}).")
-            if limited:
-                report["notes"].append("Repository context lookup reached its search limits.")
+            findings, related, extra_limited = model_findings(key, args, report, regions, sources, related)
+            limited |= extra_limited
             report.update(mode="gemini", model=args.model)
         except ReviewError as error:
             report["notes"].append(f"{error} Local source rules were used.")
@@ -842,10 +999,16 @@ def review(args):
     if len(findings) > MAX_FINDINGS:
         report["notes"].append(f"The report shows {MAX_FINDINGS} of {len(findings)} rule matches.")
     report["findings"] = findings[:MAX_FINDINGS]
-    report["evidence"] = {
-        identifier: locations[identifier]
-        for finding in report["findings"] for identifier in finding["evidence"]
-    }
+    coverage["related_regions"] = len(related)
+    if limited:
+        report["notes"].append("Repository reference tracing reached a search limit.")
+    report["related_references"] = [
+        reference.description(identifier) for identifier, reference in automatic.items()
+    ] if findings else []
+    locations.update((identifier, reference.source.locations()) for identifier, reference in related.items())
+    used_evidence = dict.fromkeys(identifier for finding in report["findings"] for identifier in finding["evidence"])
+    used_evidence.update((reference["evidence"], None) for reference in report["related_references"])
+    report["evidence"] = {identifier: locations[identifier] for identifier in used_evidence}
     report["status"] = "findings" if findings else "no_findings"
     return report
 

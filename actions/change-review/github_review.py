@@ -160,13 +160,14 @@ def main():
             if number:
                 command.append("--merge-base")
             subprocess.run(command, check=True, env=env, stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL, timeout=120)
+                           stderr=subprocess.DEVNULL, timeout=150)
         report = json.loads(report_path.read_text(encoding="utf-8"))
     except (ActionError, subprocess.SubprocessError, OSError, KeyError, TypeError, ValueError) as error:
         note = str(error) if isinstance(error, ActionError) else "Undertow could not finish this run."
         report = {
             "version": None, "status": "unavailable", "mode": None,
-            "base": None, "head": None, "coverage": {}, "findings": [], "evidence": {}, "notes": [note],
+            "base": None, "head": None, "coverage": {}, "findings": [], "evidence": {},
+            "related_references": [], "notes": [note],
         }
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         summary_path.write_text(f"## Undertow business change report\n\n**Analysis unavailable.** {note}\n",

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 6
     steps:
-      - uses: alpercandemir/undertow/actions/change-review@v0.2.0
+      - uses: alpercandemir/undertow/actions/change-review@v0.2.1
         continue-on-error: true
         with:
           comment: 'true'
