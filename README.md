@@ -3,35 +3,29 @@
 </p>
 
 <h1 align="center">Undertow</h1>
-<p align="center"><strong>See which customer gets a different outcome after a pull request</strong></p>
+<p align="center"><strong>See what a pull request changes for customers</strong></p>
 
 <p align="center">
   <a href="https://github.com/alpercandemir/undertow/releases/latest"><img src="https://img.shields.io/github/v/release/alpercandemir/undertow?label=release&amp;color=2563eb" alt="Latest release"></a>
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-Undertow reads the two revisions of a pull request and posts a review question with a concrete input, an inferred outcome on each side, and links to the lines behind the claim. The built-in GitHub Action needs only Python and Git.
+Undertow reviews a pull request and shows which customer or client could get a different outcome. Its GitHub comment gives you a scenario to check, the before and after outcomes inferred from source, and links to the code behind them.
 
-[Supported changes](#supported-changes) · [Historical benchmark](#historical-benchmark) · [Storefront walkthrough](#one-storefront-release-ten-business-changes) · [Install the Action](#get-a-report-on-your-next-pr)
+[Try a product review](#try-a-product-review) · [Historical benchmark](#historical-benchmark) · [Install the Action](#get-a-report-on-your-next-pr) · [Supported changes](#supported-changes)
 
-## One character takes $7 off a gift order
+## Same cart, different total
 
-```diff
--    if order_total > 50:
-+    if order_total >= 50:
-```
-
-At $49 and $51, both revisions agree. **Exactly $50** is the cart a reviewer needs to try. In the showcase PR, Undertow identifies that input and links the eligibility rule to the shipping fee and the gift checkout that uses it.
+A PR changes the free-shipping rule from **over $50** to **$50 or more**. The report singles out the customer with exactly $50 in their cart. At $49 and $51, the two revisions agree.
 
 | At a $50 subtotal | Before | After |
 | --- | ---: | ---: |
-| Qualifies for free delivery | `False` | `True` |
 | Shipping fee | $7 | $0 |
 | Gift checkout total | **$57** | **$50** |
 
 **Review question** · Should a gift order qualify for free delivery the moment it reaches $50?
 
-The bot comment reports the eligibility change from source. Following its two caller links explains the dollar amounts above. [Read the actual PR comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+The bot comment shows the change in shipping eligibility. The dollar amounts follow from the shipping and checkout code linked in that comment. [Read the actual PR comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
 
 <details>
 <summary>Reproduce the $50 finding locally with Python and Git</summary>
@@ -55,6 +49,59 @@ Open `report.json` in the same output directory for the input, both inferred out
 
 </details>
 
+## Try a product review
+
+Pick a scenario below, then open the PR comment and expand its matching finding. Use the outcome to check a policy, rollout, or support decision. The showcase has **two PRs with published reports** and **10 distinct scenarios**. One PR isolates the shipping change and the other puts it in a full storefront release.
+
+[One-rule shipping PR report](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019) · [Ten-scenario storefront PR report](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058)
+
+| Scenario | Before → after | What to decide |
+| --- | --- | --- |
+| **Return on day 30** | Eligible → return window expired | Which return window applies to orders already placed? |
+| **Refund without a receipt** | Rejected → manual review | Who handles the requests that enter the queue? |
+| **Gift quote for a $50 cart** | No gift-quote route declared → new gift-quote route | Which clients should get access at launch? |
+| **Bulk quotes** | Route declared → declaration removed | Which integrations still need time to migrate? |
+
+<p align="center">
+  <a href="https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058">
+    <img src="docs/assets/storefront-impact.svg" width="820" alt="Storefront release review with ten findings across returns, payments, shipping, refunds, fulfillment, rewards, inventory, and quote APIs">
+  </a>
+</p>
+
+<details>
+<summary>See all 10 scenarios and their review questions</summary>
+
+| What to try | Before → after | Product question |
+| --- | --- | --- |
+| Request a refund 30 days after delivery | Eligible → return window expired | Which return window applies to orders already placed? |
+| Choose a 12-month payment plan | Eligible → ineligible | When should checkout stop offering 12 months? |
+| Submit an eligible refund without a receipt | Rejected → manual review | Who owns the queue for these requests? |
+| Ask for a gift quote on a $50 cart | No gift-quote route declared → new route declared and the handler calculates a $50 total | Which clients should get access at launch? |
+| Request quotes in bulk | Bulk quote route declared → declaration removed | Which integrations still need a migration path? |
+| Quote a $50 cart | $7 shipping → free shipping | Should an order for exactly $50 qualify? |
+| Ask for an express dispatch estimate | 2 days → 1 day | Can fulfillment meet the new estimate? |
+| Earn points on a $50 order | 50 → 150 points | When should the new earn rate take effect? |
+| Retry after three failed delivery attempts | Ineligible → eligible | How many attempts should support allow? |
+| Check whether an item can be backordered | Disabled → enabled | What availability should checkout show? |
+
+</details>
+
+The report infers outcomes from Git revisions. Shipping and rewards amounts follow the calculations in the caller. Route findings identify declarations. The actual HTTP response depends on the handler and deployment. [Storefront source at the reported revision](https://github.com/alpercandemir/undertow-showcase/blob/856a37f063cb9ad4cf90a76323a32009991a3568/src/storefront.py)
+
+## Get a report on your next PR
+
+The workflow below uses the tagged release `v0.3.0`. The local walkthrough above uses the structured report format on `main`.
+
+Copy the [ready-to-use workflow](docs/examples/change-review.yml) into `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, token permissions, and this Action step.
+
+```yaml
+- uses: alpercandemir/undertow/actions/change-review@v0.3.0
+  with:
+    comment: 'true'
+```
+
+Open a PR or push another commit to it. The job writes an Actions summary and saves `summary.md` and `report.json`. With comments enabled, `github-actions[bot]` updates one comment using the workflow token. The PR description can be empty. Findings are advisory. [Open the showcase CI run](https://github.com/alpercandemir/undertow-showcase/actions/runs/44724616897)
+
 ## Supported changes
 
 Consider a return policy where the only edit changes `RETURN_WINDOW_DAYS` from `30` to `14`. The eligibility check lives several lines away. On `main`, Undertow connects the declaration to that comparison and gives the reviewer an input that changes the answer. A return on day **30** was eligible under the old rule and falls outside the new window. Both the declaration and its use appear in the evidence.
@@ -71,27 +118,61 @@ Of the **39 automated tests**, 37 pass and two are recorded as expected failures
 
 The report on `main` records the input, before and after outcomes, compatibility risk, review question, and source links in JSON. Its `source_inferred` label describes how the finding was established. The Action reads Git objects without executing PR code. [Example PR summary](docs/examples/summary.md) · [Example JSON](docs/examples/report.json) · [Evidence contract](docs/change-review.md#report-json-and-compatibility)
 
+**Built-in analysis** runs on the GitHub runner. It recognizes common numeric conditions, changed literal returns, and HTTP route declarations. For recognized methods it searches both source trees and follows possible callers up to three steps. A same-name match is a lead for the reviewer, especially in code that uses dynamic dispatch.
+
+**Optional Gemini analysis** interprets changes that span languages or files. When you pass `GEMINI_API_KEY` to the Action, it sends Google selected source excerpts and caller context. Gemini can request more surrounding code or look up identifiers already present in the review. Each accepted finding cites a changed region. The examples describe outcomes inferred from source. [Configuration, data sharing, and analysis limits](docs/change-review.md)
+
 ## Historical benchmark
 
-Undertow and GitHub Copilot CLI completed source reviews of the same pinned revisions for **20 merged Python PRs**, ten each from Click and HTTPX. Nine PRs fixed bugs, seven intentionally changed behavior, and four served as behavior-preserving controls. Upstream source and tests supplied 18 labeled outcomes. [Case manifest](evaluation/historical.json)
+**20 merged PRs · 18 known behavior changes · 4 behavior-preserving controls**
 
-| Recorded result on the 20 PRs | Undertow local | GitHub Copilot CLI |
-| --- | ---: | ---: |
-| Labeled outcomes found (recall) | **0 / 18** | **15 / 18 (83.3%)** |
-| Correct findings / all findings (precision) | Undefined (0 findings) | 29 / 33 (87.9%) |
-| Accurate before/after examples / examples offered | Undefined (0 examples) | 22 / 32 (68.8%) |
-| Incorrect findings on the four controls | 0 | 2 |
-| Median wall time per PR on the benchmark host | 0.240 s | 52.437 s |
-| Provider cost for the corpus | $0 (local rules) | $0.1292 estimated |
+The corpus contains ten Click PRs and ten HTTPX PRs. Nine PRs fixed bugs, seven changed behavior intentionally, and four preserved runtime behavior. One additional Click regression was scored separately. [Case manifest](evaluation/historical.json) · [Full benchmark](evaluation/benchmark.md)
 
-All 18 outcomes fell outside the baseline rules. Examples include deferred imports, streaming text decoding, and exception handling across callers. Copilot surfaced seven further source-supported outcomes beyond the frozen labels. [Baseline and rerun](evaluation/README.md#local-rules-on-the-same-corpus) · [Full comparison and timing methodology](evaluation/benchmark.md)
+**What Undertow local's 0 / 18 means.** The built-in rules completed 20 comparisons, reviewed source regions in 18 PRs, and produced zero findings. The denominator counts known behavior changes across the corpus. All 18 fell outside the baseline's declared patterns, so the benchmark measures coverage on this corpus and leaves detection of supported patterns unmeasured. Copilot CLI identified 15 of the 18. With zero local findings or examples, there was nothing to grade for accuracy. [Saved local run](evaluation/results/historical-local.json) · [Comparison and scoring](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs)
 
-On HTTPX #3116, Copilot identified a real change to client timeouts, but its example used a relative URL that could never reach the slow endpoint. On a separately scored Click regression, Copilot identified the stdin iteration failure and Undertow missed it. These judgments came from source review with the tool identities visible. Independent maintainer feedback, Gemini accuracy, and impact on merge decisions remain unmeasured. [Finding-by-finding assessments](evaluation/results/historical-copilot-adjudications.json) · [Supplemental regression](evaluation/click-stdin-regression.json)
+| From the benchmark | Before → after | Result |
+| --- | --- | --- |
+| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) · JSON validation | A request body with NaN was serialized → serialization raises an error. | Copilot identified all three JSON changes in this PR. Undertow local found zero. |
+| [Click #2604](https://github.com/pallets/click/pull/2604) · Command names | The generated name `init-data-command` becomes `init-data`. | Both missed the labeled rename. |
+| [HTTPX #3387](https://github.com/encode/httpx/pull/3387) · Refactor control | Helpers move while header and response handling remains the same. | Both produced zero findings on this PR. |
+| [Click #2934](https://github.com/pallets/click/pull/2934) · Supplemental regression | A command reading a line from standard input exits normally → aborts at end of input. | Copilot found the regression. Undertow local found zero. Scored separately. |
 
 <details>
-<summary>Recompute the scores from the saved runs</summary>
+<summary>Browse all 20 benchmark PRs</summary>
 
-Run these commands from the repository root with Python 3.11+. They use the checked-in records and require no provider credentials.
+The result columns count how many known changes each reviewer identified. A control has no labeled change to detect. On the four controls, Undertow local issued zero findings and Copilot issued two incorrect findings, both on the Click annotation change.
+
+| PR | Behavior covered | Known changes | Undertow local | Copilot CLI |
+| --- | --- | ---: | ---: | ---: |
+| [Click #2365](https://github.com/pallets/click/pull/2365) | Respect the choice-display setting in help. | 1 | 0 / 1 | 1 / 1 |
+| [Click #2604](https://github.com/pallets/click/pull/2604) | Trim decorator suffixes from generated command names. | 1 | 0 / 1 | 0 / 1 |
+| [Click #2680](https://github.com/pallets/click/pull/2680) | Run close callbacks when explicitly exiting a context. | 1 | 0 / 1 | 1 / 1 |
+| [Click #2846](https://github.com/pallets/click/pull/2846) | Escape completion values containing colons when Zsh emits a description. | 1 | 0 / 1 | 1 / 1 |
+| [Click #2930](https://github.com/pallets/click/pull/2930) | Set implicit flag values when a type is supplied. | 1 | 0 / 1 | 1 / 1 |
+| [Click #2935](https://github.com/pallets/click/pull/2935) | Use the current nested group when resolving completion. | 1 | 0 / 1 | 1 / 1 |
+| [Click #2972](https://github.com/pallets/click/pull/2972) | Omit the environment hint when no variable is configured. | 1 | 0 / 1 | 1 / 1 |
+| [Click #2990](https://github.com/pallets/click/pull/2990) | Type annotations expand to match existing exception formatting. The runtime formatting path is unchanged. | 0 | Control | Control |
+| [Click #3004](https://github.com/pallets/click/pull/3004) | Render the Enum member name as the displayed option default. | 1 | 0 / 1 | 1 / 1 |
+| [Click #3009](https://github.com/pallets/click/pull/3009) | Changelog entry only. The referenced StreamMixer fix landed in a separate PR. | 0 | Control | Control |
+| [HTTPX #2998](https://github.com/encode/httpx/pull/2998) | Drop the spurious final empty string from text streaming. | 1 | 0 / 1 | 0 / 1 |
+| [HTTPX #3116](https://github.com/encode/httpx/pull/3116) | Apply the client timeout to manually constructed requests. | 1 | 0 / 1 | 1 / 1 |
+| [HTTPX #3178](https://github.com/encode/httpx/pull/3178) | Accept the socks5h proxy scheme. | 1 | 0 / 1 | 1 / 1 |
+| [HTTPX #3364](https://github.com/encode/httpx/pull/3364) | Explicit request params replace the query in the URL. | 1 | 0 / 1 | 1 / 1 |
+| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) | Change JSON byte serialization and reject non-finite numbers. | 3 | 0 / 3 | 3 / 3 |
+| [HTTPX #3373](https://github.com/encode/httpx/pull/3373) | Change escaping for query parameters passed as key-value pairs. | 1 | 0 / 1 | 1 / 1 |
+| [HTTPX #3375](https://github.com/encode/httpx/pull/3375) | Removes a test case. The library source is unchanged. | 0 | Control | Control |
+| [HTTPX #3377](https://github.com/encode/httpx/pull/3377) | Load optional runtime modules at their point of use. | 1 | 0 / 1 | 0 / 1 |
+| [HTTPX #3378](https://github.com/encode/httpx/pull/3378) | Narrow the Request method parameter to strings. | 1 | 0 / 1 | 1 / 1 |
+| [HTTPX #3387](https://github.com/encode/httpx/pull/3387) | Moves internal utility functions and their tests. Public header and response processing retain equivalent calls. | 0 | Control | Control |
+
+[Per-case inputs and expected outcomes](evaluation/historical.json) · [Finding-by-finding assessments](evaluation/results/historical-copilot-adjudications.json)
+
+</details>
+
+<details>
+<summary>Recompute the benchmark scores</summary>
+
+Run from the repository root with Python 3.11+. The checked-in runs can be scored without provider credentials.
 
 ```sh
 python3 evaluation/run.py score evaluation/results/historical-local.json
@@ -99,108 +180,6 @@ python3 evaluation/run.py score evaluation/results/historical-copilot.json \
   --adjudications evaluation/results/historical-copilot-adjudications.json
 ```
 
-To rerun the reviewers on the original revision pairs, follow the [benchmark protocol](evaluation/competitive-pilot.md).
+The detailed report includes example accuracy, precision, false positives, timing, provider costs, and evaluation limits. [Detailed results](evaluation/benchmark.md) · [Rerun the benchmark](evaluation/competitive-pilot.md)
 
 </details>
-
-## One storefront release, ten business changes
-
-![Storefront release impact with three compatibility risks, six changed outcomes and one new endpoint](docs/assets/storefront-impact.svg)
-
-The storefront showcase changes ten policies and entry points in one PR. Expand the table to see a concrete review case for each. [Read the storefront PR comment](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058)
-
-<details>
-<summary>Inspect all ten storefront changes</summary>
-
-The table follows the store's policies through their callers. For example, the engine identifies a rewards multiplier changing from 1 to 3. The 150-point total comes from following the order quote's multiplication for a $50 cart. [Storefront source](https://github.com/alpercandemir/undertow-showcase/blob/626622ca0752042e698487cf9cae7d67ed90c1f1/src/storefront.py)
-
-| Review | Try this input | Before → after | Where to look |
-| --- | --- | --- | --- |
-| P1 | A client posts a list of order totals to `/bulk-quotes` | Route declared → declaration removed | Bulk pricing clients |
-| P1 | Return an item 30 days after delivery | Eligible → window expired | Refund intake |
-| P1 | Request a 12-month payment plan | Eligible → ineligible | Installment offers |
-| P2 | Quote a $50 cart | $7 shipping → free shipping | Standard and gift checkout |
-| P2 | Submit an eligible refund without a receipt | Rejected → manual review | Refund state |
-| P2 | Request an express dispatch estimate | 2 days → 1 day | Order quote |
-| P2 | Earn points on a $50 order | 50 → 150 points | Quote uses points per dollar |
-| P2 | Retry after three delivery attempts | Ineligible → eligible | Delivery retry decision |
-| P2 | Ask whether an item can be backordered | Disabled → enabled | Backorder field in the order quote |
-| P3 | Post a $50 order to `/gift-quotes` | New route on the head revision, returning a $50 gift total | Existing gift checkout and shipping policy |
-
-</details>
-
-### Why a reviewer should open the gift quote finding
-
-The new endpoint reuses `gift_checkout_total`. That function adds the shipping fee to the subtotal, and the fee depends on the edited free-delivery rule. At exactly $50, the existing gift calculation changes from $57 to $50. The newly added endpoint exposes that same calculation. An order for $51 would hide the boundary change.
-
-```mermaid
-flowchart LR
-    API["New: POST /gift-quotes"] --> Gift["Gift checkout total"]
-    Gift --> Fee["Shipping fee"]
-    Bulk["Existing: standard order quote"] --> Fee
-    Fee --> Rule["Changed: free delivery at $50"]
-    classDef added fill:#14403f,color:#fff,stroke:#63cfb9
-    classDef changed fill:#513d17,color:#fff,stroke:#edc578
-    class API added
-    class Rule changed
-```
-
-Undertow follows possible callers up to three steps beyond an edited method. The report on `main` distinguishes a statically resolved call from a possible name match on each revision. The reviewer can follow those links to see how a caller uses the result. [Explore the smaller one-line shipping PR](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
-
-<details>
-<summary>See the underlying patterns in Java, Go and TypeScript</summary>
-
-
-These small Git comparisons were run with the built-in analysis in v0.2.1. The examples below summarize what it found.
-
-### A refund arrives without a receipt · Java
-
-```diff
-     if (receiptMissing) {
--        return "REJECTED";
-+        return "MANUAL_REVIEW";
-     }
-```
-
-The same refund now leaves the policy with the state `MANUAL_REVIEW`. The return statement is enough to establish that change. To find out whether someone actually receives a review task, follow the caller that consumes the state.
-
-### A delivery has already been attempted three times · Go
-
-```diff
--    return attempts < 3
-+    return attempts < 5
-```
-
-At `attempts = 3`, the old retry check returns `false` and the new one returns `true`. That gives the reviewer a concrete case where another attempt becomes eligible. A first-attempt example would give the same answer on both revisions.
-
-### A returns endpoint appears · TypeScript
-
-```diff
-+router.post("/returns", createReturn);
-```
-
-For a client sending `POST /returns`, the head revision now declares a route to `createReturn`. The report links to the new declaration. The handler determines which requests succeed and what the client receives.
-
-A fourth comparison added only a comment above an unchanged Python delivery fee. Undertow produced an empty findings list. Each report includes its reviewed scope so a reader can see what was examined.
-
-</details>
-
-## Get a report on your next PR
-
-The workflow below uses the tagged release `v0.3.0`. The local walkthrough above uses the structured report format on `main`. [Sample Markdown report](docs/examples/summary.md) · [Sample JSON](docs/examples/report.json)
-
-Copy the [ready-to-use workflow](docs/examples/change-review.yml) into `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, token permissions, and this Action step.
-
-```yaml
-- uses: alpercandemir/undertow/actions/change-review@v0.3.0
-  with:
-    comment: 'true'
-```
-
-Open a PR or push another commit to it. The job writes an Actions summary and saves `summary.md` and `report.json`. With comments enabled, `github-actions[bot]` updates one comment using the workflow token. The PR description can be empty. Findings are advisory. [Open the showcase CI run](https://github.com/alpercandemir/undertow-showcase/actions/runs/44724616897)
-
-## What goes into a finding?
-
-**Built-in analysis** runs on the GitHub runner. It recognizes common numeric conditions, changed literal returns, and HTTP route declarations. For recognized methods it searches both source trees and follows possible callers up to three steps. A same-name match is a lead for the reviewer, especially in code that uses dynamic dispatch.
-
-**Optional Gemini analysis** interprets changes that span languages or files. When you pass `GEMINI_API_KEY` to the Action, it sends Google selected source excerpts and caller context. Gemini can request more surrounding code or look up identifiers already present in the review. Each accepted finding cites a changed region. The examples describe outcomes inferred from source. [Configuration, data sharing, and analysis limits](docs/change-review.md)
