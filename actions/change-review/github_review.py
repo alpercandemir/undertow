@@ -125,6 +125,10 @@ def update_comment(repository, number, base, head, token, summary):
     current = github("GET", f"{api_repo}/pulls/{number}", token)
     if current["base"]["sha"] != base or current["head"]["sha"] != head or current["state"] != "open":
         raise ActionError("The pull request changed while this report was being prepared.")
+    if len(summary.encode("utf-8")) > 60_000:
+        overview = summary.partition("<details>")[0]
+        run_url = f"{github_url('GITHUB_SERVER_URL')}/{repository}/actions/runs/{int(os.environ['GITHUB_RUN_ID'])}"
+        summary = overview[:12000] + f"\n[Open the full report and evidence in Actions]({run_url})\n"
     body = {"body": f"{MARKER}\n{summary}"}
     if comment_id:
         github("PATCH", f"{api_repo}/issues/comments/{int(comment_id)}", token, body)

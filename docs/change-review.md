@@ -4,11 +4,23 @@ Undertow compares the committed source for two Git revisions. It describes suppo
 
 ## GitHub Actions
 
-Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the base branch. It uses the published `v0.2.1` action. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
+Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the base branch. It uses the published `v0.3.0` action. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
 
 The example updates one GitHub Actions bot comment per PR. It uses `pull_request_target` with `contents: read` and `pull-requests: write` so the trusted workflow can also report on fork PRs. The action never checks out or executes the candidate. Keep this job separate from jobs that build or run PR code. If your repository's Actions policy restricts `pull_request_target`, allow this trusted reporting workflow there or use `pull_request` with `contents: read` and remove the `comment` input for a summary-only setup. [GitHub's event security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
 
 The action checks that the PR is still open and that its base and head match the event before publishing. A write failure appears in the summary. Findings, missing model access, and unavailable analyses are advisory. On a push event, the action uses the event's before and after commits if both exist. For workflows dispatched manually, pass both `base` and `head` as full commit SHAs.
+
+## Review priority
+
+The summary orders findings before applying the twelve-finding display limit. Expand a finding to inspect the before and after example, its priority rationale and the source evidence.
+
+| Priority | Local evidence | Review question |
+| --- | --- | --- |
+| P1 | A removed route declaration, or a recognized eligibility function whose example changes from true to false | Which existing client or request may lose access? |
+| P2 | A changed outcome in existing logic | What does the same input receive now? |
+| P3 | An added route declaration | Which new entry point is available? |
+
+Gemini uses the same review priorities and supplies a source-based rationale. Priorities express review order. Findings describe inferred behavior and can represent intentional policy decisions.
 
 ## How it reads changes
 
@@ -21,7 +33,7 @@ For recognized functions and methods, Undertow searches the full tracked source 
 For broader business-flow analysis, add a repository Actions secret named `GEMINI_API_KEY` and pass it through the Undertow step's environment. This explicitly opts into sending changed source, filenames, and selected supporting excerpts to the Gemini Developer API. Obvious credential patterns are filtered. Check Google's data terms for your API tier before sharing private source. The default model is `gemini-3.8-flash`. Set `UNDERTOW_GEMINI_MODEL` on the step to use a different Gemini model. [Gemini model documentation](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash) · [Gemini API terms](https://ai.google.dev/gemini-api/terms)
 
 ```yaml
-- uses: alpercandemir/undertow/actions/change-review@v0.2.1
+- uses: alpercandemir/undertow/actions/change-review@v0.3.0
   env:
     GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```

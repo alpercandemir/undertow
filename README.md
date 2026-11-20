@@ -10,34 +10,50 @@
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-A shopper puts exactly $50 in their cart. Does shipping still cost $7? In the [showcase PR](https://github.com/alpercandemir/undertow-showcase/pull/5/files), the answer turns on a single character.
+A store launches gift quotes. In the same release it retires bulk quotes, shortens the returns window, and changes who gets free shipping. Which existing clients and customers feel those edits first?
 
-```diff
--    if order_total > 50:
-+    if order_total >= 50:
-```
+Undertow posts a prioritized source review on the pull request. Open a finding to see the concrete input, before-and-after outcomes, the reason for its priority, and links into both Git revisions. [Read the live bot report](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058) · [Inspect the release diff](https://github.com/alpercandemir/undertow-showcase/pull/6/files)
 
-Undertow reads the two Git revisions, finds an input that illustrates the changed rule, and posts the before-and-after result in the PR. It also looks for callers in the rest of the repository. [Read the live bot comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+## One storefront release, ten business changes
 
-## Follow the $50 order
+![Storefront release impact with three compatibility risks, six changed outcomes and one new endpoint](docs/assets/storefront-impact.svg)
 
-| What the reviewer can inspect | Before | After |
-| --- | --- | --- |
-| Free-delivery eligibility at exactly $50 | `False` | `True` |
-| Shipping fee implied by the checkout code | $7 | $0 |
-| Gift checkout total implied by that fee | $57 | $50 |
+The table follows the store's policies through their callers. For example, the engine identifies a rewards multiplier changing from 1 to 3. The 150-point total comes from following the order quote's multiplication for a $50 cart. [Storefront source](https://github.com/alpercandemir/undertow-showcase/blob/626622ca0752042e698487cf9cae7d67ed90c1f1/src/storefront.py)
 
-The first row is the example Undertow reported. The other two come from following its source links. Both checkout functions stayed untouched in the PR. The shipping function reads the eligibility result, and gift checkout adds the resulting fee to the order total. [Shipping calculation](https://github.com/alpercandemir/undertow-showcase/blob/1aee946a9ad10474b6971acc909fd29b6d70f261/src/checkout.py#L4-L5) · [Gift checkout](https://github.com/alpercandemir/undertow-showcase/blob/1aee946a9ad10474b6971acc909fd29b6d70f261/src/gift_checkout.py#L4-L5)
+| Review | Try this input | Before → after | Where to look |
+| --- | --- | --- | --- |
+| P1 | A client posts a list of order totals to `/bulk-quotes` | Route declared → declaration removed | Bulk pricing clients |
+| P1 | Return an item 30 days after delivery | Eligible → window expired | Refund intake |
+| P1 | Request a 12-month payment plan | Eligible → ineligible | Installment offers |
+| P2 | Quote a $50 cart | $7 shipping → free shipping | Standard and gift checkout |
+| P2 | Submit an eligible refund without a receipt | Rejected → manual review | Refund state |
+| P2 | Request an express dispatch estimate | 2 days → 1 day | Order quote |
+| P2 | Earn points on a $50 order | 50 → 150 points | Quote uses points per dollar |
+| P2 | Retry after three delivery attempts | Ineligible → eligible | Delivery retry decision |
+| P2 | Ask whether an item can be backordered | Disabled → enabled | Backorder field in the order quote |
+| P3 | Post a $50 order to `/gift-quotes` | New route on the head revision, returning a $50 gift total | Existing gift checkout and shipping policy |
+
+### Why a reviewer should open the gift quote finding
+
+The new endpoint reuses `gift_checkout_total`. That function adds the shipping fee to the subtotal, and the fee depends on the edited free-delivery rule. At exactly $50, the existing gift calculation changes from $57 to $50. The newly added endpoint exposes that same calculation. An order for $51 would hide the boundary change.
 
 ```mermaid
 flowchart LR
-    Gift["Gift checkout total"] -->|adds| Fee["Shipping fee"]
-    Fee -->|checks| Rule["Free-delivery eligibility<br/>Changed in the PR"]
-    classDef changed fill:#1d4ed8,color:#fff,stroke:#1e3a8a
+    API["New: POST /gift-quotes"] --> Gift["Gift checkout total"]
+    Gift --> Fee["Shipping fee"]
+    Bulk["Existing: standard order quote"] --> Fee
+    Fee --> Rule["Changed: free delivery at $50"]
+    classDef added fill:#14403f,color:#fff,stroke:#63cfb9
+    classDef changed fill:#513d17,color:#fff,stroke:#edc578
+    class API added
     class Rule changed
 ```
 
-## Three more changes through a reviewer's eyes
+Undertow follows possible callers up to three steps beyond an edited method. An arrow in the report links to a name match at a particular revision. The reviewer can follow those links to see how a caller uses the result. [Explore the smaller one-line shipping PR](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+
+<details>
+<summary>See the underlying patterns in Java, Go and TypeScript</summary>
+
 
 These small Git comparisons were run with the built-in analysis in v0.2.1. The examples below summarize what it found.
 
@@ -71,12 +87,14 @@ For a client sending `POST /returns`, the head revision now declares a route to 
 
 A fourth comparison added only a comment above an unchanged Python delivery fee. Undertow produced an empty findings list. Each report includes its reviewed scope so a reader can see what was examined.
 
+</details>
+
 ## Get a report on your next PR
 
 Copy the [ready-to-use workflow](docs/examples/change-review.yml) into `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, token permissions, and this Action step.
 
 ```yaml
-- uses: alpercandemir/undertow/actions/change-review@v0.2.1
+- uses: alpercandemir/undertow/actions/change-review@v0.3.0
   with:
     comment: 'true'
 ```

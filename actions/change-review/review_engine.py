@@ -2,6 +2,7 @@
 """Explain business behavior changes between two Git revisions."""
 
 import argparse
+import html
 from dataclasses import dataclass
 import json
 import operator
@@ -16,19 +17,19 @@ from urllib.parse import quote, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 MAX_FILES = 60
 MAX_REGIONS = 40
 MAX_BLOB = 384 * 1024
 DIFF_BUDGET = 84 * 1024
 CONTEXT_BUDGET = 16 * 1024
-REPOSITORY_CONTEXT_BUDGET = 12 * 1024
+REPOSITORY_CONTEXT_BUDGET = 24 * 1024
 MAX_REFERENCE_HOPS = 3
 MAX_REFERENCE_FILES = 8
-MAX_REFERENCES = 8
-MAX_TRACE_SYMBOLS = 4
+MAX_REFERENCES = 16
+MAX_TRACE_SYMBOLS = 12
 SYMBOL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]{2,63}\b")
-MAX_FINDINGS = 8
+MAX_FINDINGS = 12
 REGULAR = {b"100644", b"100755"}
 IGNORED_PARTS = {
     ".github", ".gitlab", ".secrets", ".credentials", ".ssh", ".aws", "docs",
@@ -68,7 +69,9 @@ supported by the supplied source. Where only a local effect is established, keep
 For each finding, give the affected flow, the before and after behavior, and one concrete hypothetical
 input or sequence for the same scenario on both sides. Refer to source regions by their supplied IDs,
 with at least one changed region supporting each finding. Cite both mechanisms when available.
-Use plain English and synthetic example values. Do not use Markdown, URLs, mentions, or copy secrets.
+Assign P1 to concrete evidence of lost capability or incompatible behavior for existing users,
+P2 to changed outcomes in an existing flow, and P3 to additive capabilities. Explain the source
+basis in priority_reason. Use a short business headline and plain English and synthetic example values. Do not use Markdown, URLs, mentions, or copy secrets.
 Return an empty findings list when the evidence is insufficient. When context is allowed, ask once
 for surrounding source by region ID in context_requests or repository matches by identifier in
 symbol_requests. Choose up to four specific function, type, or field names that already appear in
@@ -77,7 +80,7 @@ matches are supporting context and may include unchanged code. Treat name-based 
 as possible paths. Verify the mechanism in the excerpts before claiming an outcome. Evidence must
 still cite a changed region. When context is closed, both request lists must be empty.
 """
-FIELDS = ("title", "flow", "before", "after", "scenario", "example_before", "example_after")
+FIELDS = ("priority_reason", "title", "flow", "before", "after", "scenario", "example_before", "example_after")
 TEXT = {"type": "string"}
 RESPONSE_SCHEMA = {
     "type": "object",
@@ -90,9 +93,10 @@ RESPONSE_SCHEMA = {
                 "type": "object",
                 "properties": {
                     **dict.fromkeys(FIELDS, TEXT),
+                    "priority": {"type": "string", "enum": ["P1", "P2", "P3"]},
                     "evidence": {"type": "array", "minItems": 1, "maxItems": 4, "items": TEXT},
                 },
-                "required": [*FIELDS, "evidence"],
+                "required": [*FIELDS, "priority", "evidence"],
             },
         },
     },
@@ -225,7 +229,7 @@ def file_regions(repo, before, after, old_lines, new_lines):
 
     patch = git(
         repo, "diff", "--no-color", "--no-ext-diff", "--no-textconv", "--text", "--no-indent-heuristic",
-        "--diff-algorithm=histogram", "--unified=5", "--output-indicator-new=+",
+        "--diff-algorithm=myers", "--unified=5", "--output-indicator-new=+",
         "--output-indicator-old=-", "--output-indicator-context= ", before.oid, after.oid, "--",
     ).decode("utf-8")
     old_rows, new_rows = [], []
@@ -434,9 +438,18 @@ def enclosing_callable(lines, number, ignored):
     return None
 
 
-def described_path(lines, number, ignored):
-    name = enclosing_callable(lines, number, ignored)
-    return f"The edited logic in {name}." if name else "The path that reaches the edited expression."
+def business_name(identifier):
+    words = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", identifier).replace("_", " ")
+    return words.strip().lower()
+
+
+def transition_summary(symbol, before, after):
+    flow = business_name(symbol) if symbol else "returned value"
+    subject = re.sub(r"^(?:can |accepts? |allows? |supports? |qualifies for )", "", flow)
+    if subject != flow and {before.lower(), after.lower()} == {"true", "false"}:
+        outcome = "Eligibility gained" if after.lower() == "true" else "Eligibility lost"
+        return f"{outcome} for {subject}"
+    return f"{flow.capitalize()} · {before} → {after}"
 
 
 def literal_result(lines, number, form, result):
@@ -460,7 +473,7 @@ def literal_result(lines, number, form, result):
     return f"The condition evaluates to {str(result).lower()}."
 
 
-def comparison_example(before, after, old_lines, new_lines, flow):
+def comparison_example(before, after, old_lines, new_lines, symbol):
     old_match = COMPARISON.fullmatch(before[2].strip())
     new_match = COMPARISON.fullmatch(after[2].strip())
     if not old_match or not new_match:
@@ -474,27 +487,32 @@ def comparison_example(before, after, old_lines, new_lines, flow):
                                 new_limit - 1, new_limit + 1]):
         old_result, new_result = old_eval(value, old_limit), new_eval(value, new_limit)
         if old_result != new_result:
+            old_outcome = literal_result(old_lines, before[0], old_match["form"], old_result)
+            new_outcome = literal_result(new_lines, after[0], new_match["form"], new_result)
+            old_value = old_outcome.removeprefix("The return value is ").removesuffix(".")
+            new_value = new_outcome.removeprefix("The return value is ").removesuffix(".")
+            title = f"{business_name(name).capitalize()} of {value} changes the condition from {old_result} to {new_result}"
+            if old_outcome.startswith("The return value is ") and new_outcome.startswith("The return value is "):
+                title = f"{transition_summary(symbol, old_value, new_value)} at {business_name(name)} = {value}"
             return {
-                "title": f"The decision boundary for {name} changed",
-                "flow": flow,
+                "title": title, "flow": symbol or name,
                 "before": f"The condition was {name} {old_match['op']} {old_limit}.",
                 "after": f"The condition is {name} {new_match['op']} {new_limit}.",
                 "scenario": f"The condition is evaluated with {name} = {value}.",
-                "example_before": literal_result(old_lines, before[0], old_match["form"], old_result),
-                "example_after": literal_result(new_lines, after[0], new_match["form"], new_result),
+                "example_before": old_outcome, "example_after": new_outcome,
             }
     return None
 
 
-def return_example(before, after, flow):
+def return_example(before, after, symbol):
     old_match, new_match = RETURN.fullmatch(before), RETURN.fullmatch(after)
     if not old_match or not new_match or old_match[1] == new_match[1]:
         return None
     if old_match[2] and new_match[2] and old_match[1][1:-1] == new_match[1][1:-1]:
         return None
     return {
-        "title": "A code path returns a different value",
-        "flow": flow,
+        "title": transition_summary(symbol, old_match[1], new_match[1]),
+        "flow": symbol or "The edited return statement",
         "before": f"It returned {old_match[1]}.",
         "after": f"It returns {new_match[1]}.",
         "scenario": "A request reaches this return statement.",
@@ -553,14 +571,26 @@ def local_findings(regions, sources, locations):
         for before, after in replacements(region):
             if before[0] in old_ignored or after[0] in new_ignored:
                 continue
-            flow = described_path(new_lines, after[0], new_ignored)
-            finding = (comparison_example(before, after, old_lines, new_lines, flow)
-                       or return_example(before[2].strip(), after[2].strip(), flow))
+            symbol = enclosing_callable(new_lines, after[0], new_ignored)
+            old_symbol = enclosing_callable(old_lines, before[0], old_ignored)
+            if old_symbol and symbol and old_symbol != symbol:
+                continue
+            finding = (comparison_example(before, after, old_lines, new_lines, symbol)
+                       or return_example(before[2].strip(), after[2].strip(), symbol))
             if finding:
                 evidence = line_reference(
                     locations, base=(region.base, before[0]), head=(region.head, after[0]),
                 )
-                findings.append({**finding, "evidence": evidence})
+                lost_eligibility = (
+                    symbol and re.match(r"^(?:can|accepts?|allows?|supports?|qualifies|eligible)(?: |$)", business_name(symbol))
+                    and finding["example_before"].lower() == "the return value is true."
+                    and finding["example_after"].lower() == "the return value is false."
+                )
+                findings.append({
+                    **finding, "symbol": symbol, "evidence": evidence, "priority": "P1" if lost_eligibility else "P2",
+                    "priority_reason": ("A previously eligible example now returns false." if lost_eligibility
+                                        else "The same input reaches a different outcome in existing logic."),
+                })
         for blob, rows, routes, ignored in (
             (region.base, region.base_rows, old_routes, old_ignored),
             (region.head, region.head_rows, new_routes, new_ignored),
@@ -568,7 +598,10 @@ def local_findings(regions, sources, locations):
             for number, edit, line in rows:
                 route = route_in(line) if edit and number not in ignored else None
                 if route:
-                    routes[route] = blob, number
+                    handler = None
+                    if line.lstrip().startswith("@") and number < len(sources[blob.oid]):
+                        handler = callable_name(sources[blob.oid][number])
+                    routes[route] = blob, number, handler
 
     for added, routes, other in ((True, new_routes, old_routes), (False, old_routes, new_routes)):
         for method, path in sorted(routes.keys() - other.keys()):
@@ -577,12 +610,17 @@ def local_findings(regions, sources, locations):
             absent = "This declaration is absent from the corresponding source."
             before, after = (absent, declared) if added else (declared, absent)
             side = "head" if added else "base"
+            blob, number, handler = routes[(method, path)]
             findings.append({
-                "title": f"HTTP route declaration {'added' if added else 'removed'}",
-                "flow": route, "before": before, "after": after,
+                "title": f"{route} declaration {'added' if added else 'removed'}",
+                "priority": "P3" if added else "P1",
+                "priority_reason": ("A new entry point is declared." if added
+                                    else "Existing clients may depend on the removed entry point."),
+                "change_kind": "added_route" if added else "removed_route",
+                "symbol": handler, "flow": route, "before": before, "after": after,
                 "scenario": f"A client sends {route} to this application.",
                 "example_before": before, "example_after": after,
-                "evidence": line_reference(locations, **{side: routes[(method, path)]}),
+                "evidence": line_reference(locations, **{side: (blob, number)}),
             })
     return findings
 
@@ -853,7 +891,10 @@ def model_findings(key, args, report, regions, sources, references):
             if not isinstance(value, str) or len(value) > 520 or not plain(value) or SECRET_VALUE.search(value):
                 raise ReviewError("Gemini returned an invalid finding.")
             narrative[field] = plain(value)
-        accepted.append({**narrative, "evidence": list(dict.fromkeys(evidence))})
+        priority = finding.get("priority")
+        if priority not in ("P1", "P2", "P3"):
+            raise ReviewError("Gemini returned an invalid review priority.")
+        accepted.append({**narrative, "priority": priority, "evidence": list(dict.fromkeys(evidence))})
     return accepted, related, limited
 
 
@@ -913,11 +954,16 @@ def render(report, link_root):
         ])
         if not report["findings"]:
             lines.extend(["", "**No business change identified in the reviewed scope.**"])
-    for number, finding in enumerate(report["findings"], start=1):
+    if report["findings"]:
+        lines.extend(["", "### Review order", "", "| Priority | Business change |", "| --- | --- |"])
+        for finding in report["findings"]:
+            lines.append(f"| **{finding['priority']}** | {markdown(finding['title'])} |")
+    for finding in report["findings"]:
         evidence = source_links(report, finding["evidence"], link_root)
+        heading = html.escape(plain(finding["title"]).replace("@", "@\u200b"))
         lines.extend([
-            "", f"### {number}. {markdown(finding['title'])}", "",
-            f"**Flow** · {markdown(finding['flow'])}",
+            "", "<details>", f"<summary>{finding['priority']} · {heading}</summary>",
+            "", markdown(finding["priority_reason"]), "", f"**Flow** · {markdown(finding['flow'])}",
             "", f"- **Before** · {markdown(finding['before'])}",
             f"- **After** · {markdown(finding['after'])}",
             "", f"**Example** · {markdown(finding['scenario'])}",
@@ -925,6 +971,11 @@ def render(report, link_root):
             f"- **After** · {markdown(finding['example_after'])}",
             "", "**Source** · " + evidence,
         ])
+        for ref in finding.get("related_references", []):
+            relation = f"{ref['caller']} → {ref['symbol']}" if ref["caller"] else ref["symbol"]
+            lines.extend(["", f"**Possible flow** · {markdown(relation)} · "
+                          + source_links(report, [ref["evidence"]], link_root)])
+        lines.extend(["", "</details>"])
     if report["related_references"]:
         lines.extend([
             "", "### Possible affected flows", "",
@@ -996,6 +1047,7 @@ def review(args):
             report["notes"].append(
                 "Local analysis covers common numeric conditions, literal returns and HTTP route declarations."
             )
+    findings.sort(key=lambda finding: (finding["priority"], finding.get("change_kind") != "removed_route"))
     if len(findings) > MAX_FINDINGS:
         report["notes"].append(f"The report shows {MAX_FINDINGS} of {len(findings)} rule matches.")
     report["findings"] = findings[:MAX_FINDINGS]
@@ -1005,6 +1057,12 @@ def review(args):
     report["related_references"] = [
         reference.description(identifier) for identifier, reference in automatic.items()
     ] if findings else []
+    for finding in report["findings"]:
+        symbol = finding.get("symbol")
+        if symbol:
+            finding["related_references"] = [
+                ref for ref in report["related_references"] if symbol in (ref["caller"], ref["symbol"])
+            ]
     locations.update((identifier, reference.source.locations()) for identifier, reference in related.items())
     used_evidence = dict.fromkeys(identifier for finding in report["findings"] for identifier in finding["evidence"])
     used_evidence.update((reference["evidence"], None) for reference in report["related_references"])

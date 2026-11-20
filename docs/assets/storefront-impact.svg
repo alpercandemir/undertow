@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" role="img" aria-labelledby="title desc"><title id="title">Storefront release impact</title><desc id="desc">Ten changes in review order. Three compatibility risks, six existing behavior changes, and one new endpoint sharing the checkout policy.</desc>
+<rect x="0" y="0" width="1000" height="660" rx="20" fill="#0c202c"/>
+<text x="32" y="45" font-family="monospace" font-size="15" font-weight="700" fill="#87dacf">UNDERTOW   /   STOREFRONT PR  #6</text>
+<text x="32" y="103" font-family="Arial, Helvetica, sans-serif" font-size="47" font-weight="700" fill="#f6f5ed">What changes at checkout?</text>
+<text x="34" y="137" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="500" fill="#c1cfd5">Ten source-backed examples in review order</text>
+<rect x="32" y="176" width="5" height="17" rx="0" fill="#ffae91"/>
+<text x="48" y="190" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#ffae91">P1   /   EXISTING CAPABILITY AT RISK</text>
+<rect x="32" y="204" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="48" y="233" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Bulk quote API</text>
+<text x="48" y="260" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffb69c">POST declaration removed</text>
+<rect x="348" y="204" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="364" y="233" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Returns at day 30</text>
+<text x="364" y="260" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffb69c">Eligible → ineligible</text>
+<rect x="664" y="204" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="680" y="233" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">12-month installments</text>
+<text x="680" y="260" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffb69c">Eligible → ineligible</text>
+<rect x="32" y="313" width="5" height="17" rx="0" fill="#ffdc90"/>
+<text x="48" y="327" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#ffdc90">P2   /   EXISTING BEHAVIOR CHANGES</text>
+<rect x="32" y="341" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="48" y="370" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Free shipping at $50</text>
+<text x="48" y="397" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffe1a5">Paid → free</text>
+<rect x="348" y="341" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="364" y="370" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Refund without receipt</text>
+<text x="364" y="397" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffe1a5">Rejected → manual review</text>
+<rect x="664" y="341" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="680" y="370" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Express dispatch</text>
+<text x="680" y="397" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffe1a5">2 days → 1 day</text>
+<rect x="32" y="426" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="48" y="455" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Rewards on a $50 order</text>
+<text x="48" y="482" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffe1a5">50 points → 150 points</text>
+<rect x="348" y="426" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="364" y="455" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Delivery after 3 attempts</text>
+<text x="364" y="482" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffe1a5">Retry denied → eligible</text>
+<rect x="664" y="426" width="304" height="76" rx="10" fill="#18303d"/>
+<text x="680" y="455" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#f4f5ed">Backorders</text>
+<text x="680" y="482" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#ffe1a5">Disabled → enabled</text>
+<rect x="32" y="540" width="5" height="17" rx="0" fill="#89ded1"/>
+<text x="48" y="554" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#89ded1">P3   /   NEW CAPABILITY</text>
+<rect x="32" y="570" width="936" height="65" rx="10" fill="#14403f"/>
+<text x="48" y="610" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#effff8">Gift quote API</text>
+<text x="259" y="610" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="500" fill="#ace8de">POST /gift-quotes  →  existing gift checkout and shipping fee</text>
+</svg>
