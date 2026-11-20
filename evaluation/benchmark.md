@@ -52,3 +52,32 @@ In the supplemental Click regression, Gemini identified the underlying iterator 
 Undertow supplies pinned comparison inputs, chooses source excerpts and call references, checks the output schema and citation IDs, and publishes the same report format in a PR comment or artifact. Each accepted finding includes an example or precondition, a review question, and an evidence label. The review of JSON output illustrates the limits of those checks. A finding can cite real changed code and still give an inaccurate example.
 
 The scores describe complete review configurations on two Python libraries. Different models, context budgets, and review pipelines make it impossible to assign the measured difference to Undertow's harness alone. An experiment with the same model on the same cases could measure the effect of adding Undertow's source selection, reference tracing, and report checks. No independent maintainer assessments or changes to tests, fixes, or releases attributable to these reviews were recorded. [Reproduction protocol](competitive-pilot.md) · [Assessment criteria](maintainer-assessment.md)
+
+## Per-PR results
+
+Each fraction shows how many of the labeled changes the reviewer identified. All 18 labeled changes fell outside the declared patterns of the local rules. A control has no labeled change to detect. Fallback and cases with no source regions are shown separately for the Gemini run.
+
+| PR | Behavior covered | Known changes | Undertow local | Copilot CLI | Undertow + Gemini |
+| --- | --- | ---: | ---: | ---: | ---: |
+| [Click #2365](https://github.com/pallets/click/pull/2365) | Respect the choice-display setting in help. | 1 | 0 / 1 | 1 / 1 | Local fallback |
+| [Click #2604](https://github.com/pallets/click/pull/2604) | Trim decorator suffixes from generated command names. | 1 | 0 / 1 | 0 / 1 | 1 / 1 |
+| [Click #2680](https://github.com/pallets/click/pull/2680) | Run close callbacks when explicitly exiting a context. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
+| [Click #2846](https://github.com/pallets/click/pull/2846) | Escape completion values containing colons when Zsh emits a description. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
+| [Click #2930](https://github.com/pallets/click/pull/2930) | Set implicit flag values when a type is supplied. | 1 | 0 / 1 | 1 / 1 | 0 / 1 |
+| [Click #2935](https://github.com/pallets/click/pull/2935) | Use the current nested group when resolving completion. | 1 | 0 / 1 | 1 / 1 | 0 / 1 |
+| [Click #2972](https://github.com/pallets/click/pull/2972) | Omit the environment hint when no variable is configured. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
+| [Click #2990](https://github.com/pallets/click/pull/2990) | Type annotations expand to match existing exception formatting. The runtime formatting path is unchanged. | 0 | Control | Control | Control |
+| [Click #3004](https://github.com/pallets/click/pull/3004) | Render the Enum member name as the displayed option default. | 1 | 0 / 1 | 1 / 1 | Local fallback |
+| [Click #3009](https://github.com/pallets/click/pull/3009) | Changelog entry only. The referenced StreamMixer fix landed in a separate PR. | 0 | Control | Control | No source regions |
+| [HTTPX #2998](https://github.com/encode/httpx/pull/2998) | Drop the spurious final empty string from text streaming. | 1 | 0 / 1 | 0 / 1 | 0 / 1 |
+| [HTTPX #3116](https://github.com/encode/httpx/pull/3116) | Apply the client timeout to manually constructed requests. | 1 | 0 / 1 | 1 / 1 | Local fallback |
+| [HTTPX #3178](https://github.com/encode/httpx/pull/3178) | Accept the socks5h proxy scheme. | 1 | 0 / 1 | 1 / 1 | 1 / 1 |
+| [HTTPX #3364](https://github.com/encode/httpx/pull/3364) | Explicit request params replace the query in the URL. | 1 | 0 / 1 | 1 / 1 | Local fallback |
+| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) | Change JSON byte serialization and reject non-finite numbers. | 3 | 0 / 3 | 3 / 3 | 3 / 3 |
+| [HTTPX #3373](https://github.com/encode/httpx/pull/3373) | Change escaping for query parameters passed as key-value pairs. | 1 | 0 / 1 | 1 / 1 | Local fallback |
+| [HTTPX #3375](https://github.com/encode/httpx/pull/3375) | Removes a test case. The library source is unchanged. | 0 | Control | Control | No source regions |
+| [HTTPX #3377](https://github.com/encode/httpx/pull/3377) | Load optional runtime modules at their point of use. | 1 | 0 / 1 | 0 / 1 | Local fallback |
+| [HTTPX #3378](https://github.com/encode/httpx/pull/3378) | Narrow the Request method parameter to strings. | 1 | 0 / 1 | 1 / 1 | Local fallback |
+| [HTTPX #3387](https://github.com/encode/httpx/pull/3387) | Moves internal utility functions and their tests. Public header and response processing retain equivalent calls. | 0 | Control | Control | Control |
+
+[Per-case inputs and expected outcomes](historical.json) · [Gemini reports and assessments](results/historical-gemini/) · [Copilot assessments](results/historical-copilot-adjudications.json)
