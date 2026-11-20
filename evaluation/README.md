@@ -1,6 +1,6 @@
 # Undertow evaluation
 
-The [Goal 4 validation report](goal4-validation.md) covers the live head-to-head benchmark, the decision on Goal 5, and links to the run records. The [competitive pilot instructions](competitive-pilot.md) cover reproduction and independent assessment.
+The [benchmark results](benchmark.md) compare local analysis and Copilot CLI on the same revision pairs, with per-finding judgments and saved run records. The [competitive pilot instructions](competitive-pilot.md) cover reproduction and independent assessment.
 
 ## v0.3.0 historical baseline
 
@@ -21,11 +21,11 @@ The [run record](baselines/v0.3.0-local.json) shows 20 completed comparisons, 18
 
 The Gemini baseline is pending. No `GEMINI_API_KEY` was available for a live run. Mocked requests in CI exercise fallback and request validation. The historical sample is small, selected for clear upstream evidence, and Python-only. Its results describe these comparisons.
 
-## Goal 2 results
+## Local rules on the same corpus
 
-The [Goal 2 local run](baselines/goal2-local.json) reused the frozen manifest, labels, mode, and exact Git revisions from v0.3.0. The worker was snapshotted from the checkout and identified by `worker_sha256` in the record.
+The [local run with threshold and caller tracing](baselines/thresholds-and-callers-local.json) reused the frozen manifest, labels, mode, and exact Git revisions from v0.3.0. The worker was snapshotted from the checkout and identified by `worker_sha256` in the record.
 
-| Historical metric | v0.3.0 | Goal 2 |
+| Historical metric | v0.3.0 | Local rules with threshold and caller tracing |
 | --- | ---: | ---: |
 | Completed compared PRs | 20 | 20 |
 | PRs with reviewable source | 18 | 18 |
@@ -55,8 +55,8 @@ Each run requires a new output directory and retains the Markdown and JSON worke
 To measure an unreleased change, use `--working-tree` from its trusted checkout. This snapshots the worker once and records its SHA-256.
 
 ```sh
-python3 evaluation/run.py run --repos .undertow/eval-repos --output .undertow/goal2-local --working-tree
-python3 evaluation/run.py score evaluation/baselines/goal2-local.json
+python3 evaluation/run.py run --repos .undertow/eval-repos --output .undertow/local-rerun --working-tree
+python3 evaluation/run.py score .undertow/local-rerun/run.json
 ```
 
 For a Gemini run, set `GEMINI_API_KEY` in your environment and add `--mode gemini` with a fresh output directory. The worker uses its configured default unless you pass `--model`. Gemini receives selected excerpts, names and filenames from the evaluated repositories. Compare matching case IDs and use each record's actual mode. The scorer excludes local fallback and comparisons with no model interpretation from Gemini denominators.
@@ -73,9 +73,9 @@ For private cases, keep the manifest, bare clones, reports and reviews in an ign
 
 The [regression suite](../tests/) builds deterministic two-revision repositories with Git. Run `python3 -m unittest discover -s tests -v`. The controlled cases cover a numeric boundary, a literal return change and added/removed HTTP routes, with quiet controls for comments and formatting or private-name changes. The suite also checks Markdown escaping, model request bounds and fallback, publication against current PR revisions, and the Action's source-only execution path. These checks use synthetic data and are separate from the historical scores.
 
-Goal 2 turns three baseline expected failures into passing regressions with the same outcome assertions. The suite also covers statement reflow, equivalent integer boundaries, ignored lookalikes, constant shadowing and rebinding, and verified versus candidate calls. The controlled negative fixtures produced zero new findings or unrelated caller links. Two cases remain `expectedFailure` and CI will flag an unexpected pass.
+The local rules detect the named and multiline thresholds and resolve the imported caller in the three fixtures below. The suite also covers statement reflow, equivalent integer boundaries, ignored lookalikes, constant shadowing and rebinding, and verified versus candidate calls. The controlled negative fixtures produced zero new findings or unrelated caller links. Two cases remain `expectedFailure` and CI will flag an unexpected pass.
 
-| Case | v0.3.0 | Goal 2 |
+| Case | v0.3.0 | Local rules with threshold and caller tracing |
 | --- | --- | --- |
 | Named threshold constant | Missed | `age_days = 30` changes from true to false, with links to the declaration and predicate. |
 | Multiline threshold | Missed | Produces the same distinguishing input and links the full comparison on both revisions. |

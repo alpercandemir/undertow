@@ -10,6 +10,10 @@
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
+Undertow reads the two revisions of a pull request and posts a review question with a concrete input, an inferred outcome on each side, and links to the lines behind the claim. The built-in GitHub Action needs only Python and Git.
+
+[Supported changes](#supported-changes) · [Historical benchmark](#historical-benchmark) · [Storefront walkthrough](#one-storefront-release-ten-business-changes) · [Install the Action](#get-a-report-on-your-next-pr)
+
 ## One character takes $7 off a gift order
 
 ```diff
@@ -48,6 +52,54 @@ cat .undertow/shipping-review/summary.md
 ```
 
 Open `report.json` in the same output directory for the input, both inferred outcomes, the `source_inferred` evidence level, and the source lines behind the comparison.
+
+</details>
+
+## Supported changes
+
+Consider a return policy where the only edit changes `RETURN_WINDOW_DAYS` from `30` to `14`. The eligibility check lives several lines away. On `main`, Undertow connects the declaration to that comparison and gives the reviewer an input that changes the answer. A return on day **30** was eligible under the old rule and falls outside the new window. Both the declaration and its use appear in the evidence.
+
+| Controlled Git comparison | Result on `main` |
+| --- | --- |
+| Named threshold or a condition split across lines | Produces the day-30 example in both cases. The named-constant finding cites the declaration and predicate on each revision. |
+| Checkout and library lending each call a function named `can_return` | Resolves the checkout import to the edited returns policy and excludes the unrelated loan renewal. |
+| Comment edit, formatting change, or equivalent integer boundary | Emits zero findings for the tested edits, including `age_days <= 30` rewritten as `age_days < 31`. |
+| Route added or removed | Identifies the HTTP method and path and cites the revision containing the declaration. |
+| PR head moves or the model times out | Suppresses stale publication. On a model timeout, produces a local review and records the fallback. |
+
+Of the **39 automated tests**, 37 pass and two are recorded as expected failures. The two coverage gaps involve a threshold stored in a configuration table and one assigned inside a helper. [Controlled evaluation](evaluation/README.md#controlled-fixtures-and-known-limitations) · [Regression suite](tests/)
+
+The report on `main` records the input, before and after outcomes, compatibility risk, review question, and source links in JSON. Its `source_inferred` label describes how the finding was established. The Action reads Git objects without executing PR code. [Example PR summary](docs/examples/summary.md) · [Example JSON](docs/examples/report.json) · [Evidence contract](docs/change-review.md#report-json-and-compatibility)
+
+## Historical benchmark
+
+Undertow and GitHub Copilot CLI completed source reviews of the same pinned revisions for **20 merged Python PRs**, ten each from Click and HTTPX. Nine PRs fixed bugs, seven intentionally changed behavior, and four served as behavior-preserving controls. Upstream source and tests supplied 18 labeled outcomes. [Case manifest](evaluation/historical.json)
+
+| Recorded result on the 20 PRs | Undertow local | GitHub Copilot CLI |
+| --- | ---: | ---: |
+| Labeled outcomes found (recall) | **0 / 18** | **15 / 18 (83.3%)** |
+| Correct findings / all findings (precision) | Undefined (0 findings) | 29 / 33 (87.9%) |
+| Accurate before/after examples / examples offered | Undefined (0 examples) | 22 / 32 (68.8%) |
+| Incorrect findings on the four controls | 0 | 2 |
+| Median wall time per PR on the benchmark host | 0.240 s | 52.437 s |
+| Provider cost for the corpus | $0 (local rules) | $0.1292 estimated |
+
+All 18 outcomes fell outside the baseline rules. Examples include deferred imports, streaming text decoding, and exception handling across callers. Copilot surfaced seven further source-supported outcomes beyond the frozen labels. [Baseline and rerun](evaluation/README.md#local-rules-on-the-same-corpus) · [Full comparison and timing methodology](evaluation/benchmark.md)
+
+On HTTPX #3116, Copilot identified a real change to client timeouts, but its example used a relative URL that could never reach the slow endpoint. On a separately scored Click regression, Copilot identified the stdin iteration failure and Undertow missed it. These judgments came from source review with the tool identities visible. Independent maintainer feedback, Gemini accuracy, and impact on merge decisions remain unmeasured. [Finding-by-finding assessments](evaluation/results/historical-copilot-adjudications.json) · [Supplemental regression](evaluation/click-stdin-regression.json)
+
+<details>
+<summary>Recompute the scores from the saved runs</summary>
+
+Run these commands from the repository root with Python 3.11+. They use the checked-in records and require no provider credentials.
+
+```sh
+python3 evaluation/run.py score evaluation/results/historical-local.json
+python3 evaluation/run.py score evaluation/results/historical-copilot.json \
+  --adjudications evaluation/results/historical-copilot-adjudications.json
+```
+
+To rerun the reviewers on the original revision pairs, follow the [benchmark protocol](evaluation/competitive-pilot.md).
 
 </details>
 
@@ -152,7 +204,3 @@ Open a PR or push another commit to it. The job writes an Actions summary and sa
 **Built-in analysis** runs on the GitHub runner. It recognizes common numeric conditions, changed literal returns, and HTTP route declarations. For recognized methods it searches both source trees and follows possible callers up to three steps. A same-name match is a lead for the reviewer, especially in code that uses dynamic dispatch.
 
 **Optional Gemini analysis** interprets changes that span languages or files. When you pass `GEMINI_API_KEY` to the Action, it sends Google selected source excerpts and caller context. Gemini can request more surrounding code or look up identifiers already present in the review. Each accepted finding cites a changed region. The examples describe outcomes inferred from source. [Configuration, data sharing, and analysis limits](docs/change-review.md)
-
-## How did it do on historical PRs?
-
-On 20 merged Click and HTTPX PRs, the local rules surfaced **0 of 18** labeled behavior changes. Copilot CLI surfaced **15 of 18** in the same comparison. All 18 outcomes fell outside the local patterns declared for the benchmark. The storefront demonstrates those supported patterns in a controlled example. Independent maintainer assessment and the Gemini comparison are pending. [Evaluation results and limitations](evaluation/goal4-validation.md) · [Reproduce the benchmark](evaluation/competitive-pilot.md)
