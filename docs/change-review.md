@@ -1,59 +1,27 @@
-# Review a Java/Maven change
+# Business change review
 
-Open a PR to see which Java operations the change reaches, what the selected inputs return on each commit, and where execution leaves questions open. Undertow selects its scope from the two revisions and their tests. The comparison requires no profiles, rules or package paths.
+Undertow compares the committed source for two Git revisions. It describes supported behavior changes as before-and-after flows and supplies a hypothetical example for each finding. Source references identify the path and line range on the relevant revision.
 
-## Install in GitHub Actions
+## GitHub Actions
 
-Copy [the workflow](examples/change-review.yml) to `.github/workflows/change-review.yml` and set `java-version` to the version your project already uses. The action accepts Java 8, 11, 17, 21 and 25. It installs a separate JDK for source discovery. The project keeps its own Java version, Maven configuration and tests. If the checked revision provides an executable Maven Wrapper, Undertow uses it.
+Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the base branch. It uses the published `v0.2.0` action. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
 
-The workflow runs when a PR opens or receives a new commit. Undertow checks out the exact head and compares it with the merge base of that head and the event's target commit. Open the check's **Details** for the summary or download the **undertow-change-review** artifact for the raw results. The sample uses a version tag. For an immutable dependency pin, use the complete commit SHA listed on the [release](https://github.com/alpercandemir/undertow/releases/tag/v0.1.1-alpha.1).
+The example updates one GitHub Actions bot comment per PR. It uses `pull_request_target` with `contents: read` and `pull-requests: write` so the trusted workflow can also report on fork PRs. The action never checks out or executes the candidate. Keep this job separate from jobs that build or run PR code. If your repository's Actions policy restricts `pull_request_target`, allow this trusted reporting workflow there or use `pull_request` with `contents: read` and remove the `comment` input for a summary-only setup. [GitHub's event security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
 
-| Input | Default | Purpose |
-|---|---|---|
-| `java-version` | `21` | Project JDK used to build and run tests |
-| `java-distribution` | `temurin` | Project JDK distribution understood by setup-java |
-| `base`, `head` | PR event | Supply both full commit SHAs for a manual run, such as on `workflow_dispatch` |
-| `fail-on-breakage` | `true` | Mark a reproduced breakage as a failed check. Set to `false` for an advisory rollout. |
-| `artifact-name` | `undertow-change-review` | Choose distinct names if multiple jobs call the action |
+The action checks that the PR is still open and that its base and head match the event before publishing. A write failure appears in the summary. Findings, missing model access, and unavailable analyses are advisory. On a push event, the action uses the event's before and after commits if both exist. For workflows dispatched manually, pass both `base` and `head` as full commit SHAs.
 
-Run on an ephemeral GitHub-hosted Linux runner with `contents: read` and credential persistence disabled. Use the `pull_request` event and keep publishing credentials and other secrets out of the job. Java and Maven execute each revision's build and test code under the runner user's privileges. See [execution boundaries](../SECURITY.md).
+## How it reads changes
 
-## Run locally or from another CI
+The engine identifies changed text on both revisions and ignores conventional test and fixture paths, documentation, common generated paths, and sensitive file paths. It takes bounded regions from the remaining differences, including surrounding lines. Source file names and content come from Git objects. Neither the model nor the local engine runs project code.
 
-Download the portable ZIP and SHA-256 file from the [release](https://github.com/alpercandemir/undertow/releases/tag/v0.1.1-alpha.1). Verify the checksum before extracting.
+The local rules recognize common numeric conditions, changed literal returns, and HTTP route declarations in common languages. They compute an example at a changed threshold and describe only the supported local effect. Changes outside these patterns may produce an empty report. The report shows the reviewed scope and any omissions caused by its limits.
 
-```sh
-shasum -a 256 -c undertow-change-review-0.1.1-alpha.1.zip.sha256
-unzip undertow-change-review-0.1.1-alpha.1.zip
-cd undertow-change-review-0.1.1-alpha.1
-scripts/undertow compare --repo /path/to/project --base BASE_SHA --head HEAD_SHA \
-  --analysis-java-home /path/to/jdk-25 --build-java-home /path/to/project-jdk \
-  --output /path/to/new-evidence-directory
+For broader business-flow analysis, add a repository Actions secret named `GEMINI_API_KEY` and pass it through the Undertow step's environment. This explicitly opts into sending changed source, filenames, and selected supporting excerpts to the Gemini Developer API. Obvious credential patterns are filtered. Check Google's data terms for your API tier before sharing private source. The default model is `gemini-3.8-flash`. Set `UNDERTOW_GEMINI_MODEL` on the step to use a different Gemini model. [Gemini model documentation](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash) · [Gemini API terms](https://ai.google.dev/gemini-api/terms)
+
+```yaml
+- uses: alpercandemir/undertow/actions/change-review@v0.2.0
+  env:
+    GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```
 
-On Linux and macOS, the local package needs Python 3.10+, Git, Maven 3.9+ or the project's compatible wrapper, and a full JDK 17+ for parsing. Use a parser JDK recent enough to understand your source syntax. When one installed JDK supports both tasks, omit the two JDK options and use `JAVA_HOME`. The runner records the JDKs and resolves both Git references before reading their tracked blobs. Each Maven invocation uses a fresh copy of one revision.
-
-## Read the evidence
-
-| Result | What was established |
-|---|---|
-| Reproduced breakage | A repository assertion held on the base and failed on the candidate in three fresh paired runs. Undertow uses the existing test when it already reproduces the failure. When a portable scenario supplies the evidence, Undertow validates and exports its JUnit test. |
-| Observed behavioral difference | Both revisions ran the same generated input and produced different scalar results or exception classes. A candidate-only assertion or an input variation can establish a difference. The previous outcome is available as a characterization to review. |
-| Potential impact | Java syntax links the change to one or more operations. Paired execution covered only part of the impact or could not produce a comparable observation. |
-| Incomplete comparison | A required checkout, discovery, build or generated run could not supply comparable execution evidence. See the investigation gaps and artifacts. |
-| No difference observed | The selected scenarios agreed within the reported scope. |
-| No executable change found | The inspected paths and Java scope yielded no changed operation to execute. |
-
-The CLI exits 1 for reproduced breakage, 2 for incomplete comparison and 0 for other review outcomes. The action shows an incomplete comparison as a warning and retains its evidence. The summary identifies gaps even when another scenario produced evidence. Review the result before using this experimental job as a required PR check.
-
-Open `summary.md` first. `report.json` stores the resolved hashes, tool fingerprint, selected calls and tests, individual outcomes, limits and replay attempts. Logs, the exact diff and Java discovery records are retained alongside it. The `regressions/` directory mirrors the destination path for each validated standalone JUnit test. Keep a proposed test through the consumer's normal review if its expectation is worth preserving.
-
-## Supported scope
-
-- Single-module projects with a root `pom.xml`, standard Maven Java source roots and standard Surefire reports. Both revisions need compatible builds and dependencies. Symlinks and submodules require an environment outside this increment.
-- Java syntax comes from the JDK parser with annotation processing disabled. The scanner follows syntactically identifiable named calls for up to three hops. Imports, field and parameter types help resolve owners. Method overloads, callback dispatch and data or configuration relationships can require follow-up.
-- Compatible public calls in direct JUnit 4 or 5 assertions seed generated probes. Probes support literal inputs and scalar values or exception classes. Small string variations add repeat and rejection cases. Existing repository tests can still run when their fixtures are too involved to turn into a generated scenario.
-- For production Java source changes, an unchanged, selected JUnit method can establish a breakage. Undertow replays the same method and matches an assertion failure to the same source line across all fresh candidate runs.
-- The report records its budgets. Up to 1,500 Java files per revision, eight existing test methods, 32 generated inputs and three exported findings are considered. Each Maven invocation has a two-minute limit. This deterministic strategy uses the JDK parser and makes no model calls.
-
-See [evaluation](change-review-evaluation.md) for immutable comparisons and their observed limits.
+The model groups related changes across files. It can request nearby source and a lookup of up to four identifiers already present in the review. Undertow searches both Git revisions and supplies bounded excerpts from up to four related files, including unchanged callers or definitions when they match. The model receives only selected excerpts. Every finding cites a changed region and can also cite the supporting source. It falls back to local rules if the model is unavailable or returns unusable output. Source references locate the basis for a finding. The lookup can miss dynamic calls, indirect dependencies and matches beyond its budget. The report keeps conclusions tied to the source it reviewed.

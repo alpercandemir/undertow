@@ -31,75 +31,12 @@ jobs:
           set -eu
           "$RUNNER_TEMP/gitleaks" dir "$RUNNER_TEMP/public-source" --redact --no-banner
           "$RUNNER_TEMP/gitleaks" git . --log-opts=--all --redact --no-banner
-  verify:
+  action-source:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
-        with:
-          distribution: temurin
-          java-version: '25'
-      - name: Verify active CLI, contract evidence and agent boundaries
-        run: mvn --batch-mode --no-transfer-progress clean verify
-      - name: Prepare owned fixture dependencies
-        run: |
-          mvn --batch-mode --no-transfer-progress -f demo/refund-extraction/pom.xml test
-          mvn --batch-mode --no-transfer-progress -f demo/ticket-transfer/pom.xml test
-      - name: Verify behavior search and workflow helpers
-        run: python3 -m unittest discover -s scripts/tests -v
-      - name: Verify archive integrity and packaged product scope
-        run: python3 scripts/check-product-scope.py --jar target/undertow.jar
-      - name: Exercise packaged search, replay and regression adoption
-        run: python3 scripts/explore-smoke.py --jar target/undertow.jar --harness-java-home "$JAVA_HOME" --java-home "$JAVA_HOME" --output .undertow/explore-jar-ci
-      - name: Retain contract test evidence
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: single-module-evidence
-          path: |
-            target/surefire-reports/TEST-*.xml
-            target/spotbugsXml.xml
-          retention-days: 14
-      - name: Retain the verified CLI
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: undertow-cli
-          path: target/undertow.jar
-          if-no-files-found: error
-          retention-days: 14
-  compare-compatibility:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        java: ['8', '11', '17', '21', '25']
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          persist-credentials: false
-      - id: analysis
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '25'
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: ${{ matrix.java }}
-      - name: Verify a legacy Maven project with the selected JDK
-        env:
-          UNDERTOW_TEST_ANALYSIS_JDK: ${{ steps.analysis.outputs.path }}
-          UNDERTOW_TEST_BUILD_MAJOR: ${{ matrix.java }}
-        run: python3 -m unittest discover -s scripts/tests -p test_change_review.py -k test_legacy_project -v
-      - name: Verify the portable release
-        if: matrix.java == '25'
-        run: |
-          python3 scripts/package-change-review.py --output "$RUNNER_TEMP/undertow-package"
-          cd "$RUNNER_TEMP/undertow-package"
-          sha256sum --check ./*.sha256
-          unzip -q ./*.zip
-          ./undertow-change-review-*/scripts/undertow compare --version
+      - name: Check the action's Python sources
+        run: python3 -m py_compile actions/change-review/*.py

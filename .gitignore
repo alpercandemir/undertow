@@ -1,12 +1,6 @@
 target/
 .cache/
 .undertow/
-!/.undertow/
-/.undertow/*
-!/.undertow/contracts.yaml
-!demo/ticket-transfer/.undertow/
-demo/ticket-transfer/.undertow/*
-!demo/ticket-transfer/.undertow/contracts.yaml
 .DS_Store
 .env
 .env.*

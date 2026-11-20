@@ -1,21 +1,23 @@
-name: Undertow change review
+name: Undertow business change review
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: undertow-change-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  compare:
+  report:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 6
     steps:
-      - uses: alpercandemir/undertow/actions/change-review@v0.1.1-alpha.1
+      - uses: alpercandemir/undertow/actions/change-review@v0.2.0
+        continue-on-error: true
         with:
-          java-version: '21'
+          comment: 'true'
