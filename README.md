@@ -51,9 +51,7 @@ Open `report.json` in the same output directory for the input, both inferred out
 
 ## Try a product review
 
-Pick a scenario below, then open the PR comment and expand its matching finding. Use the outcome to check a policy, rollout, or support decision. The showcase has **two PRs with published reports** and **10 distinct scenarios**. One PR isolates the shipping change and the other puts it in a full storefront release.
-
-[One-rule shipping PR report](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019) · [Ten-scenario storefront PR report](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058)
+Two showcase PRs cover **10 distinct scenarios**. The shipping example above isolates one rule. The storefront release below shows what happens when several rules change together. Pick a customer scenario, then expand its finding in the PR comment. [Open the storefront report](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058)
 
 | Scenario | Before → after | What to decide |
 | --- | --- | --- |
@@ -69,15 +67,11 @@ Pick a scenario below, then open the PR comment and expand its matching finding.
 </p>
 
 <details>
-<summary>See all 10 scenarios and their review questions</summary>
+<summary>Explore six more scenarios from the same release</summary>
 
 | What to try | Before → after | Product question |
 | --- | --- | --- |
-| Request a refund 30 days after delivery | Eligible → return window expired | Which return window applies to orders already placed? |
 | Choose a 12-month payment plan | Eligible → ineligible | When should checkout stop offering 12 months? |
-| Submit an eligible refund without a receipt | Rejected → manual review | Who owns the queue for these requests? |
-| Ask for a gift quote on a $50 cart | No gift-quote route declared → new route declared and the handler calculates a $50 total | Which clients should get access at launch? |
-| Request quotes in bulk | Bulk quote route declared → declaration removed | Which integrations still need a migration path? |
 | Quote a $50 cart | $7 shipping → free shipping | Should an order for exactly $50 qualify? |
 | Ask for an express dispatch estimate | 2 days → 1 day | Can fulfillment meet the new estimate? |
 | Earn points on a $50 order | 50 → 150 points | When should the new earn rate take effect? |
@@ -90,9 +84,7 @@ The report infers outcomes from Git revisions. Shipping and rewards amounts foll
 
 ## Get a report on your next PR
 
-The workflow below uses the tagged release `v0.3.0`. The local walkthrough above uses the structured report format on `main`.
-
-Copy the [ready-to-use workflow](docs/examples/change-review.yml) into `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, token permissions, and this Action step.
+Add the example workflow at `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, permissions, and this step pinned to the published release. [Copy the workflow](docs/examples/change-review.yml)
 
 ```yaml
 - uses: alpercandemir/undertow/actions/change-review@v0.3.0
@@ -100,27 +92,18 @@ Copy the [ready-to-use workflow](docs/examples/change-review.yml) into `.github/
     comment: 'true'
 ```
 
-Open a PR or push another commit to it. The job writes an Actions summary and saves `summary.md` and `report.json`. With comments enabled, `github-actions[bot]` updates one comment using the workflow token. The PR description can be empty. Findings are advisory. [Open the showcase CI run](https://github.com/alpercandemir/undertow-showcase/actions/runs/44724616897)
+Open or update a PR. The workflow writes an Actions summary, saves Markdown and JSON reports, and updates one bot comment. The structured report examples show the format on `main`. [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
 
 ## Supported changes
 
-Consider a return policy where the only edit changes `RETURN_WINDOW_DAYS` from `30` to `14`. The eligibility check lives several lines away. On `main`, Undertow connects the declaration to that comparison and gives the reviewer an input that changes the answer. A return on day **30** was eligible under the old rule and falls outside the new window. Both the declaration and its use appear in the evidence.
-
-| Controlled Git comparison | Result on `main` |
+| Source change | What Undertow can show |
 | --- | --- |
-| Named threshold or a condition split across lines | Produces the day-30 example in both cases. The named-constant finding cites the declaration and predicate on each revision. |
-| Checkout and library lending each call a function named `can_return` | Resolves the checkout import to the edited returns policy and excludes the unrelated loan renewal. |
-| Comment edit, formatting change, or equivalent integer boundary | Emits zero findings for the tested edits, including `age_days <= 30` rewritten as `age_days < 31`. |
-| Route added or removed | Identifies the HTTP method and path and cites the revision containing the declaration. |
-| PR head moves or the model times out | Suppresses stale publication. On a model timeout, produces a local review and records the fallback. |
+| An eligibility threshold moves from 30 to 14 days, including a supported named constant or multiline condition | The day-30 return changes from eligible to ineligible. The finding links to the source on both revisions. |
+| An eligible refund without a receipt changes status | The finding shows the old and new return values. |
+| An HTTP route is added or removed | The finding identifies the method and path. |
+| Other code calls the edited rule | The trace follows callers for up to three steps and labels resolved calls and possible name matches. |
 
-Of the **39 automated tests**, 37 pass and two are recorded as expected failures. The two coverage gaps involve a threshold stored in a configuration table and one assigned inside a helper. [Controlled evaluation](evaluation/README.md#controlled-fixtures-and-known-limitations) · [Regression suite](tests/)
-
-The report on `main` records the input, before and after outcomes, compatibility risk, review question, and source links in JSON. Its `source_inferred` label describes how the finding was established. The Action reads Git objects without executing PR code. [Example PR summary](docs/examples/summary.md) · [Example JSON](docs/examples/report.json) · [Evidence contract](docs/change-review.md#report-json-and-compatibility)
-
-**Built-in analysis** runs on the GitHub runner. It recognizes common numeric conditions, changed literal returns, and HTTP route declarations. For recognized methods it searches both source trees and follows possible callers up to three steps. A same-name match is a lead for the reviewer, especially in code that uses dynamic dispatch.
-
-**Optional Gemini analysis** interprets changes that span languages or files. When you pass `GEMINI_API_KEY` to the Action, it sends Google selected source excerpts and caller context. Gemini can request more surrounding code or look up identifiers already present in the review. Each accepted finding cites a changed region. The examples describe outcomes inferred from source. [Configuration, data sharing, and analysis limits](docs/change-review.md)
+The Action reads Git source. Optional Gemini analysis sends selected source excerpts to Google to interpret related edits. Both modes produce source-based findings. See the guide for supported patterns, evidence labels, and coverage limits. [Analysis and configuration](docs/change-review.md) · [Controlled test cases](evaluation/README.md#controlled-fixtures-and-known-limitations)
 
 ## Historical benchmark
 
