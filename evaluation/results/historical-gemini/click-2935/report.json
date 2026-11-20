@@ -1,0 +1,85 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "884af5c20fdc95c9c7352df35c37273391464fb9",
+  "head": "b7cf06970e40a3144eb963ff34ed7c38934afb40",
+  "coverage": {
+    "changed_files": 3,
+    "ignored_files": 2,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 2,
+    "reviewed_files": 1,
+    "related_regions": 0
+  },
+  "findings": [
+    {
+      "priority_reason": "The change alters the order of operations in context resolution during shell completion, potentially leading to incorrect argument parsing if protected arguments are expected to be included before the sub-context is fully established.",
+      "title": "Modified argument resolution order during shell completion",
+      "flow": "Shell completion context resolution",
+      "before": "The arguments were updated (using _protected_args + args) prior to assigning the sub-context to the active context.",
+      "after": "The sub-context is assigned first, and then the arguments are updated using the context's current arguments.",
+      "scenario": "A command with nested subcommands invokes shell completion.",
+      "example_before": "Arguments are combined with _protected_args while still in the parent context scope.",
+      "example_after": "Arguments are combined based on the newly initialized sub-context's state.",
+      "potential_impact": "This may affect how nested commands resolve arguments for tab completion, possibly causing failures in correctly identifying completion options for commands with specific protected argument configurations.",
+      "review_question": "Does updating arguments after context transition impact the availability of parent command flags during completion of nested subcommands?",
+      "priority": "P2",
+      "evidence": [
+        "D1",
+        "D2"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "A command with nested subcommands invokes shell completion.",
+        "precondition": null,
+        "base_outcome": "Arguments are combined with _protected_args while still in the parent context scope.",
+        "head_outcome": "Arguments are combined based on the newly initialized sub-context's state."
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "src/click/shell_completion.py",
+        "start": 570,
+        "end": 570
+      },
+      "head": {
+        "path": "src/click/shell_completion.py",
+        "start": 571,
+        "end": 571
+      }
+    },
+    "D2": {
+      "base": {
+        "path": "src/click/shell_completion.py",
+        "start": 589,
+        "end": 589
+      },
+      "head": {
+        "path": "src/click/shell_completion.py",
+        "start": 590,
+        "end": 590
+      }
+    }
+  },
+  "related_references": [],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (2)."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

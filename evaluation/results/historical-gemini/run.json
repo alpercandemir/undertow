@@ -1,0 +1,256 @@
+{
+  "cases": {
+    "click-2365": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 3.573,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-2604": {
+      "example_ids": [
+        "40cf6a8d499bda2a642b87f931fa7231d36c76114597cd409ed53976b0aac727"
+      ],
+      "finding_ids": [
+        "40cf6a8d499bda2a642b87f931fa7231d36c76114597cd409ed53976b0aac727"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 2,
+      "seconds": 24.877,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "click-2680": {
+      "example_ids": [
+        "c5993cdb8e911452f4b86b2f335918c2683671eac0ec700e1156f36a27bedddb"
+      ],
+      "finding_ids": [
+        "c5993cdb8e911452f4b86b2f335918c2683671eac0ec700e1156f36a27bedddb"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 1,
+      "seconds": 5.828,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "click-2846": {
+      "example_ids": [
+        "66bc317940536077f12b37eb563b975ef0f6057af87b1eef5b1f88e0f10782fa"
+      ],
+      "finding_ids": [
+        "66bc317940536077f12b37eb563b975ef0f6057af87b1eef5b1f88e0f10782fa"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 2,
+      "seconds": 5.878,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "click-2930": {
+      "example_ids": [
+        "27d7ecdeddf860291c80c5ba47e17fd4005b4663c6a786204a8d711467884cb9"
+      ],
+      "finding_ids": [
+        "27d7ecdeddf860291c80c5ba47e17fd4005b4663c6a786204a8d711467884cb9"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 1,
+      "seconds": 4.725,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "click-2935": {
+      "example_ids": [
+        "a4335a36a452d492e0d210e17728b4a7c6ba4be73050b65d50f48b17baea8520"
+      ],
+      "finding_ids": [
+        "a4335a36a452d492e0d210e17728b4a7c6ba4be73050b65d50f48b17baea8520"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 2,
+      "seconds": 3.774,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "click-2972": {
+      "example_ids": [
+        "2886630ce92d013f62f7cdb1ae56ca94df151b6941fcebb1d26c667629121e88"
+      ],
+      "finding_ids": [
+        "2886630ce92d013f62f7cdb1ae56ca94df151b6941fcebb1d26c667629121e88"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 1,
+      "seconds": 3.422,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "click-2990": {
+      "example_ids": [
+        "7bcc41669611e2d37c7a470e766faa950df9a4ac493aaa97dd9cb4bc46cb0200"
+      ],
+      "finding_ids": [
+        "7bcc41669611e2d37c7a470e766faa950df9a4ac493aaa97dd9cb4bc46cb0200"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 2,
+      "seconds": 2.77,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "click-3004": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 9.739,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "click-3009": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 0,
+      "seconds": 0.114,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-2998": {
+      "example_ids": [
+        "45c385a61ce908a508e094e97ff3540da6824b20a6acee91ce50faf0d5e5ed25"
+      ],
+      "finding_ids": [
+        "45c385a61ce908a508e094e97ff3540da6824b20a6acee91ce50faf0d5e5ed25",
+        "b1b93ff951adacd212cda2dd9ca2e96c2a6a4d324a0ba8eae2e0f348e03ef154"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 4,
+      "seconds": 3.524,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "httpx-3116": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 3,
+      "seconds": 8.89,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3178": {
+      "example_ids": [
+        "a03297857d9d4ba66a542df7cf763b194a7e76943f1e404877d84ce7cbb036ef"
+      ],
+      "finding_ids": [
+        "a03297857d9d4ba66a542df7cf763b194a7e76943f1e404877d84ce7cbb036ef"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 5,
+      "seconds": 3.073,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "httpx-3364": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 35.165,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3367": {
+      "example_ids": [
+        "b2e114b1bd5e89479a2931aa8b22b7676424f6a9a6d40d9a3d8635e1e5a5616f"
+      ],
+      "finding_ids": [
+        "b2e114b1bd5e89479a2931aa8b22b7676424f6a9a6d40d9a3d8635e1e5a5616f"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 1,
+      "seconds": 27.19,
+      "status": "findings",
+      "version": "0.3.0"
+    },
+    "httpx-3373": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 6,
+      "seconds": 11.798,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3375": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 0,
+      "seconds": 0.114,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3377": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 12,
+      "seconds": 6.732,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3378": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 35.353,
+      "status": "no_findings",
+      "version": "0.3.0"
+    },
+    "httpx-3387": {
+      "example_ids": [],
+      "finding_ids": [
+        "7213ab6f26d541b068cc88b14c942021f139a313461592d488f2fad487da5eec"
+      ],
+      "mode": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "reviewed_regions": 10,
+      "seconds": 3.121,
+      "status": "findings",
+      "version": "0.3.0"
+    }
+  },
+  "git": "git version 2.56.1",
+  "manifest_sha256": "02bfdb79cb3daf9f63d7fac39013c5d894af9680c4adacfc9464f61924b412f2",
+  "platform": "linux",
+  "python": "3.12.3",
+  "requested_mode": "gemini",
+  "requested_model": "gemini-3.1-flash-lite",
+  "schema": 1,
+  "undertow_commit": "5d508b349e7985a67ff110654f6af25b0d90d2b9",
+  "worker_sha256": "724f222e77ddacc42c7823fdb4c36fd7022ca7dd77bb9fbc148a63bd9f0b6b45"
+}

@@ -23,13 +23,16 @@ python3 evaluation/run.py run --repos .undertow/eval-repos \
 
 Use `--revision FULL_SHA` instead of `--working-tree` when the candidate worker is committed. Compare `worker_sha256` with the saved record to identify the exact worker. Use `--manifest evaluation/click-stdin-regression.json` before `run` to score the one-case supplement separately.
 
-For the pending Gemini evaluation, export `GEMINI_API_KEY` via your normal secret mechanism. Choose a provider-supported model and use the same explicit model for both Undertow revisions when the model is compatible with both workers. After running the first command on the frozen release, repeat with `--working-tree` and a new output directory for the current worker. Run the supplement with the same model and settings. Confirm requested versus actual mode. A local fallback or a case with no model invocation is outside the Gemini metric denominators. A failed or skipped call still contributes to cost if billed.
+The recorded Gemini run used `gemini-3.1-flash-lite` through the Gemini Developer API from a GitHub Actions runner. To repeat it, supply `GEMINI_API_KEY` through your secret mechanism and select the exact worker commit and model shown below. A local fallback or a comparison with no reviewed source regions is excluded from the Gemini quality metrics.
 
 ```sh
 python3 evaluation/run.py run --repos .undertow/eval-repos \
-  --output .undertow/pilot-release-gemini --mode gemini --model "$PILOT_GEMINI_MODEL"
-python3 evaluation/run.py run --repos .undertow/eval-repos \
-  --output .undertow/pilot-current-gemini --mode gemini --model "$PILOT_GEMINI_MODEL" --working-tree
+  --output .undertow/historical-gemini --mode gemini --model gemini-3.1-flash-lite \
+  --revision 5d508b349e7985a67ff110654f6af25b0d90d2b9
+python3 evaluation/run.py --manifest evaluation/click-stdin-regression.json \
+  run --repos .undertow/eval-repos --output .undertow/click-stdin-gemini \
+  --mode gemini --model gemini-3.1-flash-lite \
+  --revision 5d508b349e7985a67ff110654f6af25b0d90d2b9
 ```
 
 For Gemini cost, reconcile all requests and retries from a dedicated project billing export or record provider `usageMetadata` separately. Apply the dated rates for the actual model and tier to billable input, cached input and output, including thinking tokens where billed. The existing worker reports do not capture token usage. [Gemini Developer API pricing](https://ai.google.dev/gemini-api/docs/pricing)
@@ -56,7 +59,7 @@ python3 evaluation/pilot.py blind --output .undertow/pilot-blind \
   --run .undertow/pilot-current-local/run.json --run .undertow/pilot-copilot/run.json
 ```
 
-Add a Gemini `--run` when available. Generate a separate packet with `--manifest evaluation/click-stdin-regression.json` and the two supplement runs. The packet assigns random case/finding IDs, uses a common format, and removes explicit product names. Inspect the packet for identity clues and keep `coordinator-key.json` and all scored records private until the assessments are in. Wording or a recognizable public change can still reveal provenance. Give maintainers only `reviewer.json` and the [assessment template](maintainer-assessment.md), following its two-pass protocol.
+Add `--run evaluation/results/historical-gemini/run.json` to include the published Gemini findings. Generate a separate packet with `--manifest evaluation/click-stdin-regression.json` and the two supplement runs. The packet assigns random case/finding IDs, uses a common format, and removes explicit product names. Inspect the packet for identity clues and keep `coordinator-key.json` and all scored records private until the assessments are in. Wording or a recognizable public change can still reveal provenance. Give maintainers only `reviewer.json` and the [assessment template](maintainer-assessment.md), following its two-pass protocol.
 
 After unblinding, map each assessment to the case and finding fingerprints in the original run with the coordinator key. A separate adjudication file for each run maps case IDs to finding fingerprints and adjudications, as in the [recorded examples](results/historical-copilot-adjudications.json). A `correct` verdict requires `changes` (zero or more frozen outcome IDs) and `concrete` (whether the same input and both results are accurate). If a verified material outcome falls outside the labels, leave `changes` empty for that outcome and add a shared ID to `additional_outcomes`. Use the same ID across tools for the same newly identified outcome. Keep original labels fixed. Record final `incorrect` or `unverified` verdicts with the reason. Use `--observed-actions` with a JSON object mapping case IDs to outcome IDs and evidence strings for actual decisions attributable to a finding. The outcome ID is either a frozen label ID or `other/` plus its additional outcome ID. Record predicted decisions and upstream historical fixes separately from actual follow-through attributable to the pilot.
 
@@ -78,5 +81,16 @@ python3 evaluation/run.py score evaluation/results/historical-copilot.json \
   --adjudications evaluation/results/historical-copilot-adjudications.json
 python3 evaluation/pilot.py compare evaluation/results/historical-local.json \
   evaluation/results/historical-copilot.json \
+  --right-adjudications evaluation/results/historical-copilot-adjudications.json
+```
+
+Score the saved Gemini run and compare only the PRs both model-backed reviewers completed.
+
+```sh
+python3 evaluation/run.py score evaluation/results/historical-gemini/run.json \
+  --adjudications evaluation/results/historical-gemini/adjudications.json
+python3 evaluation/pilot.py compare evaluation/results/historical-gemini/run.json \
+  evaluation/results/historical-copilot.json \
+  --left-adjudications evaluation/results/historical-gemini/adjudications.json \
   --right-adjudications evaluation/results/historical-copilot-adjudications.json
 ```

@@ -1,0 +1,135 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9",
+  "head": "7b72bfb8cd3a0cec38197f6786ed583b5b3737e7",
+  "coverage": {
+    "changed_files": 2,
+    "ignored_files": 1,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 2,
+    "reviewed_files": 1,
+    "related_regions": 2
+  },
+  "findings": [
+    {
+      "priority_reason": "Changes the type hint and structure of internal attribute param_hint to support sequences of strings in addition to a single string, which may affect downstream consumers relying on strict type checking for error reporting.",
+      "title": "Expanded type support for parameter error hints",
+      "flow": "Exception handling and message formatting for CLI parameter errors",
+      "before": "The param_hint attribute in ParameterError and its subclasses was strictly typed as str | None.",
+      "after": "The param_hint attribute now accepts cabc.Sequence[str] | str | None, allowing lists or tuples of parameter names to be provided as error hints.",
+      "scenario": "A custom exception handler or formatter attempts to process the parameter hint field programmatically.",
+      "example_before": "param_hint = 'target'",
+      "example_after": "param_hint = ['--input', '-i']",
+      "potential_impact": "Downstream code that assumes param_hint is always a string or None may raise an AttributeError or TypeError when encountering a sequence, potentially causing runtime crashes during error reporting.",
+      "review_question": "Does the downstream logic that utilizes self.param_hint handle sequence types, or does it implicitly assume a string-like interface?",
+      "priority": "P3",
+      "evidence": [
+        "D1",
+        "D2"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "additive",
+      "example": {
+        "input": "A custom exception handler or formatter attempts to process the parameter hint field programmatically.",
+        "precondition": null,
+        "base_outcome": "param_hint = 'target'",
+        "head_outcome": "param_hint = ['--input', '-i']"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "src/click/exceptions.py",
+        "start": 118,
+        "end": 118
+      },
+      "head": {
+        "path": "src/click/exceptions.py",
+        "start": 118,
+        "end": 118
+      }
+    },
+    "D2": {
+      "base": {
+        "path": "src/click/exceptions.py",
+        "start": 154,
+        "end": 162
+      },
+      "head": {
+        "path": "src/click/exceptions.py",
+        "start": 154,
+        "end": 162
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "src/click/exceptions.py",
+        "start": 116,
+        "end": 124
+      },
+      "head": {
+        "path": "src/click/exceptions.py",
+        "start": 116,
+        "end": 124
+      }
+    },
+    "R2": {
+      "base": {
+        "path": "src/click/exceptions.py",
+        "start": 46,
+        "end": 54
+      },
+      "head": {
+        "path": "src/click/exceptions.py",
+        "start": 46,
+        "end": 54
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "__init__",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "candidate",
+      "target_path": "src/click/exceptions.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "format_message",
+      "caller": "show",
+      "hop": 1,
+      "evidence": "R2",
+      "relationship": "candidate",
+      "target_path": "src/click/exceptions.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (1).",
+    "Repository reference tracing reached a search limit."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

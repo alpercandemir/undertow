@@ -1,6 +1,6 @@
 # Undertow evaluation
 
-The [benchmark results](benchmark.md) compare local analysis and Copilot CLI on the same revision pairs, with per-finding judgments and saved run records. The [competitive pilot instructions](competitive-pilot.md) cover reproduction and independent assessment.
+The [benchmark results](benchmark.md) compare Undertow local, Undertow with Gemini, and Copilot CLI on the same revision pairs, with per-finding judgments and saved run records. The [competitive pilot instructions](competitive-pilot.md) cover reproduction and independent assessment.
 
 ## v0.3.0 historical baseline
 
@@ -19,7 +19,7 @@ The [run record](baselines/v0.3.0-local.json) shows 20 completed comparisons, 18
 | Median worker time | 0.69 s per PR on the recorded local host, including Git reads and report writes |
 | Model cost | No model calls in the local run |
 
-The Gemini baseline is pending. No `GEMINI_API_KEY` was available for a live run. Mocked requests in CI exercise fallback and request validation. The historical sample is small, selected for clear upstream evidence, and Python-only. Its results describe these comparisons.
+The v0.3.0 baseline used only local rules. The head-to-head report covers the later Gemini run. Mocked requests in CI exercise fallback and request validation. The historical sample is small, selected for clear upstream evidence, and Python-only. Its results describe these comparisons.
 
 ## Local rules on the same corpus
 
@@ -34,7 +34,7 @@ The [local run with threshold and caller tracing](baselines/thresholds-and-calle
 | New false positives | — | 0, including all 4 runtime controls |
 | Median worker time on the recorded host | 0.69 s | 0.18 s |
 
-The historical sample yielded zero additional true positives. Precision and recall against the frozen supported-pattern labels remain undefined. The run used local rules with zero model calls. Live Gemini comparison remains pending because no key was available. The controlled fixtures below show the gains in specific patterns.
+The historical sample yielded zero additional true positives. Precision and recall against the frozen supported-pattern labels remain undefined. The run used local rules with zero model calls. The controlled fixtures below show the gains in specific patterns.
 
 ## Reproduce a run
 

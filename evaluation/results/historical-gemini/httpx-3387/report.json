@@ -1,0 +1,244 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "6212e8fa3bf90154b891c7721f6d29737caac861",
+  "head": "41597adffa9d34171a63f7511fc0f702558dd08c",
+  "coverage": {
+    "changed_files": 5,
+    "ignored_files": 2,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 10,
+    "reviewed_files": 3,
+    "related_regions": 8
+  },
+  "findings": [
+    {
+      "priority_reason": "Refactoring of internal utility functions to be module-private within _models.py changes the internal organization but maintains identical functional signatures and behavior, posing no impact on external API consumers.",
+      "title": "Internal utility functions moved to _models.py",
+      "flow": "Utility function usage in _models.py",
+      "before": "Functions like is_known_encoding, obfuscate_sensitive_headers, parse_content_type_charset, and parse_header_links were imported from _utils.py.",
+      "after": "These functions are now defined and used as private helpers (prefixed with _) within _models.py.",
+      "scenario": "precondition_only",
+      "example_before": "import from httpx._utils",
+      "example_after": "use private _models._helper",
+      "potential_impact": "Downstream code relying on these specific utilities from _utils.py will be broken if the previous definitions in _utils.py were removed.",
+      "review_question": "Verify if other modules rely on these utilities in _utils.py; if so, they must be updated to avoid import errors.",
+      "priority": "P2",
+      "evidence": [
+        "D4",
+        "D5",
+        "D6"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": null,
+        "precondition": "precondition_only",
+        "base_outcome": "import from httpx._utils",
+        "head_outcome": "use private _models._helper"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D4": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 47,
+        "end": 52
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 49,
+        "end": 65
+      }
+    },
+    "D5": {
+      "base": {
+        "path": "httpx/_utils.py",
+        "start": 32,
+        "end": 99
+      },
+      "head": {
+        "path": "httpx/_utils.py",
+        "start": 25,
+        "end": 34
+      }
+    },
+    "D6": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 70,
+        "end": 79
+      },
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 85,
+        "end": 138
+      }
+    },
+    "R1": {
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 662,
+        "end": 670
+      }
+    },
+    "R2": {
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 369,
+        "end": 377
+      }
+    },
+    "R3": {
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 693,
+        "end": 701
+      }
+    },
+    "R4": {
+      "head": {
+        "path": "httpx/_models.py",
+        "start": 848,
+        "end": 856
+      }
+    },
+    "R5": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 598,
+        "end": 606
+      }
+    },
+    "R6": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 305,
+        "end": 313
+      }
+    },
+    "R7": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 629,
+        "end": 637
+      }
+    },
+    "R8": {
+      "base": {
+        "path": "httpx/_models.py",
+        "start": 784,
+        "end": 792
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "_is_known_encoding",
+      "caller": "encoding",
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "verified",
+      "target_path": "httpx/_models.py",
+      "relationship_by_revision": {
+        "head": "verified"
+      }
+    },
+    {
+      "symbol": "_obfuscate_sensitive_headers",
+      "caller": "__repr__",
+      "hop": 1,
+      "evidence": "R2",
+      "relationship": "verified",
+      "target_path": "httpx/_models.py",
+      "relationship_by_revision": {
+        "head": "verified"
+      }
+    },
+    {
+      "symbol": "_parse_content_type_charset",
+      "caller": "charset_encoding",
+      "hop": 1,
+      "evidence": "R3",
+      "relationship": "verified",
+      "target_path": "httpx/_models.py",
+      "relationship_by_revision": {
+        "head": "verified"
+      }
+    },
+    {
+      "symbol": "_parse_header_links",
+      "caller": "links",
+      "hop": 1,
+      "evidence": "R4",
+      "relationship": "verified",
+      "target_path": "httpx/_models.py",
+      "relationship_by_revision": {
+        "head": "verified"
+      }
+    },
+    {
+      "symbol": "is_known_encoding",
+      "caller": "encoding",
+      "hop": 1,
+      "evidence": "R5",
+      "relationship": "candidate",
+      "target_path": "httpx/_utils.py",
+      "relationship_by_revision": {
+        "base": "candidate"
+      }
+    },
+    {
+      "symbol": "obfuscate_sensitive_headers",
+      "caller": "__repr__",
+      "hop": 1,
+      "evidence": "R6",
+      "relationship": "candidate",
+      "target_path": "httpx/_utils.py",
+      "relationship_by_revision": {
+        "base": "candidate"
+      }
+    },
+    {
+      "symbol": "parse_content_type_charset",
+      "caller": "charset_encoding",
+      "hop": 1,
+      "evidence": "R7",
+      "relationship": "candidate",
+      "target_path": "httpx/_utils.py",
+      "relationship_by_revision": {
+        "base": "candidate"
+      }
+    },
+    {
+      "symbol": "parse_header_links",
+      "caller": "links",
+      "hop": 1,
+      "evidence": "R8",
+      "relationship": "candidate",
+      "target_path": "httpx/_utils.py",
+      "relationship_by_revision": {
+        "base": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (2).",
+    "Repository reference tracing reached a search limit."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

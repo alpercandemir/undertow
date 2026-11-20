@@ -1,0 +1,113 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "cfa6f4ad3e0078db43f866246b483544afa33ed3",
+  "head": "262bdf02288daf9a37b9e815b44acafd62b5c6fe",
+  "coverage": {
+    "changed_files": 5,
+    "ignored_files": 4,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 2,
+    "reviewed_files": 1,
+    "related_regions": 0
+  },
+  "findings": [
+    {
+      "priority_reason": "Changes to exception handling in input stream iteration modify runtime behavior when reading user input, replacing StopIteration with EOFError which may break existing error handling logic in user applications.",
+      "title": "Exception type change during input stream iteration",
+      "flow": "CLI input reading during testing",
+      "before": "The input stream iteration raised StopIteration when input was exhausted.",
+      "after": "The input stream iteration now raises EOFError when input is exhausted.",
+      "scenario": "A test runner calling the input stream's iterator until exhaustion.",
+      "example_before": "try: next(stream) except StopIteration: pass",
+      "example_after": "try: next(stream) except EOFError: pass",
+      "potential_impact": "Applications catching StopIteration explicitly to detect end of input will no longer catch the exit condition, potentially leading to unhandled EOFError exceptions and crashes in test suites.",
+      "review_question": "Does the test suite rely on catching StopIteration when iterating over the simulated input stream?",
+      "priority": "P2",
+      "evidence": [
+        "D1"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "A test runner calling the input stream's iterator until exhaustion.",
+        "precondition": null,
+        "base_outcome": "try: next(stream) except StopIteration: pass",
+        "head_outcome": "try: next(stream) except EOFError: pass"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    },
+    {
+      "priority_reason": "The input reading mechanism inside visible_input and hidden_input has transitioned from readline() to next(), fundamentally changing how input streams are consumed during CLI testing.",
+      "title": "Shift from readline to next for input stream consumption",
+      "flow": "CLI input simulation during testing",
+      "before": "Input was consumed using the readline() method of the input stream.",
+      "after": "Input is consumed using the next() built-in, which triggers the new EOFError behavior upon exhaustion.",
+      "scenario": "A user invoking a command that requires multiple lines of input in a test environment.",
+      "example_before": "Input provided via stream.readline()",
+      "example_after": "Input provided via next(stream)",
+      "potential_impact": "This change affects how custom input streams are handled, requiring them to be iterator-compatible. If an input stream implementation does not support the iterator protocol correctly, input consumption will fail.",
+      "review_question": "Are all custom input streams passed to the testing utility fully compatible with the iterator protocol?",
+      "priority": "P2",
+      "evidence": [
+        "D2"
+      ],
+      "id": "F2",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": null,
+        "precondition": "A user invoking a command that requires multiple lines of input in a test environment.",
+        "base_outcome": "Input provided via stream.readline()",
+        "head_outcome": "Input provided via next(stream)"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "src/click/testing.py",
+        "start": 114,
+        "end": 123
+      },
+      "head": {
+        "path": "src/click/testing.py",
+        "start": 119,
+        "end": 125
+      }
+    },
+    "D2": {
+      "base": {
+        "path": "src/click/testing.py",
+        "start": 344,
+        "end": 353
+      },
+      "head": {
+        "path": "src/click/testing.py",
+        "start": 351,
+        "end": 360
+      }
+    }
+  },
+  "related_references": [],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (4)."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

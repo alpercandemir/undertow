@@ -1,0 +1,169 @@
+{
+  "version": "0.3.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "a8c05427602d12842c53ce48b03b5d6b5c0c6693",
+  "head": "c326df95e9e3da0425360e030413f6a3ee25fdee",
+  "coverage": {
+    "changed_files": 4,
+    "ignored_files": 3,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 1,
+    "reviewed_files": 1,
+    "related_regions": 4
+  },
+  "findings": [
+    {
+      "priority_reason": "Changes the lifecycle of command execution by enforcing resource cleanup via close() before exiting the application. This affects any CLI implementation relying on callback cleanup, potentially causing side effects to execute earlier than before in exit scenarios.",
+      "title": "Context exit now triggers registered callbacks",
+      "flow": "Application termination via context exit",
+      "before": "The exit() method directly raised the Exit exception to terminate the application immediately.",
+      "after": "The exit() method now calls self.close() before raising the Exit exception, forcing the execution of all callbacks registered with call_on_close.",
+      "scenario": "A CLI application that registers a teardown callback via context.call_on_close() invokes context.exit() due to a help flag or error.",
+      "example_before": "User runs --help; application prints help text and immediately terminates, skipping execution of any deferred cleanup registered via call_on_close.",
+      "example_after": "User runs --help; application prints help text, triggers all call_on_close registered functions, then terminates.",
+      "potential_impact": "Resources or cleanup actions previously deferred until process exit (or never called if using context.exit()) will now execute during standard CLI exit flows. This may introduce bugs if cleanup routines expect persistent application state that is no longer valid during exit.",
+      "review_question": "Does the cleanup logic in call_on_close assume that the application state is still fully operational, and are there scenarios where this early closure causes unexpected side effects?",
+      "priority": "P2",
+      "evidence": [
+        "D1"
+      ],
+      "id": "F1",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "A CLI application that registers a teardown callback via context.call_on_close() invokes context.exit() due to a help flag or error.",
+        "precondition": null,
+        "base_outcome": "User runs --help; application prints help text and immediately terminates, skipping execution of any deferred cleanup registered via call_on_close.",
+        "head_outcome": "User runs --help; application prints help text, triggers all call_on_close registered functions, then terminates."
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 702,
+        "end": 702
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 702,
+        "end": 708
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 1312,
+        "end": 1320
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 1318,
+        "end": 1326
+      }
+    },
+    "R2": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 1133,
+        "end": 1141
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 1139,
+        "end": 1147
+      }
+    },
+    "R3": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 995,
+        "end": 1003
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 1001,
+        "end": 1009
+      }
+    },
+    "R4": {
+      "base": {
+        "path": "src/click/decorators.py",
+        "start": 510,
+        "end": 518
+      },
+      "head": {
+        "path": "src/click/decorators.py",
+        "start": 510,
+        "end": 518
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "exit",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "exit",
+      "caller": "parse_args",
+      "hop": 1,
+      "evidence": "R2",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "exit",
+      "caller": "show_help",
+      "hop": 1,
+      "evidence": "R3",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "exit",
+      "caller": "callback",
+      "hop": 1,
+      "evidence": "R4",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (3)."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}
