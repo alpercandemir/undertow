@@ -19,7 +19,7 @@ from urllib.parse import quote, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 SCHEMA_VERSION = 1
 
 
@@ -680,8 +680,8 @@ def return_example(before, after, symbol):
 
 ROUTE_PATH = r"(?P<path>/[A-Za-z0-9_/<>{}:.\-]{0,200})"
 ROUTE = re.compile(
-    r"""(?P<decorator>@)?[A-Za-z_]\w*\.(?P<method>get|post|put|patch|delete|options|head)\("""
-    + rf"""\s*(["']){ROUTE_PATH}\3\s*(?P<end>\)|,)""",
+    r"""(?P<decorator>@)?(?P<receiver>[A-Za-z_]\w*)\.(?P<method>get|post|put|patch|delete|options|head)\("""
+    + rf"""\s*(?P<quote>["']){ROUTE_PATH}(?P=quote)\s*(?P<end>\)|,)""",
     re.IGNORECASE,
 )
 MAPPING = re.compile(
@@ -694,11 +694,12 @@ def route_in(line):
     match = MAPPING.fullmatch(line.strip()) or ROUTE.match(line.strip())
     if not match:
         return None
-    if "decorator" in match.re.groupindex and not match["decorator"]:
-        receiver = line.strip().split(".", 1)[0].lower()
-        if receiver not in {"router", "app", "server", "fastify"} or match["end"] != ",":
+    groups = match.groupdict()
+    receiver = groups.get("receiver", "")
+    if receiver and not groups["decorator"]:
+        if receiver.lower() not in {"router", "app", "server", "fastify"} or match["end"] != ",":
             return None
-    return match["method"].upper(), match["path"]
+    return match["method"].upper(), match["path"], receiver
 
 
 def line_reference(locations, **lines):
@@ -764,6 +765,7 @@ def constant_findings(base, head, old, new, old_edits, new_edits, locations):
 
 def local_findings(regions, sources, locations):
     findings, old_routes, new_routes = [], {}, {}
+    route_scopes = {}
     local_sources, edits_by_file = {}, {}
     reported_conditions = set()
     for region in regions.values():
@@ -806,34 +808,46 @@ def local_findings(regions, sources, locations):
             for number, edit, line in rows:
                 route = route_in(line) if edit and number not in source.ignored else None
                 if route:
+                    method, route_path, receiver = route
+                    scope = path, receiver
+                    route_scopes.setdefault((method, route_path), set()).add(scope)
                     handler = None
                     if line.lstrip().startswith("@") and number < len(sources[blob.oid]):
                         handler = callable_name(sources[blob.oid][number])
-                    routes[route] = blob, number, handler
+                    routes[(method, route_path, scope)] = blob, number, handler
 
     for (base, head), (old_edits, new_edits) in edits_by_file.items():
         findings.extend(constant_findings(base, head, local_sources[base], local_sources[head],
                                           old_edits, new_edits, locations))
     for added, routes, other in ((True, new_routes, old_routes), (False, old_routes, new_routes)):
-        for method, path in sorted(routes.keys() - other.keys()):
+        for method, path, scope in sorted(routes.keys() - other.keys()):
             route = f"{method} {path}"
             declared = "The reviewed source declares this route."
             absent = "This declaration is absent from the corresponding source."
             before, after = (absent, declared) if added else (declared, absent)
             side = "head" if added else "base"
-            blob, number, handler = routes[(method, path)]
-            parameterized = re.search(r"[:<>{}]", path)
-            scenario = (f"A request matches the {route} route pattern." if parameterized
-                        else f"A client sends {route} to this application.")
+            blob, number, handler = routes[(method, path, scope)]
+            title = f"{route} declaration {'added' if added else 'removed'}"
+            example_input = None
+            if len(route_scopes[(method, path)]) > 1:
+                _, receiver = scope
+                declaration = f"{receiver} in {blob.path}" if receiver else blob.path
+                title += f" ({declaration})"
+                scenario = f"A request matches this {route} declaration ({declaration})."
+            elif re.search(r"[:<>{}]", path):
+                scenario = f"A request matches the {route} route pattern."
+            else:
+                scenario = f"A client sends {route} to this application."
+                example_input = route
             findings.append({
-                "title": f"{route} declaration {'added' if added else 'removed'}",
+                "title": title,
                 "priority": "P3" if added else "P1",
                 "priority_reason": ("A new entry point is declared." if added
                                     else "Existing clients may depend on the removed entry point."),
                 "change_kind": "added_route" if added else "removed_route",
                 "symbol": handler, "flow": route, "before": before, "after": after,
                 "scenario": scenario,
-                "example_input": None if parameterized else route,
+                "example_input": example_input,
                 "example_before": before, "example_after": after,
                 "evidence": line_reference(locations, **{side: (blob, number)}),
             })
@@ -1055,24 +1069,33 @@ COMMON_CALL_NAMES = {
 }
 
 
+def python_module_paths(module, *, absolute=False):
+    roots = ("", "src/") if absolute else ("",)
+    return {f"{root}{module}{suffix}" for root in roots for suffix in (".py", "/__init__.py")}
+
+
 @dataclass(frozen=True)
 class ImportBinding:
     name: str
     module: str
     member: str | None
     line: int
+    absolute: bool = False
 
-    def targets(self, target, suffix):
+    def targets(self, target, suffix, tracked_modules):
         if suffix == ".py":
-            return target.path in {f"{self.module}.py", f"{self.module}/__init__.py"}
+            paths = python_module_paths(self.module, absolute=self.absolute)
+            return paths & tracked_modules == {target.path}
         return self.module == target.path and PurePosixPath(target.path.lower()).suffix in JS_SUFFIXES
 
 
 def import_bindings(path, suffix, number, line):
     parent = posixpath.dirname(path)
+    absolute = False
     if suffix == ".py" and (match := PY_FROM.fullmatch(line)):
         name, items = match.groups()
         dots = len(name) - len(name.lstrip("."))
+        absolute = not dots
         module = name[dots:].replace(".", "/")
         if dots:
             parts = PurePosixPath(parent).parts
@@ -1082,7 +1105,7 @@ def import_bindings(path, suffix, number, line):
     elif suffix == ".py" and (match := PY_IMPORT.fullmatch(line)):
         name, alias = match.groups()
         if alias or "." not in name:
-            yield ImportBinding(alias or name, name.replace(".", "/"), None, number)
+            yield ImportBinding(alias or name, name.replace(".", "/"), None, number, absolute=True)
         return
     elif suffix in JS_SUFFIXES and (match := JS_IMPORT.fullmatch(line)):
         items, alias, _, name = match.groups()
@@ -1095,7 +1118,7 @@ def import_bindings(path, suffix, number, line):
     for item in items.split(","):
         if match := IMPORT_ITEM.fullmatch(item.strip()):
             member, alias = match.groups()
-            yield ImportBinding(alias or member, module, member, number)
+            yield ImportBinding(alias or member, module, member, number, absolute=absolute)
 
 
 class CallerSource:
@@ -1146,7 +1169,7 @@ class CallerSource:
             return False
         return self.fixed_binding(target.name, number)
 
-    def calls(self, targets, origins, ambiguous_imports):
+    def calls(self, targets, origins, tracked_modules):
         if self.suffix not in RULE_SUFFIXES:
             return {}
         names = {binding.name for binding in self.imports}
@@ -1157,8 +1180,9 @@ class CallerSource:
             if same_file or (target.name not in self.declarations and target.name not in names):
                 options.setdefault(target.name, []).append((target, same_file and origin.defines(target), None))
             for binding in self.imports:
-                if (binding.member not in (None, target.name) or not binding.targets(target, self.suffix)
-                        or target.path in ambiguous_imports or not origin.defines(target, imported=True)):
+                if (binding.member not in (None, target.name)
+                        or not binding.targets(target, self.suffix, tracked_modules)
+                        or not origin.defines(target, imported=True)):
                     continue
                 if self.fixed_binding(binding.name, binding.line, namespace=binding.member is None):
                     if binding.member is None:
@@ -1213,17 +1237,22 @@ def directory_distance(path, target):
     return len(left) + len(right) - 2 * shared
 
 
-def competing_python_modules(repo, commit, paths):
-    alternatives = {}
+def tracked_python_modules(repo, commit, paths):
+    candidates = set()
     for path in paths:
         if path.endswith("/__init__.py"):
-            alternatives[path.removesuffix("/__init__.py") + ".py"] = path
+            module = path.removesuffix("/__init__.py")
         elif path.endswith(".py"):
-            alternatives[path.removesuffix(".py") + "/__init__.py"] = path
-    if not alternatives:
+            module = path.removesuffix(".py")
+        else:
+            continue
+        candidates.update(python_module_paths(module, absolute=True))
+        if module.startswith("src/"):
+            candidates.update(python_module_paths(module.removeprefix("src/"), absolute=True))
+    if not candidates:
         return set()
-    raw = git(repo, "--literal-pathspecs", "ls-tree", "--name-only", "-z", commit, "--", *sorted(alternatives))
-    return {alternatives[path] for path in raw.decode("utf-8", "surrogateescape").split("\0") if path in alternatives}
+    raw = git(repo, "--literal-pathspecs", "ls-tree", "--name-only", "-z", commit, "--", *sorted(candidates))
+    return candidates.intersection(raw.decode("utf-8", "surrogateescape").split("\0"))
 
 
 def caller_matches(repo, revisions, targets, hop, cache):
@@ -1255,13 +1284,13 @@ def caller_matches(repo, revisions, targets, hop, cache):
     old_commit, new_commit = revisions
     old_origins = {path: source(old_commit, path) for path in sorted(origins)}
     new_origins = {path: source(new_commit, path) for path in sorted(origins)}
-    old_competitors = competing_python_modules(repo, old_commit, origins)
-    new_competitors = competing_python_modules(repo, new_commit, origins)
+    old_modules = tracked_python_modules(repo, old_commit, origins)
+    new_modules = tracked_python_modules(repo, new_commit, origins)
     ranked = []
     for path in paths[:MAX_REFERENCE_FILES]:
         old, new = source(old_commit, path), source(new_commit, path)
-        before = old.calls(targets, old_origins, old_competitors)
-        after = new.calls(targets, new_origins, new_competitors)
+        before = old.calls(targets, old_origins, old_modules)
+        after = new.calls(targets, new_origins, new_modules)
         for target, caller in before.keys() | after.keys():
             base_state, base_line = before.get((target, caller), (None, 0))
             head_state, head_line = after.get((target, caller), (None, 0))
@@ -1495,6 +1524,7 @@ def describe_finding(finding, index, mode, related):
         limitations.append("Cited name matches are leads. Their call bindings are unconfirmed.")
     finding.update(
         id=f"F{index}",
+        analysis_mode=mode,
         classification=ROUTE_CLASSIFICATIONS.get(kind, "behavioral_difference"),
         compatibility_risk=COMPATIBILITY_RISKS[finding["priority"]][0],
         example={
@@ -1522,13 +1552,17 @@ def render_finding(report, finding, link_root, *, expanded):
                 else f"**Precondition** · {markdown(example['precondition'])}")
     risk = COMPATIBILITY_RISKS[finding["priority"]][1]
     evidence = source_links(report, finding["evidence"], link_root)
+    evidence_label = EVIDENCE_LABELS[finding["evidence_level"]]
+    if report["mode"] == "gemini":
+        analysis_label = "Gemini" if finding["analysis_mode"] == "gemini" else "Local rule"
+        evidence_label += f" ({analysis_label})"
     lines.extend([
         "", scenario,
         f"- **Before (base)** · {markdown(example['base_outcome'])}",
         f"- **After (head)** · {markdown(example['head_outcome'])}",
         "", f"**Potential impact** · {risk}. {markdown(finding['potential_impact'])}",
         "", f"**Review question** · {markdown(finding['review_question'])}",
-        "", f"**Evidence** · {EVIDENCE_LABELS[finding['evidence_level']]} · {evidence}",
+        "", f"**Evidence** · {evidence_label} · {evidence}",
         "", f"**Limits** · {markdown(' '.join(finding['analysis_limitations']))}",
     ])
     if not expanded:
@@ -1543,7 +1577,7 @@ def render(report, link_root):
     if report["status"] == "unavailable":
         lines.extend(["**Analysis unavailable for this comparison.**", ""])
     else:
-        mode = "Gemini source interpretation" if report["mode"] == "gemini" else "Local source rules"
+        mode = "Local source rules and Gemini source interpretation" if report["mode"] == "gemini" else "Local source rules"
         coverage = report["coverage"]
         regions, files = coverage["reviewed_regions"], coverage["changed_files"]
         region_noun = "region" if regions == 1 else "regions"
@@ -1586,6 +1620,10 @@ def finding_targets(finding, locations):
         return {CallTarget(location["path"], symbol)
                 for identifier in finding["evidence"] for location in locations[identifier].values()}
     return set()
+
+
+def review_order(finding):
+    return finding["priority"], finding.get("change_kind") != "removed_route"
 
 
 def review(args):
@@ -1636,45 +1674,49 @@ def review(args):
     )
     automatic = {f"R{index}": reference for index, reference in enumerate(traced, 1)}
     related = automatic
-    findings = []
+    model_results = []
     if key and regions:
         try:
             if not re.fullmatch(r"gemini-[a-z0-9.-]+", args.model):
                 raise ReviewError("The configured Gemini model name is invalid.")
-            findings, related, extra_limited = model_findings(key, args, report, regions, sources, related)
+            model_results, related, extra_limited = model_findings(key, args, report, regions, sources, related)
             limited |= extra_limited
             report.update(mode="gemini", model=args.model)
         except ReviewError as error:
             report["notes"].append(f"{error} Local source rules were used.")
-    if report["mode"] == "local":
-        findings = local
-        if regions:
-            report["notes"].append(
-                "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
-            )
-    findings.sort(key=lambda finding: (finding["priority"], finding.get("change_kind") != "removed_route"))
-    if len(findings) > MAX_FINDINGS:
-        report["notes"].append(f"The report shows {MAX_FINDINGS} of {len(findings)} rule matches.")
-    report["findings"] = findings[:MAX_FINDINGS]
+    if regions:
+        report["notes"].append(
+            "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+        )
+    local.sort(key=review_order)
+    model_results.sort(key=review_order)
+    remaining = max(0, MAX_FINDINGS - len(local))
+    selected = [(finding, "local") for finding in local[:MAX_FINDINGS]]
+    selected.extend((finding, "gemini") for finding in model_results[:remaining])
+    selected.sort(key=lambda item: review_order(item[0]))
+    total = len(local) + len(model_results)
+    if total > MAX_FINDINGS:
+        report["notes"].append(f"The report shows {MAX_FINDINGS} of {total} findings.")
+    report["findings"] = [finding for finding, _ in selected]
     coverage["related_regions"] = len(related)
     if limited:
         report["notes"].append("Repository reference tracing reached a search limit.")
     report["related_references"] = [
         reference.description(identifier) for identifier, reference in automatic.items()
-    ] if findings else []
-    for index, finding in enumerate(report["findings"], 1):
+    ] if selected else []
+    for index, (finding, mode) in enumerate(selected, 1):
         targets = finding_targets(finding, locations)
         if targets:
             finding["related_references"] = [
                 ref for ref in report["related_references"] if CallTarget(ref["target_path"], ref["symbol"]) in targets
             ]
-        describe_finding(finding, index, report["mode"], related)
+        describe_finding(finding, index, mode, related)
     locations.update((identifier, reference.source.locations()) for identifier, reference in related.items())
     used_evidence = dict.fromkeys(identifier for finding in report["findings"] for identifier in finding["evidence"])
     used_evidence.update((reference["evidence"], None) for reference in report["related_references"])
     report["evidence"] = {identifier: locations[identifier] for identifier in used_evidence}
-    report["status"] = "findings" if findings else "no_findings"
-    if not findings:
+    report["status"] = "findings" if selected else "no_findings"
+    if not selected:
         report["analysis_limitations"].insert(0, "Behavior changes may still exist.")
     return report
 

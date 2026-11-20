@@ -30,7 +30,7 @@ The bot comment shows the change in shipping eligibility. The dollar amounts fol
 <details>
 <summary>Reproduce the $50 finding locally with Python and Git</summary>
 
-From a checkout of Undertow's `main` branch, run these commands with Python 3.11+ and Git. The worker reads the showcase's committed source from a bare repository. Local mode uses no model key.
+From a checkout of Undertow `v0.4.0`, run these commands with Python 3.11+ and Git. The worker reads the showcase's committed source from a bare repository. Local mode uses no model key.
 
 ```sh
 mkdir -p .undertow
@@ -45,7 +45,7 @@ env -u GEMINI_API_KEY python3 actions/change-review/review_engine.py \
 cat .undertow/shipping-review/summary.md
 ```
 
-Open `report.json` in the same output directory for the input, both inferred outcomes, the `source_inferred` evidence level, and the source lines behind the comparison.
+Open `report.json` in the same output directory for the input, both inferred outcomes, and the source lines behind the comparison. The report also links the calls from `shipping_fee` and `gift_checkout_total`.
 
 </details>
 
@@ -87,12 +87,14 @@ The report infers outcomes from Git revisions. Shipping and rewards amounts foll
 Add the example workflow at `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, permissions, and this step pinned to the published release. [Copy the workflow](docs/examples/change-review.yml)
 
 ```yaml
-- uses: alpercandemir/undertow/actions/change-review@v0.3.0
+- uses: alpercandemir/undertow/actions/change-review@v0.4.0
   with:
     comment: 'true'
 ```
 
-Open or update a PR. The workflow writes an Actions summary, saves Markdown and JSON reports, and updates one bot comment. The structured report examples show the format on `main`. [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
+Open or update a PR. The workflow writes an Actions summary, saves Markdown and JSON reports, and updates one bot comment.
+
+`v0.4.0` adds a versioned JSON report with before-and-after examples, review questions, and source evidence. Optional Gemini analysis can add findings to the report alongside the local rules. [Release notes](https://github.com/alpercandemir/undertow/releases/tag/v0.4.0) · [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
 
 ## Supported changes
 
@@ -100,7 +102,7 @@ Open or update a PR. The workflow writes an Actions summary, saves Markdown and 
 | --- | --- |
 | An eligibility threshold moves from 30 to 14 days, including a supported named constant or multiline condition | The day-30 return changes from eligible to ineligible. The finding links to the source on both revisions. |
 | An eligible refund without a receipt changes status | The finding shows the old and new return values. |
-| An HTTP route is added or removed | The finding identifies the method and path. |
+| An HTTP route is added or removed | The finding identifies the method and path, and distinguishes declarations on different routers. |
 | Other code calls the edited rule | The trace follows callers for up to three steps and labels resolved calls and possible name matches. |
 
 The Action reads Git source. Optional Gemini analysis sends selected source excerpts to Google to interpret related edits. Both modes produce source-based findings. See the guide for supported patterns, evidence labels, and coverage limits. [Analysis and configuration](docs/change-review.md) · [Controlled test cases](evaluation/README.md#controlled-fixtures-and-known-limitations)
