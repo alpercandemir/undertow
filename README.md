@@ -12,7 +12,9 @@
 
 Undertow reviews a pull request and shows which customer or client could get a different outcome. Its GitHub comment gives you a scenario to check, the before and after outcomes inferred from source, and links to the code behind them.
 
-[Try a product review](#try-a-product-review) · [Historical benchmark](#historical-benchmark) · [Install the Action](#get-a-report-on-your-next-pr) · [Supported changes](#supported-changes)
+Use Undertow alongside reviewers such as GitHub Copilot to look for changes in observable behavior.
+
+[Try a product review](#try-a-product-review) · [Historical benchmark](#historical-benchmark-for-complementary-behavioral-coverage) · [Install the Action](#get-a-report-on-your-next-pr) · [Supported changes](#supported-changes)
 
 ## Same cart, different total
 
@@ -107,21 +109,35 @@ Open or update a PR. The workflow writes an Actions summary, saves Markdown and 
 
 The Action reads Git source. Optional Gemini analysis sends selected source excerpts to Google to interpret related edits. Both modes produce source-based findings. See the guide for supported patterns, evidence labels, and coverage limits. [Analysis and configuration](docs/change-review.md) · [Controlled test cases](evaluation/README.md#controlled-fixtures-and-known-limitations)
 
-## Historical benchmark
+## Historical benchmark for complementary behavioral coverage
 
-**20 merged PRs · 18 known behavior changes · 4 behavior-preserving controls**
+We ran Undertow with Gemini and GitHub Copilot CLI independently on 20 historical Click and HTTPX PRs to see which behavior changes each review surfaced. The Copilot results come from the CLI with a fixed review prompt. [Full benchmark](evaluation/benchmark.md)
 
-The corpus contains ten Click PRs and ten HTTPX PRs. Nine PRs fixed bugs, seven changed behavior intentionally, and four preserved runtime behavior. One additional Click regression was scored separately. [Case manifest](evaluation/historical.json) · [Full benchmark](evaluation/benchmark.md)
+Both model-backed reviews completed on 11 PRs, which contained 11 labeled behavior changes.
+
+| Review findings | Labeled changes found on the same 11 PRs |
+| --- | ---: |
+| GitHub Copilot CLI | 9 / 11 |
+| Undertow with Gemini | 8 / 11 |
+| **Combined findings from both reviews** | **10 / 11** |
+
+Both reviews found seven of the same changes. Undertow with Gemini found one additional change, Copilot CLI found two others, and both missed one. Combined coverage counts each labeled change once across the two saved reviews and measures detection only. [Overlap and example accuracy](evaluation/benchmark.md#comparison-on-the-same-11-prs)
+
+The additional Undertow finding came from Click #2604. The command generated from `my_sync_command` changed from `my-sync-command` to `my-sync`, so scripts that use the old name may need updating. [Undertow report](evaluation/results/historical-gemini/click-2604/report.json)
+
+On those same 11 PRs, Undertow with Gemini gave **1 accurate before/after example out of 10**. Copilot CLI gave **12 out of 18**. The quality of a joint review would require a separate evaluation. [Example scoring](evaluation/benchmark.md#comparison-on-the-same-11-prs)
+
+### Results across all 20 PRs
+
+The corpus contains ten Click PRs and ten HTTPX PRs with 18 labeled behavior changes. Nine PRs fixed bugs, seven changed behavior intentionally, and four preserved runtime behavior. One additional Click regression was scored separately. [Case manifest](evaluation/historical.json)
 
 | Review setup | PRs completed in that mode | Known changes found across all 20 PRs |
 | --- | ---: | ---: |
-| Undertow local rules | 20 / 20 | 0 / 18 |
-| **Undertow + `gemini-3.1-flash-lite`** | **11 / 20** | **8 / 18** |
 | GitHub Copilot CLI | 20 / 20 | 15 / 18 |
+| Undertow + `gemini-3.1-flash-lite` | 11 / 20 | 8 / 18 |
+| Undertow local rules | 20 / 20 | 0 / 18 |
 
-In Click #2604, a function called `my_sync_command` generated the command **`my-sync-command` → `my-sync`**. Undertow's report links that change to scripts that still call the old name. Copilot missed this labeled rename. [Example report](evaluation/results/historical-gemini/click-2604/report.json)
-
-On the 11 PRs where both model-backed reviews ran, Undertow with Gemini identified 8 of 11 labeled changes, and Copilot identified 9. The Gemini report gave 1 accurate before/after example out of 10, compared with 12 out of 18 for Copilot on those same PRs. Seven other PRs fell back to local rules and two had no reviewable source regions. The local rules found zero labeled changes across the corpus. All 18 fell outside the local baseline's declared patterns. [Results and scoring](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs)
+Across the full corpus, the saved reports together covered **16 of 18** labeled changes. Seven PRs in the Gemini run fell back to local rules, and two had no reviewable source regions. All 18 labeled changes fell outside the local rules' declared patterns. [Results and scoring](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs)
 
 | From the benchmark | Before → after | Result |
 | --- | --- | --- |
