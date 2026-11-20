@@ -117,9 +117,9 @@ Both model-backed reviews completed on 11 PRs, which contained 11 labeled behavi
 
 | Review findings | Labeled changes found on the same 11 PRs |
 | --- | ---: |
-| GitHub Copilot CLI | 9 / 11 |
+| **Undertow + GitHub Copilot CLI** (combined findings) | **10 / 11** |
+| GitHub Copilot CLI alone | 9 / 11 |
 | Undertow with Gemini | 8 / 11 |
-| **Combined findings from both reviews** | **10 / 11** |
 
 Both reviews found seven of the same changes. Undertow with Gemini found one additional change, Copilot CLI found two others, and both missed one. Combined coverage counts each labeled change once across the two saved reviews and measures detection only. [Overlap and example accuracy](evaluation/benchmark.md#comparison-on-the-same-11-prs)
 
@@ -131,13 +131,14 @@ On those same 11 PRs, Undertow with Gemini gave **1 accurate before/after exampl
 
 The corpus contains ten Click PRs and ten HTTPX PRs with 18 labeled behavior changes. Nine PRs fixed bugs, seven changed behavior intentionally, and four preserved runtime behavior. One additional Click regression was scored separately. [Case manifest](evaluation/historical.json)
 
-| Review setup | PRs completed in that mode | Known changes found across all 20 PRs |
+| Review findings | PRs completed per run | Labeled changes found across all 20 PRs |
 | --- | ---: | ---: |
-| GitHub Copilot CLI | 20 / 20 | 15 / 18 |
+| **Undertow + GitHub Copilot CLI** (combined findings) | — | **16 / 18** |
+| GitHub Copilot CLI alone | 20 / 20 | 15 / 18 |
 | Undertow + `gemini-3.1-flash-lite` | 11 / 20 | 8 / 18 |
 | Undertow local rules | 20 / 20 | 0 / 18 |
 
-Across the full corpus, the saved reports together covered **16 of 18** labeled changes. Seven PRs in the Gemini run fell back to local rules, and two had no reviewable source regions. All 18 labeled changes fell outside the local rules' declared patterns. [Results and scoring](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs)
+The combined row pools labeled changes from the independent Gemini and Copilot CLI runs. Completion counts apply to individual runs. Seven PRs in the Gemini run fell back to local rules, and two had no reviewable source regions. All 18 labeled changes fell outside the local rules' declared patterns. [Results and scoring](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs)
 
 | From the benchmark | Before → after | Result |
 | --- | --- | --- |
