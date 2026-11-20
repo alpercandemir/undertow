@@ -70,3 +70,36 @@ jobs:
           path: target/undertow.jar
           if-no-files-found: error
           retention-days: 14
+  compare-compatibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['8', '11', '17', '21', '25']
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - id: analysis
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - name: Verify a legacy Maven project with the selected JDK
+        env:
+          UNDERTOW_TEST_ANALYSIS_JDK: ${{ steps.analysis.outputs.path }}
+          UNDERTOW_TEST_BUILD_MAJOR: ${{ matrix.java }}
+        run: python3 -m unittest discover -s scripts/tests -p test_change_review.py -k test_legacy_project -v
+      - name: Verify the portable release
+        if: matrix.java == '25'
+        run: |
+          python3 scripts/package-change-review.py --output "$RUNNER_TEMP/undertow-package"
+          cd "$RUNNER_TEMP/undertow-package"
+          sha256sum --check ./*.sha256
+          unzip -q ./*.zip
+          ./undertow-change-review-*/scripts/undertow compare --version

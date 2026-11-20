@@ -37,7 +37,7 @@ Vendoring makes a checkout self-contained while the new runner is still unreleas
 
 ## Recorded integration check before product cleanup
 
-On November 17, 2026, the showcase integration at `714503063fcc128e84545aaeb55a6934883cddb7` passed all four jobs on both [push](https://github.com/alpercandemir/undertow-showcase/actions/runs/44040378667) and [pull request](https://github.com/alpercandemir/undertow-showcase/actions/runs/44040527390). The existing ticket contract workflow also passed. [Draft PR #3](https://github.com/alpercandemir/undertow-showcase/pull/3) holds the integration for review; default-branch merge is still pending.
+On November 17, 2026, the showcase integration at `714503063fcc128e84545aaeb55a6934883cddb7` passed all four jobs on both [push](https://github.com/alpercandemir/undertow-showcase/actions/runs/44040378667) and [pull request](https://github.com/alpercandemir/undertow-showcase/actions/runs/44040527390). The existing ticket contract workflow also passed. [PR #3](https://github.com/alpercandemir/undertow-showcase/pull/3) merged the profile-based integration into the showcase's default branch.
 
 The downloaded refund-calibration artifact identifies a clean checkout at that commit: six existing tests passed, replay reproduced the retry failure, the generated JUnit assertion observed refunded total 2 instead of 1, the correction search completed without a finding, and all seven correction tests including the identical generated test passed. The Actions summary contains the proposed Java and links to evidence; it asks for decisions rather than shell commands. This is authored integration evidence, not independent owner approval or measured investigation savings.
 

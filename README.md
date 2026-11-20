@@ -2,7 +2,7 @@
   <img src="docs/assets/undertow-logo.png" alt="Undertow" width="260" />
 </p>
 
-<h1 align="center">Business rules. Executed. Explained.</h1>
+<h1 align="center">Open a PR. See what it affects, what changed, and what breaks.</h1>
 
 <p align="center">
   <strong>Find the behavior that green tests can miss.</strong><br />
@@ -17,6 +17,10 @@
 </p>
 
 ---
+
+**Java/Maven change review.** Add Undertow to GitHub Actions with one workflow. It traces changes to affected Java operations, runs the relevant tests on both revisions and publishes the evidence in the PR check. The project's JDK can be Java 8 or later. [Install the GitHub Action](docs/change-review.md) · [Download the portable CLI](https://github.com/alpercandemir/undertow/releases/tag/v0.1.1-alpha.1).
+
+## Profile-based behavior search
 
 **Undertow checks whether a Java component still follows its declared business rules.** It executes bounded operation sequences, reduces a discovered failure, replays it against the same source snapshot, and produces a standalone JUnit regression test. The pipeline report shows what broke, what was expected, what actually happened, and what to review next.
 
@@ -123,7 +127,7 @@ The repository contains three focused workflows:
 - **[Behavior case gallery](.github/workflows/behavior-gallery.yml)** — the eight-case demonstration in one report.
 - **[CI](.github/workflows/ci.yml)** — active implementation tests, packaged execution, archive integrity and source checks.
 
-An implementation agent configures the owned component/profile once using the [CI integration guide](docs/ci-behavior-review.md). The [showcase integration](https://github.com/alpercandemir/undertow-showcase/pull/3) is a reviewable draft PR; its workflow runs are already available, and its default-branch merge remains pending.
+An implementation agent configures the owned component/profile once using the [CI integration guide](docs/ci-behavior-review.md). The [profile-based showcase integration](https://github.com/alpercandemir/undertow-showcase/pull/3) is merged into the showcase's default branch.
 
 <details>
 <summary><strong>Maintainer tools and local verification</strong></summary>
