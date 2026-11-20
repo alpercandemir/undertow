@@ -105,7 +105,7 @@ runs:
         output="$parent/evidence"
         printf 'evidence=%s\nbase=%s\nhead=%s\n' "$output" "$base" "$HEAD_SHA" >> "$GITHUB_OUTPUT"
         code=0
-        python3 -I "$GITHUB_ACTION_PATH/scripts/change-review.py" --repo "$GITHUB_WORKSPACE" \
+        python3 -I "$GITHUB_ACTION_PATH/../../scripts/change-review.py" --repo "$GITHUB_WORKSPACE" \
           --base "$base" --head "$HEAD_SHA" --output "$output" \
           --analysis-java-home "$PARSER_JDK" --build-java-home "$PROJECT_JDK" || code=$?
         if [[ ! -f "$output/report.json" || "$code" -gt 2 ]]; then

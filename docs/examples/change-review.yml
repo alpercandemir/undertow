@@ -16,6 +16,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: alpercandemir/undertow@v0.1.1-alpha.1
+      - uses: alpercandemir/undertow/actions/change-review@v0.1.1-alpha.1
         with:
           java-version: '21'

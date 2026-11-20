@@ -31,7 +31,7 @@ scripts/undertow compare --repo /path/to/project --base BASE_SHA --head HEAD_SHA
   --output /path/to/new-evidence-directory
 ```
 
-The local package needs Python 3.10+, Git, Maven 3.9+ or the project's compatible wrapper, and a full JDK 17+ for parsing. Use a parser JDK recent enough to understand your source syntax. When one installed JDK supports both tasks, omit the two JDK options and use `JAVA_HOME`. The runner records the JDKs and resolves both Git references before reading their tracked blobs. Each Maven invocation uses a fresh copy of one revision.
+On Linux and macOS, the local package needs Python 3.10+, Git, Maven 3.9+ or the project's compatible wrapper, and a full JDK 17+ for parsing. Use a parser JDK recent enough to understand your source syntax. When one installed JDK supports both tasks, omit the two JDK options and use `JAVA_HOME`. The runner records the JDKs and resolves both Git references before reading their tracked blobs. Each Maven invocation uses a fresh copy of one revision.
 
 ## Read the evidence
 
