@@ -106,7 +106,7 @@ def fetch(repo, root, token, base, head, number):
             raise ActionError("The pull request's Git commits could not be fetched.")
 
 
-def update_comment(repository, number, base, head, token, summary):
+def update_comment(repository, number, base, head, token, summary, marker=MARKER):
     api_repo = f"/repos/{repository}"
     comments = f"{api_repo}/issues/{number}/comments"
     comment_id = None
@@ -114,7 +114,7 @@ def update_comment(repository, number, base, head, token, summary):
         entries = github("GET", f"{comments}?per_page=50&page={page}", token)
         for entry in entries:
             if (entry["user"]["login"] == "github-actions[bot]"
-                    and str(entry["body"]).startswith(MARKER + "\n")):
+                    and str(entry["body"]).startswith(marker + "\n")):
                 comment_id = entry["id"]
                 break
         if comment_id or len(entries) < 50:
@@ -129,7 +129,7 @@ def update_comment(repository, number, base, head, token, summary):
         overview = summary.partition("<details>")[0]
         run_url = f"{github_url('GITHUB_SERVER_URL')}/{repository}/actions/runs/{int(os.environ['GITHUB_RUN_ID'])}"
         summary = overview[:12000] + f"\n[Open the full report and evidence in Actions]({run_url})\n"
-    body = {"body": f"{MARKER}\n{summary}"}
+    body = {"body": f"{marker}\n{summary}"}
     if comment_id:
         github("PATCH", f"{api_repo}/issues/comments/{int(comment_id)}", token, body)
     else:

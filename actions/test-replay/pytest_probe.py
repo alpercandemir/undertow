@@ -19,6 +19,14 @@ class Observation:
     def pytest_runtest_makereport(self, item, call):
         report = yield
         phase = {"name": report.when, "node_id": item.nodeid, "outcome": report.outcome}
+        if report.when == "call":
+            phase["observations"] = {
+                key.removeprefix("undertow."): str(value)
+                for key, value in report.user_properties
+                if isinstance(key, str) and key.startswith("undertow.") and 9 < len(key) <= 64
+                and isinstance(value, (str, int, float, bool)) and len(str(value)) <= 160
+            }
+            phase["observations"] = dict(list(phase["observations"].items())[:12])
         if hasattr(report, "wasxfail"):
             phase["outcome"] = "expected_failure"
         if report.failed and call.excinfo and call.when == "call":
