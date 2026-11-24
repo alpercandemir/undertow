@@ -54,7 +54,7 @@ def parse_response(response):
     if fenced:
         findings = json.loads(fenced[1])
     else:
-        for start in re.finditer(r"^[ \t]*\[", response, flags=re.M):
+        for start in re.finditer(r"\[(?=\s*(?:\{|\]))", response):
             try:
                 findings = json.loads(response[start.start():])
                 break

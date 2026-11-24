@@ -1,0 +1,614 @@
+{
+  "cases": {
+    "click-2365": {
+      "base": {
+        "observed": {
+          "hide_integers": {
+            "error": "TypeError"
+          },
+          "hide_strings": {
+            "exit_code": 0,
+            "output": "Usage: cli [OPTIONS]\n\nOptions:\n  --choice [foo|bar]\n  --help              Show this message and exit.\n"
+          },
+          "show_strings": {
+            "exit_code": 0,
+            "output": "Usage: cli [OPTIONS]\n\nOptions:\n  --choice [foo|bar]\n  --help              Show this message and exit.\n"
+          }
+        },
+        "sha": "02046e7a19480f85fff7e4577486518abe47e401"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "hide_integers": {
+            "exit_code": 0,
+            "output": "Usage: cli [OPTIONS]\n\nOptions:\n  --choice [INTEGER]\n  --help              Show this message and exit.\n"
+          },
+          "hide_strings": {
+            "exit_code": 0,
+            "output": "Usage: cli [OPTIONS]\n\nOptions:\n  --choice [TEXT]\n  --help           Show this message and exit.\n"
+          },
+          "show_strings": {
+            "exit_code": 0,
+            "output": "Usage: cli [OPTIONS]\n\nOptions:\n  --choice [foo|bar]\n  --help              Show this message and exit.\n"
+          }
+        },
+        "sha": "1a4d8c1bb1e8f8e214ede7223bd2c05dc2ce006a"
+      },
+      "seconds": 0.376,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2604": {
+      "base": {
+        "observed": {
+          "data_command_name": "my-data-command",
+          "explicit_empty_name": "explicit-name",
+          "help": "Usage: my-sync-command [OPTIONS]\n\nOptions:\n  --help  Show this message and exit.\n",
+          "name": "my-sync-command"
+        },
+        "sha": "b63ace28d50b53e74b5260f6cb357ccfe5560133"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "data_command_name": "my-data",
+          "explicit_empty_name": "",
+          "help": "Usage: my-sync [OPTIONS]\n\nOptions:\n  --help  Show this message and exit.\n",
+          "name": "my-sync"
+        },
+        "sha": "9c5e989d52509498ce78a4015ebc7d9408f70c56"
+      },
+      "seconds": 0.347,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2680": {
+      "base": {
+        "observed": {
+          "callbacks": [],
+          "exit_code": 3
+        },
+        "sha": "a8c05427602d12842c53ce48b03b5d6b5c0c6693"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "callbacks": [
+            "closed"
+          ],
+          "exit_code": 3
+        },
+        "sha": "c326df95e9e3da0425360e030413f6a3ee25fdee"
+      },
+      "seconds": 0.324,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2846": {
+      "base": {
+        "observed": {
+          "with_help": "plain\na:b\nsome help",
+          "without_help": "plain\na:b\n_"
+        },
+        "sha": "565f36d5bc4a15d304337b749e113fb4477b1843"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "with_help": "plain\na\\:b\nsome help",
+          "without_help": "plain\na:b\n_"
+        },
+        "sha": "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d"
+      },
+      "seconds": 0.331,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2930": {
+      "base": {
+        "observed": {
+          "bool": {
+            "exit_code": 0,
+            "flag_value": null,
+            "output": "False\n",
+            "values": [
+              false
+            ]
+          },
+          "bool_default_true": {
+            "exit_code": 0,
+            "flag_value": null,
+            "output": "True\n",
+            "values": [
+              true
+            ]
+          },
+          "env_false": {
+            "exit_code": 0,
+            "flag_value": null,
+            "output": "False\n",
+            "values": [
+              false
+            ]
+          },
+          "string": {
+            "exit_code": 0,
+            "flag_value": null,
+            "output": "\n",
+            "values": [
+              null
+            ]
+          }
+        },
+        "sha": "011b9f9d190c71310264e6c54bae6259f5e38a9f"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "bool": {
+            "exit_code": 0,
+            "flag_value": true,
+            "output": "True\n",
+            "values": [
+              true
+            ]
+          },
+          "bool_default_true": {
+            "exit_code": 0,
+            "flag_value": false,
+            "output": "False\n",
+            "values": [
+              false
+            ]
+          },
+          "env_false": {
+            "exit_code": 0,
+            "flag_value": true,
+            "output": "True\n",
+            "values": [
+              true
+            ]
+          },
+          "string": {
+            "exit_code": 0,
+            "flag_value": true,
+            "output": "True\n",
+            "values": [
+              "True"
+            ]
+          }
+        },
+        "sha": "884af5c20fdc95c9c7352df35c37273391464fb9"
+      },
+      "seconds": 0.349,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2934": {
+      "base": {
+        "observed": {
+          "exit_code": 0,
+          "output": "test\n"
+        },
+        "sha": "cfa6f4ad3e0078db43f866246b483544afa33ed3"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "exit_code": 1,
+          "output": "test\n\nAborted!\n"
+        },
+        "sha": "262bdf02288daf9a37b9e815b44acafd62b5c6fe"
+      },
+      "seconds": 0.344,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2935": {
+      "base": {
+        "observed": {
+          "group_options": [
+            "--help"
+          ],
+          "leaf": [
+            "full"
+          ],
+          "leaf_options": [
+            "--help"
+          ]
+        },
+        "sha": "884af5c20fdc95c9c7352df35c37273391464fb9"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "group_options": [
+            "--verbose",
+            "--help"
+          ],
+          "leaf": [
+            "data"
+          ],
+          "leaf_options": [
+            "-a",
+            "--help"
+          ]
+        },
+        "sha": "b7cf06970e40a3144eb963ff34ed7c38934afb40"
+      },
+      "seconds": 0.331,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2972": {
+      "base": {
+        "observed": {
+          "invalid": {
+            "exit_code": 2,
+            "output": "Usage: invalid-option [OPTIONS]\nTry 'invalid-option --help' for help.\n\nError: Invalid value for '--option' (env var: 'None'): bad input\n"
+          },
+          "missing": {
+            "exit_code": 2,
+            "output": "Usage: cli [OPTIONS]\nTry 'cli --help' for help.\n\nError: Missing option '--option' (env var: 'None').\n"
+          }
+        },
+        "sha": "c88f333de440c5066ff563f784a6561f4713cf78"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "invalid": {
+            "exit_code": 2,
+            "output": "Usage: invalid-option [OPTIONS]\nTry 'invalid-option --help' for help.\n\nError: Invalid value for '--option': bad input\n"
+          },
+          "missing": {
+            "exit_code": 2,
+            "output": "Usage: cli [OPTIONS]\nTry 'cli --help' for help.\n\nError: Missing option '--option'.\n"
+          }
+        },
+        "sha": "0be2bd385064053bb75f92db317de128db729d52"
+      },
+      "seconds": 0.347,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-2990": {
+      "base": {
+        "observed": {
+          "invalid": "Invalid value for '--foo' / '-f': bad input",
+          "missing": "Missing option '--foo' / '-f'."
+        },
+        "sha": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9"
+      },
+      "comparison": "same",
+      "head": {
+        "observed": {
+          "invalid": "Invalid value for '--foo' / '-f': bad input",
+          "missing": "Missing option '--foo' / '-f'."
+        },
+        "sha": "7b72bfb8cd3a0cec38197f6786ed583b5b3737e7"
+      },
+      "seconds": 0.338,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-3004": {
+      "base": {
+        "observed": {
+          "exit_code": 0,
+          "output": "Usage: cli [OPTIONS]\n\nOptions:\n  --color [RED]  [default: Color.RED]\n  --help         Show this message and exit.\n"
+        },
+        "sha": "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "exit_code": 0,
+          "output": "Usage: cli [OPTIONS]\n\nOptions:\n  --color [RED]  [default: RED]\n  --help         Show this message and exit.\n"
+        },
+        "sha": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9"
+      },
+      "seconds": 0.355,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "click-3009": {
+      "base": {
+        "observed": {
+          "source_subtree": "src/click",
+          "tree": "28bc5c436054bf52e765a667b4ebcb5b693e5160"
+        },
+        "sha": "44fd6394b72c1186feae31e793cd1196e1024fe2"
+      },
+      "comparison": "same",
+      "head": {
+        "observed": {
+          "source_subtree": "src/click",
+          "tree": "28bc5c436054bf52e765a667b4ebcb5b693e5160"
+        },
+        "sha": "c88f333de440c5066ff563f784a6561f4713cf78"
+      },
+      "seconds": 0.022,
+      "source_url": "https://github.com/pallets/click"
+    },
+    "httpx-2998": {
+      "base": {
+        "observed": {
+          "iter_text": [
+            "Hello,",
+            " world!",
+            ""
+          ],
+          "line_decoder_empty": [],
+          "split_utf8": [
+            "",
+            "",
+            "\u20ac",
+            ""
+          ]
+        },
+        "sha": "90538a3b4610ba49ce16c997bcfdb9101f9503be"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "iter_text": [
+            "Hello,",
+            " world!"
+          ],
+          "line_decoder_empty": [],
+          "split_utf8": [
+            "\u20ac"
+          ]
+        },
+        "sha": "1e110964736a95d822144390b99d7ecf17fca527"
+      },
+      "seconds": 0.811,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3116": {
+      "base": {
+        "observed": {
+          "first_use": {},
+          "fresh": {},
+          "reuse": {}
+        },
+        "sha": "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "first_use": {
+            "timeout": {
+              "connect": 1,
+              "pool": 1,
+              "read": 1,
+              "write": 1
+            }
+          },
+          "fresh": {
+            "timeout": {
+              "connect": 1e-06,
+              "pool": 1e-06,
+              "read": 1e-06,
+              "write": 1e-06
+            }
+          },
+          "reuse": {
+            "timeout": {
+              "connect": 1,
+              "pool": 1,
+              "read": 1,
+              "write": 1
+            }
+          }
+        },
+        "sha": "6d852d319acd5d97caf14037dff15ede04b37542"
+      },
+      "seconds": 0.78,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3178": {
+      "base": {
+        "observed": {
+          "error": "Unknown scheme for proxy URL URL('socks5h://localhost/')"
+        },
+        "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "pool": "SOCKSProxy"
+        },
+        "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+      },
+      "seconds": 0.63,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3364": {
+      "base": {
+        "observed": {
+          "None": "https://example.invalid/?a=1",
+          "{'b': '2'}": "https://example.invalid/?a=1&b=2",
+          "{}": "https://example.invalid/?a=1"
+        },
+        "sha": "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "None": "https://example.invalid/?a=1",
+          "{'b': '2'}": "https://example.invalid/?b=2",
+          "{}": "https://example.invalid/"
+        },
+        "sha": "3f76571d3429497c4ee4ecf5d8bc034b6f765957"
+      },
+      "seconds": 0.771,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3367": {
+      "base": {
+        "observed": {
+          "accented": {
+            "body": "{\"key\": \"\\u00e1\"}",
+            "hex": "7b226b6579223a20225c7530306531227d"
+          },
+          "compact": {
+            "body": "{\"test\": 123}",
+            "length": "13"
+          },
+          "infinity": {
+            "body": "{\"key\": Infinity}",
+            "hex": "7b226b6579223a20496e66696e6974797d"
+          },
+          "nan": {
+            "body": "{\"key\": NaN}",
+            "hex": "7b226b6579223a204e614e7d"
+          }
+        },
+        "sha": "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "accented": {
+            "body": "{\"key\":\"\u00e1\"}",
+            "hex": "7b226b6579223a22c3a1227d"
+          },
+          "compact": {
+            "body": "{\"test\":123}",
+            "length": "12"
+          },
+          "infinity": {
+            "error": "ValueError",
+            "message": "Out of range float values are not JSON compliant: inf"
+          },
+          "nan": {
+            "error": "ValueError",
+            "message": "Out of range float values are not JSON compliant: nan"
+          }
+        },
+        "sha": "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797"
+      },
+      "seconds": 0.855,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3373": {
+      "base": {
+        "observed": {
+          "raw_query": "/?a=b%20c&d=e/f",
+          "structured": "/?a=b%20c&d=e%2Ff"
+        },
+        "sha": "d293374b6603816420a2bb8e7f4fe5a5f09cbfcc"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "raw_query": "/?a=b%20c&d=e/f",
+          "structured": "/?a=b+c&d=e/f"
+        },
+        "sha": "ba2e51215e4e619540f2a24282b84ed8a738e6fd"
+      },
+      "seconds": 0.811,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3375": {
+      "base": {
+        "observed": {
+          "source_subtree": "httpx",
+          "tree": "9d1e211085ea8574b1026ef3c6c474396c7dfdb1"
+        },
+        "sha": "5dda2aa30692e8529555f57efa7bcd203a7d5ac1"
+      },
+      "comparison": "same",
+      "head": {
+        "observed": {
+          "source_subtree": "httpx",
+          "tree": "9d1e211085ea8574b1026ef3c6c474396c7dfdb1"
+        },
+        "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+      },
+      "seconds": 0.027,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3377": {
+      "base": {
+        "observed": {
+          "after_constructing_client": {
+            "certifi": true,
+            "httpcore": true
+          },
+          "after_import": {
+            "certifi": true,
+            "httpcore": true
+          }
+        },
+        "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "after_constructing_client": {
+            "certifi": true,
+            "httpcore": true
+          },
+          "after_import": {
+            "certifi": false,
+            "httpcore": false
+          }
+        },
+        "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+      },
+      "seconds": 0.812,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3378": {
+      "base": {
+        "observed": {
+          "type": "str",
+          "value": "GET"
+        },
+        "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+      },
+      "comparison": "different",
+      "head": {
+        "observed": {
+          "type": "bytes",
+          "value": "GET"
+        },
+        "sha": "66225539796d819b5114ead2fd5e4d61865ab708"
+      },
+      "seconds": 0.482,
+      "source_url": "https://github.com/encode/httpx"
+    },
+    "httpx-3387": {
+      "base": {
+        "observed": {
+          "header_values": [
+            "one",
+            "two"
+          ],
+          "links": {
+            "next": {
+              "rel": "next",
+              "url": "https://example.invalid/next"
+            }
+          }
+        },
+        "sha": "6212e8fa3bf90154b891c7721f6d29737caac861"
+      },
+      "comparison": "same",
+      "head": {
+        "observed": {
+          "header_values": [
+            "one",
+            "two"
+          ],
+          "links": {
+            "next": {
+              "rel": "next",
+              "url": "https://example.invalid/next"
+            }
+          }
+        },
+        "sha": "41597adffa9d34171a63f7511fc0f702558dd08c"
+      },
+      "seconds": 0.472,
+      "source_url": "https://github.com/encode/httpx"
+    }
+  },
+  "python": "3.12.13",
+  "repeats_per_revision": 2,
+  "schema": 1
+}

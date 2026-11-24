@@ -2,7 +2,7 @@
 
 The [benchmark results](benchmark.md) compare Undertow local, Undertow with Gemini, and Copilot CLI on the same revision pairs, with per-finding judgments and saved run records. The [competitive pilot instructions](competitive-pilot.md) cover reproduction and independent assessment.
 
-The [runtime verification trial](runtime-verification.md) replays selected findings against both Git revisions and records the observed outcomes.
+The [Click stdin trial](click-replay.md) contrasts passing upstream suites with a generated regression test. The [runtime verification trial](runtime-verification.md) replays selected findings against both Git revisions. The [v0.5.0 source benchmark](benchmark.md#v050-rerun) also checks the frozen corpus and supplemental regression against both revisions.
 
 ## v0.3.0 historical baseline
 

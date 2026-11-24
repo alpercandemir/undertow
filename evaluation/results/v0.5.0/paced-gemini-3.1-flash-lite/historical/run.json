@@ -1,0 +1,213 @@
+{
+  "cases": {
+    "click-2365": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.565,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-2604": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 5.43,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-2680": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 1.117,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-2846": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 2.772,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-2930": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 2.221,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-2935": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 7.287,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-2972": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.415,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-2990": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 14.759,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-3004": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 7.536,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "click-3009": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 0,
+      "seconds": 0.114,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-2998": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 4,
+      "seconds": 2.372,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3116": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 3,
+      "seconds": 2.823,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3178": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 5,
+      "seconds": 10.498,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3364": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 0.466,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3367": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 1,
+      "seconds": 35.262,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3373": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 6,
+      "seconds": 2.67,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3375": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 0,
+      "seconds": 0.114,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3377": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 12,
+      "seconds": 1.768,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3378": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 12.794,
+      "status": "no_findings",
+      "version": "0.5.0"
+    },
+    "httpx-3387": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 10,
+      "seconds": 8.783,
+      "status": "no_findings",
+      "version": "0.5.0"
+    }
+  },
+  "git": "git version 2.56.1",
+  "manifest_sha256": "02bfdb79cb3daf9f63d7fac39013c5d894af9680c4adacfc9464f61924b412f2",
+  "platform": "linux",
+  "python": "3.12.3",
+  "requested_mode": "gemini",
+  "requested_model": "gemini-3.1-flash-lite",
+  "schema": 1,
+  "undertow_commit": "7d6c9b09705b439d7a246ca5e93b38a29dcf2e8a",
+  "worker_sha256": "fa39022fa97045c1dab0145597afa7c593d461fec34bf979a8dbaa6fca876545"
+}

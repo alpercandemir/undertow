@@ -58,8 +58,17 @@ def command_name(_):
     def my_sync_command():
         pass
 
+    @click.command()
+    def my_data_command():
+        pass
+
+    @click.command("")
+    def explicit_name():
+        pass
+
     return {"name": my_sync_command.name,
-            "help": CliRunner().invoke(my_sync_command, ["--help"]).output}
+            "help": CliRunner().invoke(my_sync_command, ["--help"]).output,
+            "data_command_name": my_data_command.name, "explicit_empty_name": explicit_name.name}
 
 
 def zsh_completion(_):
@@ -96,6 +105,8 @@ def missing_option(_):
 def json_body(_):
     import httpx
 
+    compact = httpx.Request("POST", "https://example.invalid", json={"test": 123})
+
     def observe(value):
         try:
             request = httpx.Request("POST", "https://example.invalid", json={"key": value})
@@ -103,7 +114,8 @@ def json_body(_):
             return {"error": type(error).__name__, "message": str(error)}
         return {"body": request.content.decode("utf-8"), "hex": request.content.hex()}
 
-    return {"accented": observe("á"), "infinity": observe(float("inf"))}
+    return {"compact": {"body": compact.content.decode(), "length": compact.headers["content-length"]},
+            "accented": observe("á"), "infinity": observe(float("inf")), "nan": observe(float("nan"))}
 
 
 def text_stream(_):
@@ -111,8 +123,9 @@ def text_stream(_):
     from httpx._decoders import LineDecoder
 
     response = httpx.Response(200, content=iter((b"Hello,", b" world!")))
+    split = httpx.Response(200, content=iter((b"\xe2", b"\x82", b"\xac")))
     return {"line_decoder_empty": LineDecoder().decode(""),
-            "iter_text": list(response.iter_text())}
+            "iter_text": list(response.iter_text()), "split_utf8": list(split.iter_text())}
 
 
 def header_refactor(_):
@@ -121,6 +134,176 @@ def header_refactor(_):
     response = httpx.Response(200, headers={"link": '<https://example.invalid/next>; rel="next"'})
     return {"links": response.links,
             "header_values": httpx.Headers([("X-Value", "one"), ("X-Value", "two")]).get_list("x-value")}
+
+
+def choice_help(_):
+    import click
+    from click.testing import CliRunner
+
+    def help_for(choices, show_choices):
+        command = click.Command("cli", params=[click.Option(
+            ["--choice"], type=click.Choice(choices), show_choices=show_choices,
+        )])
+        result = CliRunner().invoke(command, ["--help"])
+        if result.exception:
+            return {"error": type(result.exception).__name__}
+        return {"output": result.output, "exit_code": result.exit_code}
+
+    return {"show_strings": help_for(["foo", "bar"], True),
+            "hide_strings": help_for(["foo", "bar"], False),
+            "hide_integers": help_for([1, 2], False)}
+
+
+def context_exit(_):
+    import click
+    from click.exceptions import Exit
+
+    calls = []
+    context = click.Context(click.Command("cli"))
+    context.call_on_close(lambda: calls.append("closed"))
+    try:
+        context.exit(3)
+    except Exit as error:
+        return {"exit_code": error.exit_code, "callbacks": calls}
+    raise RuntimeError("Context.exit returned without raising Exit.")
+
+
+def typed_flag(_):
+    import click
+    from click.testing import CliRunner
+
+    def observed(type_, default, args=("--foo",), env=None):
+        values = []
+
+        @click.command()
+        @click.option("--foo", is_flag=True, type=type_, envvar="TEST_FLAG", **default)
+        def cli(foo):
+            values.append(foo)
+            click.echo(foo)
+
+        result = CliRunner().invoke(cli, list(args), env=env)
+        return {"flag_value": cli.params[0].flag_value, "values": values, "output": result.output,
+                "exit_code": result.exit_code}
+
+    return {"bool": observed(bool, {}), "bool_default_true": observed(bool, {"default": True}),
+            "string": observed(str, {}), "env_false": observed(bool, {}, (), {"TEST_FLAG": "false"})}
+
+
+def nested_completion(_):
+    from click import Command, Group, Option
+    from click.shell_completion import ShellComplete
+
+    leaf = Command("data", params=[Option(["-a"])])
+    full = Group("full", commands=[leaf], params=[Option(["--verbose"])])
+    cli = Group("cli", commands=[Group("get", commands=[full])])
+
+    def complete(args, word):
+        completion = ShellComplete(cli, {}, "cli", "_CLICK_COMPLETE")
+        return [item.value for item in completion.get_completions(args, word)]
+
+    return {"leaf": complete(["get", "full"], ""),
+            "group_options": complete(["get", "full"], "-"),
+            "leaf_options": complete(["get", "full", "data"], "-")}
+
+
+def parameter_hints(_):
+    import click
+
+    hints = ["--foo", "-f"]
+    return {"invalid": click.BadParameter("bad input", param_hint=hints).format_message(),
+            "missing": click.MissingParameter(param_hint=hints, param_type="option").format_message()}
+
+
+def enum_default(_):
+    from enum import Enum
+    import click
+    from click.testing import CliRunner
+
+    class Color(Enum):
+        RED = 1
+
+    command = click.Command("cli", params=[click.Option(
+        ["--color"], type=click.Choice(Color), default=Color.RED, show_default=True,
+    )])
+    result = CliRunner().invoke(command, ["--help"])
+    return {"output": result.output, "exit_code": result.exit_code}
+
+
+def stdin_iteration(_):
+    import click
+    from click.testing import CliRunner
+
+    @click.command()
+    @click.argument("stream", type=click.File("r"))
+    def cli(stream):
+        for line in stream:
+            click.echo(line, nl=False)
+
+    result = CliRunner().invoke(cli, ["-"], input="test\n")
+    return {"output": result.output, "exit_code": result.exit_code}
+
+
+def request_timeout(_):
+    import asyncio
+    import httpx
+
+    async def send():
+        def observe(request):
+            return httpx.Response(200, json=request.extensions)
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(observe), timeout=1e-6) as client:
+            request = httpx.Request("GET", "https://example.invalid/slow_response")
+            fresh = (await client.send(request)).json()
+        with httpx.Client(transport=httpx.MockTransport(observe), timeout=1) as first:
+            request = httpx.Request("GET", "https://example.invalid/slow_response")
+            first_use = first.send(request).json()
+        with httpx.Client(transport=httpx.MockTransport(observe), timeout=None) as second:
+            return {"fresh": fresh, "first_use": first_use, "reuse": second.send(request).json()}
+
+    return asyncio.run(send())
+
+
+def socks_scheme(_):
+    import httpx
+
+    try:
+        with httpx.Client(proxy="socks5h://localhost/", trust_env=False) as client:
+            transport = client._transport_for_url(httpx.URL("https://example.invalid/"))
+            return {"pool": type(transport._pool).__name__}
+    except ValueError as error:
+        return {"error": str(error)}
+
+
+def request_query(_):
+    import httpx
+
+    return {str(params): str(httpx.Request("GET", "https://example.invalid/?a=1", params=params).url)
+            for params in (None, {}, {"b": "2"})}
+
+
+def query_encoding(_):
+    import httpx
+
+    return {"raw_query": httpx.URL("https://example.invalid/?a=b c&d=e/f").raw_path.decode(),
+            "structured": httpx.URL("https://example.invalid/", params={"a": "b c", "d": "e/f"}).raw_path.decode()}
+
+
+def deferred_imports(_):
+    import httpx
+
+    def modules():
+        return {name: name in sys.modules for name in ("certifi", "httpcore")}
+
+    after_import = modules()
+    with httpx.Client(trust_env=False):
+        return {"after_import": after_import, "after_constructing_client": modules()}
+
+
+def bytes_method(_):
+    import httpx
+
+    method = httpx.Request(b"get", "https://example.invalid/").method
+    return {"type": type(method).__name__, "value": method.decode() if isinstance(method, bytes) else method}
 
 
 PROBES = {
@@ -133,6 +316,22 @@ PROBES = {
     "httpx-3367": (".", json_body),
     "httpx-3387": (".", header_refactor),
 }
+TRIAL_CASES = tuple(PROBES)
+PROBES.update({
+    "click-2365": ("src", choice_help),
+    "click-2680": ("src", context_exit),
+    "click-2930": ("src", typed_flag),
+    "click-2934": ("src", stdin_iteration),
+    "click-2935": ("src", nested_completion),
+    "click-2990": ("src", parameter_hints),
+    "click-3004": ("src", enum_default),
+    "httpx-3116": (".", request_timeout),
+    "httpx-3178": (".", socks_scheme),
+    "httpx-3364": (".", request_query),
+    "httpx-3373": (".", query_encoding),
+    "httpx-3377": (".", deferred_imports),
+    "httpx-3378": (".", bytes_method),
+})
 
 
 def main():

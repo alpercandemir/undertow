@@ -103,6 +103,7 @@ class ScoreTests(TestCase):
                  "sources": [ref]}
         findings = parse_response(f"Inspecting source.\n\n```json\n{json.dumps([claim])}\n```\n")
         self.assertEqual(parse_response("Inspecting source.\n[]\n"), [])
+        self.assertEqual(parse_response(f"Inspecting [source].{json.dumps([claim])}\n"), [claim])
         hit = {"seconds": 10, **finding_fields(findings)}
         miss = {"status": "no_findings", "mode": "local", "seconds": 1, "finding_ids": []}
         header = {"schema": 1, "manifest_sha256": evaluation.digest(manifest)}

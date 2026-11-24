@@ -1,0 +1,30 @@
+{
+  "version": "0.5.0",
+  "schema_version": 1,
+  "status": "no_findings",
+  "mode": "local",
+  "base": "cfa6f4ad3e0078db43f866246b483544afa33ed3",
+  "head": "262bdf02288daf9a37b9e815b44acafd62b5c6fe",
+  "coverage": {
+    "changed_files": 5,
+    "ignored_files": 4,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 2,
+    "reviewed_files": 1,
+    "related_regions": 0
+  },
+  "findings": [],
+  "evidence": {},
+  "related_references": [],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (4).",
+    "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+  ],
+  "analysis_limitations": [
+    "Behavior changes may still exist.",
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ]
+}

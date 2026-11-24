@@ -1,0 +1,99 @@
+{
+  "version": "0.5.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5",
+  "head": "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797",
+  "coverage": {
+    "changed_files": 7,
+    "ignored_files": 6,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 1,
+    "reviewed_files": 1,
+    "related_regions": 1
+  },
+  "findings": [
+    {
+      "priority_reason": "P2 indicates changed outcomes in an existing flow, as JSON request payload encoding now defaults to compact separators, allows non-ASCII characters without escaping, and disallows NaN/Infinity values.",
+      "title": "JSON payload serialization parameters updated for compactness and strictness",
+      "flow": "JSON request encoding",
+      "before": "JSON payloads were serialized using default python json settings.",
+      "after": "JSON payloads are serialized with ensure_ascii=False, compact separators, and allow_nan=False.",
+      "scenario": "Encoding a dictionary containing non-ASCII characters, NaN, or requiring compact formatting",
+      "example_before": "{\"message\": \"caf\\u00e9\", \"value\": NaN}",
+      "example_after": "{\"message\":\"caf\u00e9\"} (raises ValueError on NaN)",
+      "potential_impact": "Consumers sending requests with float NaN or Infinity values will encounter serialization errors, and receiving servers will receive unescaped UTF-8 characters with reduced payload size due to removed whitespace.",
+      "review_question": "Does the downstream API consumer expect NaN values to be rejected or non-ASCII characters to be unescaped in JSON request bodies?",
+      "priority": "P2",
+      "evidence": [
+        "D1"
+      ],
+      "id": "F1",
+      "analysis_mode": "gemini",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "Encoding a dictionary containing non-ASCII characters, NaN, or requiring compact formatting",
+        "precondition": null,
+        "base_outcome": "{\"message\": \"caf\\u00e9\", \"value\": NaN}",
+        "head_outcome": "{\"message\":\"caf\u00e9\"} (raises ValueError on NaN)"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "httpx/_content.py",
+        "start": 177,
+        "end": 177
+      },
+      "head": {
+        "path": "httpx/_content.py",
+        "start": 177,
+        "end": 179
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "httpx/_content.py",
+        "start": 210,
+        "end": 218
+      },
+      "head": {
+        "path": "httpx/_content.py",
+        "start": 212,
+        "end": 220
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "encode_json",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "verified",
+      "target_path": "httpx/_content.py",
+      "relationship_by_revision": {
+        "base": "verified",
+        "head": "verified"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (6).",
+    "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.5-flash-lite"
+}

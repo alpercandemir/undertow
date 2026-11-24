@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "no_observed_difference",
+  "base": {
+    "sha": "cfa6f4ad3e0078db43f866246b483544afa33ed3"
+  },
+  "head": {
+    "sha": "2a0e3ba907927ade6951d5732b775f11b54cb766"
+  },
+  "findings": [],
+  "notes": []
+}

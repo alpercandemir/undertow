@@ -1,0 +1,31 @@
+{
+  "version": "0.5.0",
+  "schema_version": 1,
+  "status": "no_findings",
+  "mode": "local",
+  "base": "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f",
+  "head": "6d852d319acd5d97caf14037dff15ede04b37542",
+  "coverage": {
+    "changed_files": 2,
+    "ignored_files": 1,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 3,
+    "reviewed_files": 1,
+    "related_regions": 1
+  },
+  "findings": [],
+  "evidence": {},
+  "related_references": [],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (1).",
+    "Gemini returned HTTP 503. Local source rules were used.",
+    "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+  ],
+  "analysis_limitations": [
+    "Behavior changes may still exist.",
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ]
+}

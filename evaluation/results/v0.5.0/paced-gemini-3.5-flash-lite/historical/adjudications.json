@@ -1,0 +1,24 @@
+{
+  "click-2680": {
+    "8c8473a566407dd42604ee1dcefab0679ed823ad24afe4ed44adcb7babf825ba": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The pinned Context.exit now calls close before raising Exit. The paired probe verifies the registered callback ran when Exit was caught on head.",
+      "verdict": "correct"
+    }
+  },
+  "httpx-3367": {
+    "ed5dd02b06230fcc21a9160d85d333be324103fbb25ee44e400fb593eca76aff": {
+      "changes": [
+        "1",
+        "2",
+        "3"
+      ],
+      "concrete": false,
+      "reason": "The paired serialization probes confirm compact separators, literal UTF-8 and rejection of NaN. The example changes the input by dropping the NaN field to show a successful head body, so it gives no accurate head body for the same request.",
+      "verdict": "correct"
+    }
+  }
+}

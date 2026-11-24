@@ -1,0 +1,171 @@
+{
+  "version": "0.5.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "a8c05427602d12842c53ce48b03b5d6b5c0c6693",
+  "head": "c326df95e9e3da0425360e030413f6a3ee25fdee",
+  "coverage": {
+    "changed_files": 4,
+    "ignored_files": 3,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 1,
+    "reviewed_files": 1,
+    "related_regions": 4
+  },
+  "findings": [
+    {
+      "priority_reason": "Invoking ctx.exit() now automatically closes callbacks registered with call_on_close before raising Exit, changing cleanup timing for any application exit flow.",
+      "title": "Context exit triggers registered close callbacks",
+      "flow": "Application Exit Flow",
+      "before": "def exit(self, code: int = 0) -> t.NoReturn: \"\"\"Exits the application with a given exit code.\"\"\" raise Exit(code)",
+      "after": "def exit(self, code: int = 0) -> t.NoReturn: \"\"\"Exits the application with a given exit code. .. versionchanged:: 8.2 Force closing of callbacks registered with :meth:`call_on_close` before exiting the CLI. \"\"\" self.close() raise Exit(code)",
+      "scenario": "A context with a registered close callback calls ctx.exit().",
+      "example_before": "ctx.exit(0) raises Exit(0) immediately without invoking the close callback.",
+      "example_after": "ctx.exit(0) invokes self.close() on the context, executing the registered close callback, then raises Exit(0).",
+      "potential_impact": "Resources managed via call_on_close will now be released during any call to ctx.exit() rather than surviving past context teardown initiated by exit.",
+      "review_question": "Do any existing callers rely on close callbacks deferring execution past an explicit ctx.exit() call?",
+      "priority": "P2",
+      "evidence": [
+        "D1"
+      ],
+      "id": "F1",
+      "analysis_mode": "gemini",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "A context with a registered close callback calls ctx.exit().",
+        "precondition": null,
+        "base_outcome": "ctx.exit(0) raises Exit(0) immediately without invoking the close callback.",
+        "head_outcome": "ctx.exit(0) invokes self.close() on the context, executing the registered close callback, then raises Exit(0)."
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 702,
+        "end": 702
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 702,
+        "end": 708
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 1312,
+        "end": 1320
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 1318,
+        "end": 1326
+      }
+    },
+    "R2": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 1133,
+        "end": 1141
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 1139,
+        "end": 1147
+      }
+    },
+    "R3": {
+      "base": {
+        "path": "src/click/core.py",
+        "start": 995,
+        "end": 1003
+      },
+      "head": {
+        "path": "src/click/core.py",
+        "start": 1001,
+        "end": 1009
+      }
+    },
+    "R4": {
+      "base": {
+        "path": "src/click/decorators.py",
+        "start": 510,
+        "end": 518
+      },
+      "head": {
+        "path": "src/click/decorators.py",
+        "start": 510,
+        "end": 518
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "exit",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "exit",
+      "caller": "parse_args",
+      "hop": 1,
+      "evidence": "R2",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "exit",
+      "caller": "show_help",
+      "hop": 1,
+      "evidence": "R3",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    },
+    {
+      "symbol": "exit",
+      "caller": "callback",
+      "hop": 1,
+      "evidence": "R4",
+      "relationship": "candidate",
+      "target_path": "src/click/core.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (3).",
+    "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.5-flash-lite"
+}
