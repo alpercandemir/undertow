@@ -1,0 +1,39 @@
+{
+  "httpx-2998": {
+    "probe": "httpx_stream",
+    "label_ids": ["1"],
+    "review_value": "already_documented_and_tested",
+    "source": "https://github.com/encode/httpx/pull/2998"
+  },
+  "httpx-3364": {
+    "probe": "httpx_request",
+    "label_ids": ["1"],
+    "review_value": "additional_to_original_description_and_tests",
+    "source": "https://github.com/encode/httpx/pull/3364",
+    "later_contract": "https://github.com/encode/httpx/pull/3440",
+    "generated_test": {
+      "base": "failed",
+      "head": "passed",
+      "later_contract_commit": "8ecb86f0d74ffc52d4663214fae9526bee89358d",
+      "later_contract": "passed"
+    }
+  },
+  "httpx-3367": {
+    "probe": "httpx_json",
+    "label_ids": ["1", "2"],
+    "review_value": "already_documented_and_tested",
+    "source": "https://github.com/encode/httpx/pull/3367"
+  },
+  "httpx-3373": {
+    "probe": "httpx_request",
+    "label_ids": ["1"],
+    "review_value": "already_documented_and_tested",
+    "source": "https://github.com/encode/httpx/pull/3373"
+  },
+  "httpx-3378": {
+    "probe": "httpx_request",
+    "label_ids": ["1"],
+    "review_value": "runtime_witness_for_declared_api_change",
+    "source": "https://github.com/encode/httpx/pull/3378"
+  }
+}

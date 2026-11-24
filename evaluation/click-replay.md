@@ -21,7 +21,7 @@ We also ran the generated test with the full suites. On the regressed revision, 
 
 - Differential testing uses one generated input across comparable implementations or revisions. A difference supplies evidence to review. The project contract supplies the expected result for a permanent assertion. [McKeeman, Differential Testing for Software](https://www.mrynet.com/FTP/os/DEC/dtj-v10-01_1998.pdf)
 - Hypothesis offers equivalence properties and shrinking around an author-supplied input domain. DSpot amplifies existing tests by varying inputs and assertions. Undertow currently uses bounded, deterministic inputs and a trusted public API probe. The Click result measures this narrower approach on one known regression. [Hypothesis Ghostwriter](https://hypothesis.readthedocs.io/en/latest/ghostwriter.html) · [DSpot study](https://arxiv.org/abs/1811.08330)
-- Diffblue uses coverage information to prune generated Java tests. Undertow's CI gate establishes that the existing suite passed. Its evidence IDs suppress exact duplicates. Coverage beyond the suite and the materiality of an observation still require review. [Diffblue coverage optimization](https://cover-docs.diffblue.com/features/cover-cli/writing-tests/test-coverage-optimizations)
+- Diffblue uses coverage information to prune generated Java tests. This experiment measured the existing suite and the generated test separately. Reviewers establish whether a replay observation extends coverage and matters to the contract. [Diffblue coverage optimization](https://cover-docs.diffblue.com/features/cover-cli/writing-tests/test-coverage-optimizations)
 
 ## Reproduce
 

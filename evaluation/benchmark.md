@@ -2,6 +2,57 @@
 
 Compare the [November 24 v0.5.0 benchmark](#v050-rerun) with the [November 20 baseline](#measured-results-on-the-frozen-20-prs). Both use the same 20 merged Click and HTTPX PRs and 18 frozen behavior labels.
 
+## Runtime product value after passing tests
+
+**Automatic replay provided no review evidence on this corpus.** Reusable probes supplied five reproducible observations, including one material effect absent from the original PR description and its tests. This supports using replay to explore a selected public API and turn evidence into a test. Repository-wide automatic review has yet to earn its CI and review cost on the measured workload. [Run record](results/product-value/run.json) · [Adjudications](results/product-value/adjudications.json)
+
+### What we measured
+
+The run used replay from Undertow `74af953` on the 20 frozen historical comparisons and the separately recorded Click stdin regression. All 35 distinct snapshots passed their existing local test suites. Click ran its ordinary pytest suite. HTTPX ran pytest with its AnyIO plugin and its external-network marker excluded. Historical suites share pager files or loopback ports, so each library's suites ran serially in fresh snapshots. Results reflect local macOS runs on Python 3.12.13 and pytest 8.3.5. [Frozen historical labels](historical.json) · [Stdin regression label](click-stdin-regression.json) · [Runner](product_value.py)
+
+| Mode | Cases with comparable output | Cases with a reproduced difference | Historical labels observed | Additional material evidence beyond the original PR and tests |
+| --- | ---: | ---: | ---: | ---: |
+| Default discovery | 0 / 21 | 0 / 21 | 0 / 18 | 0 |
+| Four reused public API probes | 21 / 21 | 5 / 21 | 6 / 18 | 1 |
+
+The four reused probes were the prior Click option pilot plus three small HTTPX probes for request construction, JSON, and streaming. The same probe set ran on every pair in each library. It used 54 nonblank lines of probe code and completed 41 probe runs. The historical labels were already known when this trial was designed. The counts measure retrospective coverage for these probes. The supplemental stdin regression was outside the reused probe's exercised API path. [Click options](probes/click_options.py) · [HTTPX request](probes/httpx_request.py) · [HTTPX JSON](probes/httpx_json.py) · [HTTPX streaming](probes/httpx_stream.py)
+
+The default engine reported that it found no supported changed Python function on every pair. The target filter covers modified top-level functions with one supported numeric or list parameter. Many of these changes affect methods, context and state. The sample was chosen for behavior labels and has little coverage of application-specific numeric rules. Default replay did verify the free-shipping boundary in two synthetic storefront controls. Both PRs already described that boundary. [Target filter](../actions/behavior-replay/discover.py) · [Control observations](results/product-value/showcase-controls.json) · [Storefront PR #5](https://github.com/alpercandemir/undertow-showcase/pull/5) · [Storefront PR #6](https://github.com/alpercandemir/undertow-showcase/pull/6)
+
+### What the probes added
+
+| PR | Observed outcome | Value for review |
+| --- | --- | --- |
+| [HTTPX #2998](https://github.com/encode/httpx/pull/2998) | `iter_text()` stopped yielding an empty final chunk. | The PR and regression test already showed this. |
+| [HTTPX #3364](https://github.com/encode/httpx/pull/3364) | `Request(..., params={})` cleared an existing query. | The PR described a refactor and changed no tests. This is additional compatibility evidence. |
+| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) | JSON became compact and wrote unescaped UTF-8. | The PR and tests already covered both changes. The first reported witness left the separate non-finite-number label unobserved. |
+| [HTTPX #3373](https://github.com/encode/httpx/pull/3373) | A space became `+` and a slash stayed unescaped in a structured query. | The PR and tests already covered the encoding change. |
+| [HTTPX #3378](https://github.com/encode/httpx/pull/3378) | Passing a byte method left `request.method` as bytes on head. | The PR declared a method API change. Replay supplied an exact runtime witness. |
+
+On HTTPX #3364, both existing suites passed 1,425 tests in the local non-network run. The generated input selected empty params and showed `https://example.invalid/?a=1` becoming `https://example.invalid/`. The exported pytest test used the reviewed head expectation. It failed on base, passed on head, and passed at the later upstream commit that added an equivalent assertion. The later test adopted the behavior. The saved Copilot review also described the effect. Undertow's additional contribution was an executed witness and a runnable test. [Generated pytest](results/product-value/test_httpx_request.py) · [Upstream test](https://github.com/encode/httpx/pull/3440) · [Copilot evidence](results/v0.5.0/copilot/historical/httpx-3364/response.txt)
+
+Four of five observations confirmed behavior that the upstream material already announced or tested. Replay reproduced six historical labels. Five overlapped with Copilot's 17 labels. The sixth, the final empty chunk in HTTPX #2998, was already covered by the upstream regression test. The reused Click probe completed 11 comparisons with zero observed differences, including the supplemental regression. A separate probe written for the known stdin path produced a regression-catching test. The earlier six-pair option pilot also reported zero differences. [Copilot adjudications](results/v0.5.0/copilot/historical/adjudications.json) · [Targeted Click test](click-replay.md) · [Option pilot](click-options-pilot.md)
+
+Median local replay time was 0.237 seconds for default discovery, 0.507 seconds for the single Click probe per case, and 6.088 seconds in total for the three HTTPX probes per case. These times exclude pytest and probe preparation. The runtime comparisons used zero model calls. A direct pytest assertion for the exact HTTPX #3364 input and expected URL had the same pass/fail results as the exported test on all three revisions.
+
+### Product assessment
+
+- **Default PR review.** The measured corpus yielded no automatic runtime comparisons and no labeled findings from local source rules. In the saved v0.5.0 source benchmark, Copilot found 17 of 18 labels. Default Gemini 3.8 Flash completed zero reviews. Gemini 3.5 Flash-Lite completed four of 20, and Copilot also found all four labels it reported. These results give limited grounds to add Undertow to every PR in the measured repositories. [Source-review results](#november-24-results)
+- **On-demand API investigation.** A reusable probe can vary inputs, show a difference after the existing suite passes, and produce a test for an outcome a reviewer selects. HTTPX #3364 demonstrates this use. It required a human-authored Request probe and the tool supplied an input and executed the comparison. Click #2934 demonstrates the same workflow for a regression scenario chosen with hindsight. The trial did not measure probe-authoring time, reviewer time saved, or adoption.
+- **Existing test replay.** In a separate Django Oscar rounding fix, default behavior replay found no supported target and local source review produced no findings. Undertow copied the assertion already added by the PR and showed that it failed on base and passed on head. That comparison can help validate a fix. The new behavior was already covered by the PR's test. [Django Oscar #4448](https://github.com/django-oscar/django-oscar/pull/4448) · [Run results](results/product-value/django-oscar-4448.json)
+
+### Reproduce
+
+Prepare the two bare repositories from the [competitive pilot instructions](competitive-pilot.md#prepare-the-repositories). Use Python 3.12 and the recorded dependency versions.
+
+```sh
+trial=.undertow/product-value-rerun
+uv venv --python 3.12 "$trial/venv"
+uv pip install --python "$trial/venv/bin/python" -r evaluation/product-value-requirements.txt
+"$trial/venv/bin/python" -B evaluation/product_value.py \
+  --repos .undertow/eval-repos --output "$trial/run" --jobs 4
+```
+
 ## v0.5.0 rerun
 
 The [release worker](https://github.com/alpercandemir/undertow/blob/7d6c9b09705b439d7a246ca5e93b38a29dcf2e8a/actions/change-review/review_engine.py) ran against the 20 pinned PRs and the supplemental Click stdin regression. GitHub-hosted Ubuntu 24.04 ran local rules and the Gemini Developer API calls with the existing repository secret. The first pass selected the v0.5.0 default (`gemini-3.8-flash`) and the historical model (`gemini-3.1-flash-lite`). The second pass added `gemini-3.5-flash-lite`, waited 12 seconds between cases, and recorded the API response statuses and token counts outside the release worker. Worker timing excludes the wait. [First pass](https://github.com/alpercandemir/undertow/actions/runs/45436689272) · [Paced pass](https://github.com/alpercandemir/undertow/actions/runs/45437656813) · [Paced workflow and observer](https://github.com/alpercandemir/undertow/tree/3eeede21f571802091a374e8ee8451cca07c4555)

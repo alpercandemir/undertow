@@ -1,0 +1,1483 @@
+{
+  "cases": {
+    "click-2365": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "02046e7a19480f85fff7e4577486518abe47e401"
+          },
+          "findings": [],
+          "head": {
+            "sha": "1a4d8c1bb1e8f8e214ede7223bd2c05dc2ce006a"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.51
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "02046e7a19480f85fff7e4577486518abe47e401"
+          },
+          "findings": [],
+          "head": {
+            "sha": "1a4d8c1bb1e8f8e214ede7223bd2c05dc2ce006a"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.236
+      }
+    },
+    "click-2604": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "b63ace28d50b53e74b5260f6cb357ccfe5560133"
+          },
+          "findings": [],
+          "head": {
+            "sha": "9c5e989d52509498ce78a4015ebc7d9408f70c56"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.508
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "b63ace28d50b53e74b5260f6cb357ccfe5560133"
+          },
+          "findings": [],
+          "head": {
+            "sha": "9c5e989d52509498ce78a4015ebc7d9408f70c56"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.24
+      }
+    },
+    "click-2680": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "a8c05427602d12842c53ce48b03b5d6b5c0c6693"
+          },
+          "findings": [],
+          "head": {
+            "sha": "c326df95e9e3da0425360e030413f6a3ee25fdee"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.51
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "a8c05427602d12842c53ce48b03b5d6b5c0c6693"
+          },
+          "findings": [],
+          "head": {
+            "sha": "c326df95e9e3da0425360e030413f6a3ee25fdee"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.235
+      }
+    },
+    "click-2846": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "565f36d5bc4a15d304337b749e113fb4477b1843"
+          },
+          "findings": [],
+          "head": {
+            "sha": "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.506
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "565f36d5bc4a15d304337b749e113fb4477b1843"
+          },
+          "findings": [],
+          "head": {
+            "sha": "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.237
+      }
+    },
+    "click-2930": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "011b9f9d190c71310264e6c54bae6259f5e38a9f"
+          },
+          "findings": [],
+          "head": {
+            "sha": "884af5c20fdc95c9c7352df35c37273391464fb9"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.504
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "011b9f9d190c71310264e6c54bae6259f5e38a9f"
+          },
+          "findings": [],
+          "head": {
+            "sha": "884af5c20fdc95c9c7352df35c37273391464fb9"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.243
+      }
+    },
+    "click-2934": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "cfa6f4ad3e0078db43f866246b483544afa33ed3"
+          },
+          "findings": [],
+          "head": {
+            "sha": "262bdf02288daf9a37b9e815b44acafd62b5c6fe"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.507
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "cfa6f4ad3e0078db43f866246b483544afa33ed3"
+          },
+          "findings": [],
+          "head": {
+            "sha": "262bdf02288daf9a37b9e815b44acafd62b5c6fe"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.188
+      }
+    },
+    "click-2935": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "884af5c20fdc95c9c7352df35c37273391464fb9"
+          },
+          "findings": [],
+          "head": {
+            "sha": "b7cf06970e40a3144eb963ff34ed7c38934afb40"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.506
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "884af5c20fdc95c9c7352df35c37273391464fb9"
+          },
+          "findings": [],
+          "head": {
+            "sha": "b7cf06970e40a3144eb963ff34ed7c38934afb40"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.24
+      }
+    },
+    "click-2972": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "c88f333de440c5066ff563f784a6561f4713cf78"
+          },
+          "findings": [],
+          "head": {
+            "sha": "0be2bd385064053bb75f92db317de128db729d52"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.506
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "c88f333de440c5066ff563f784a6561f4713cf78"
+          },
+          "findings": [],
+          "head": {
+            "sha": "0be2bd385064053bb75f92db317de128db729d52"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.237
+      }
+    },
+    "click-2990": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9"
+          },
+          "findings": [],
+          "head": {
+            "sha": "7b72bfb8cd3a0cec38197f6786ed583b5b3737e7"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.505
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9"
+          },
+          "findings": [],
+          "head": {
+            "sha": "7b72bfb8cd3a0cec38197f6786ed583b5b3737e7"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.24
+      }
+    },
+    "click-3004": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d"
+          },
+          "findings": [],
+          "head": {
+            "sha": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.565
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d"
+          },
+          "findings": [],
+          "head": {
+            "sha": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.242
+      }
+    },
+    "click-3009": {
+      "click_options": {
+        "report": {
+          "base": {
+            "sha": "44fd6394b72c1186feae31e793cd1196e1024fe2"
+          },
+          "findings": [],
+          "head": {
+            "sha": "c88f333de440c5066ff563f784a6561f4713cf78"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "click.core",
+            "click.testing"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 0.569
+      },
+      "default": {
+        "report": {
+          "base": {
+            "sha": "44fd6394b72c1186feae31e793cd1196e1024fe2"
+          },
+          "findings": [],
+          "head": {
+            "sha": "c88f333de440c5066ff563f784a6561f4713cf78"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.189
+      }
+    },
+    "httpx-2998": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "90538a3b4610ba49ce16c997bcfdb9101f9503be"
+          },
+          "findings": [],
+          "head": {
+            "sha": "1e110964736a95d822144390b99d7ecf17fca527"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.242
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "90538a3b4610ba49ce16c997bcfdb9101f9503be"
+          },
+          "findings": [],
+          "head": {
+            "sha": "1e110964736a95d822144390b99d7ecf17fca527"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.027
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "90538a3b4610ba49ce16c997bcfdb9101f9503be"
+          },
+          "findings": [],
+          "head": {
+            "sha": "1e110964736a95d822144390b99d7ecf17fca527"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.046
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "90538a3b4610ba49ce16c997bcfdb9101f9503be"
+          },
+          "findings": [
+            {
+              "base": {
+                "returned": [
+                  "1",
+                  ""
+                ]
+              },
+              "head": {
+                "returned": [
+                  "1"
+                ]
+              },
+              "input": [
+                "1"
+              ],
+              "probe_sha256": "1efe2caef34baf77eb75d4130a542c0a11a0d4930cd417786c1c4b204e4b31fe",
+              "target": "httpx_stream.py::probe",
+              "type": "list[int]"
+            }
+          ],
+          "head": {
+            "sha": "1e110964736a95d822144390b99d7ecf17fca527"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "observed_difference"
+        },
+        "seconds": 2.91
+      }
+    },
+    "httpx-3116": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f"
+          },
+          "findings": [],
+          "head": {
+            "sha": "6d852d319acd5d97caf14037dff15ede04b37542"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.239
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f"
+          },
+          "findings": [],
+          "head": {
+            "sha": "6d852d319acd5d97caf14037dff15ede04b37542"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.037
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f"
+          },
+          "findings": [],
+          "head": {
+            "sha": "6d852d319acd5d97caf14037dff15ede04b37542"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.046
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f"
+          },
+          "findings": [],
+          "head": {
+            "sha": "6d852d319acd5d97caf14037dff15ede04b37542"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.973
+      }
+    },
+    "httpx-3178": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "findings": [],
+          "head": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.243
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "findings": [],
+          "head": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.219
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "findings": [],
+          "head": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.276
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "findings": [],
+          "head": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.155
+      }
+    },
+    "httpx-3364": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b"
+          },
+          "findings": [],
+          "head": {
+            "sha": "3f76571d3429497c4ee4ecf5d8bc034b6f765957"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.237
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b"
+          },
+          "findings": [],
+          "head": {
+            "sha": "3f76571d3429497c4ee4ecf5d8bc034b6f765957"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.981
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b"
+          },
+          "findings": [
+            {
+              "base": {
+                "returned": {
+                  "method": "GET",
+                  "method_type": "str",
+                  "url": "https://example.invalid/?a=1"
+                }
+              },
+              "head": {
+                "returned": {
+                  "method": "GET",
+                  "method_type": "str",
+                  "url": "https://example.invalid/"
+                }
+              },
+              "input": "1",
+              "probe_sha256": "318197eb498881aff2259572f97103a9d9d1d6e259639a6a16bc7c9199646bb1",
+              "target": "httpx_request.py::probe",
+              "type": "int"
+            }
+          ],
+          "head": {
+            "sha": "3f76571d3429497c4ee4ecf5d8bc034b6f765957"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "observed_difference"
+        },
+        "seconds": 2.947
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b"
+          },
+          "findings": [],
+          "head": {
+            "sha": "3f76571d3429497c4ee4ecf5d8bc034b6f765957"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.034
+      }
+    },
+    "httpx-3367": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5"
+          },
+          "findings": [],
+          "head": {
+            "sha": "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.187
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5"
+          },
+          "findings": [
+            {
+              "base": {
+                "returned": {
+                  "content": "{\"text\": \"caf\\u00e9\", \"value\": 0}",
+                  "length": "33"
+                }
+              },
+              "head": {
+                "returned": {
+                  "content": "{\"text\":\"caf\u00e9\",\"value\":0}",
+                  "length": "26"
+                }
+              },
+              "input": "0",
+              "probe_sha256": "077587052a9f6a8c9512ce1cc8b2549ce275c2f570381685ed20c9f193a22ca3",
+              "target": "httpx_json.py::probe",
+              "type": "int"
+            }
+          ],
+          "head": {
+            "sha": "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "observed_difference"
+        },
+        "seconds": 2.956
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5"
+          },
+          "findings": [],
+          "head": {
+            "sha": "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.038
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5"
+          },
+          "findings": [],
+          "head": {
+            "sha": "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.035
+      }
+    },
+    "httpx-3373": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "d293374b6603816420a2bb8e7f4fe5a5f09cbfcc"
+          },
+          "findings": [],
+          "head": {
+            "sha": "ba2e51215e4e619540f2a24282b84ed8a738e6fd"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.187
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "d293374b6603816420a2bb8e7f4fe5a5f09cbfcc"
+          },
+          "findings": [],
+          "head": {
+            "sha": "ba2e51215e4e619540f2a24282b84ed8a738e6fd"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.04
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "d293374b6603816420a2bb8e7f4fe5a5f09cbfcc"
+          },
+          "findings": [
+            {
+              "base": {
+                "returned": {
+                  "method": "GET",
+                  "method_type": "str",
+                  "url": "https://example.invalid/?next=text%20with%20space%2Fleaf"
+                }
+              },
+              "head": {
+                "returned": {
+                  "method": "GET",
+                  "method_type": "str",
+                  "url": "https://example.invalid/?next=text+with+space/leaf"
+                }
+              },
+              "input": "2",
+              "probe_sha256": "318197eb498881aff2259572f97103a9d9d1d6e259639a6a16bc7c9199646bb1",
+              "target": "httpx_request.py::probe",
+              "type": "int"
+            }
+          ],
+          "head": {
+            "sha": "ba2e51215e4e619540f2a24282b84ed8a738e6fd"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "observed_difference"
+        },
+        "seconds": 2.965
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "d293374b6603816420a2bb8e7f4fe5a5f09cbfcc"
+          },
+          "findings": [],
+          "head": {
+            "sha": "ba2e51215e4e619540f2a24282b84ed8a738e6fd"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.034
+      }
+    },
+    "httpx-3375": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "5dda2aa30692e8529555f57efa7bcd203a7d5ac1"
+          },
+          "findings": [],
+          "head": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.186
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "5dda2aa30692e8529555f57efa7bcd203a7d5ac1"
+          },
+          "findings": [],
+          "head": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.04
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "5dda2aa30692e8529555f57efa7bcd203a7d5ac1"
+          },
+          "findings": [],
+          "head": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.038
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "5dda2aa30692e8529555f57efa7bcd203a7d5ac1"
+          },
+          "findings": [],
+          "head": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 2.041
+      }
+    },
+    "httpx-3377": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "findings": [],
+          "head": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.24
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "findings": [],
+          "head": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.595
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "findings": [],
+          "head": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.595
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d"
+          },
+          "findings": [],
+          "head": {
+            "sha": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.709
+      }
+    },
+    "httpx-3378": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "findings": [],
+          "head": {
+            "sha": "66225539796d819b5114ead2fd5e4d61865ab708"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.185
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "findings": [],
+          "head": {
+            "sha": "66225539796d819b5114ead2fd5e4d61865ab708"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.218
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "findings": [
+            {
+              "base": {
+                "returned": {
+                  "method": "GET",
+                  "method_type": "str",
+                  "url": "https://example.invalid/"
+                }
+              },
+              "head": {
+                "returned": {
+                  "method": "GET",
+                  "method_type": "bytes",
+                  "url": "https://example.invalid/"
+                }
+              },
+              "input": "-1",
+              "probe_sha256": "318197eb498881aff2259572f97103a9d9d1d6e259639a6a16bc7c9199646bb1",
+              "target": "httpx_request.py::probe",
+              "type": "int"
+            }
+          ],
+          "head": {
+            "sha": "66225539796d819b5114ead2fd5e4d61865ab708"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "observed_difference"
+        },
+        "seconds": 1.857
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "12be5c44caa7a34bfe19f82eace5150ddeba2612"
+          },
+          "findings": [],
+          "head": {
+            "sha": "66225539796d819b5114ead2fd5e4d61865ab708"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.218
+      }
+    },
+    "httpx-3387": {
+      "default": {
+        "report": {
+          "base": {
+            "sha": "6212e8fa3bf90154b891c7721f6d29737caac861"
+          },
+          "findings": [],
+          "head": {
+            "sha": "41597adffa9d34171a63f7511fc0f702558dd08c"
+          },
+          "kind": "behavior",
+          "notes": [
+            "No supported changed Python function was found."
+          ],
+          "schema_version": 1,
+          "status": "unavailable"
+        },
+        "seconds": 0.24
+      },
+      "httpx_json": {
+        "report": {
+          "base": {
+            "sha": "6212e8fa3bf90154b891c7721f6d29737caac861"
+          },
+          "findings": [],
+          "head": {
+            "sha": "41597adffa9d34171a63f7511fc0f702558dd08c"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.171
+      },
+      "httpx_request": {
+        "report": {
+          "base": {
+            "sha": "6212e8fa3bf90154b891c7721f6d29737caac861"
+          },
+          "findings": [],
+          "head": {
+            "sha": "41597adffa9d34171a63f7511fc0f702558dd08c"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.207
+      },
+      "httpx_stream": {
+        "report": {
+          "base": {
+            "sha": "6212e8fa3bf90154b891c7721f6d29737caac861"
+          },
+          "findings": [],
+          "head": {
+            "sha": "41597adffa9d34171a63f7511fc0f702558dd08c"
+          },
+          "kind": "behavior",
+          "notes": [],
+          "probe_modules": [
+            "httpx._models"
+          ],
+          "schema_version": 1,
+          "status": "no_observed_difference"
+        },
+        "seconds": 1.173
+      }
+    }
+  },
+  "jobs": 4,
+  "manifests": {
+    "click-stdin-regression.json": "27a79847c20895cc4af9acffe49983d62d18ee709b71a92e7e73ad3dae1c2d35",
+    "historical.json": "02bfdb79cb3daf9f63d7fac39013c5d894af9680c4adacfc9464f61924b412f2"
+  },
+  "platform": "darwin",
+  "pytest": "8.3.5",
+  "python": "3.12.13",
+  "sources": {
+    "actions/behavior-replay/discover.py": "5262bef31d0c331b7a3ca0b4b152d10bf6f611fa91e0fa1d1105954899be368b",
+    "actions/behavior-replay/run_cases.py": "05a7cf4e9e38240360d02a63cb93c16a0dfa46cfc14d9009b56671dcd74d61ba",
+    "evaluation/probes/click_options.py": "b17319bfca0d4e06d59797d88d5e90ea4c033450233cde39b79f6041030d6220",
+    "evaluation/probes/httpx_json.py": "077587052a9f6a8c9512ce1cc8b2549ce275c2f570381685ed20c9f193a22ca3",
+    "evaluation/probes/httpx_request.py": "318197eb498881aff2259572f97103a9d9d1d6e259639a6a16bc7c9199646bb1",
+    "evaluation/probes/httpx_stream.py": "1efe2caef34baf77eb75d4130a542c0a11a0d4930cd417786c1c4b204e4b31fe"
+  },
+  "suites": {
+    "011b9f9d190c71310264e6c54bae6259f5e38a9f": {
+      "exit_code": 0,
+      "summary": "719 passed, 22 skipped, 1 xfailed in 1.12s"
+    },
+    "02046e7a19480f85fff7e4577486518abe47e401": {
+      "exit_code": 0,
+      "summary": "596 passed, 22 skipped, 1 xfailed in 0.73s"
+    },
+    "0be2bd385064053bb75f92db317de128db729d52": {
+      "exit_code": 0,
+      "summary": "896 passed, 22 skipped, 1 xfailed in 1.13s"
+    },
+    "12be5c44caa7a34bfe19f82eace5150ddeba2612": {
+      "exit_code": 0,
+      "summary": "1411 passed, 1 skipped, 5 deselected in 3.56s"
+    },
+    "1a4d8c1bb1e8f8e214ede7223bd2c05dc2ce006a": {
+      "exit_code": 0,
+      "summary": "601 passed, 22 skipped, 1 xfailed in 0.72s"
+    },
+    "1e110964736a95d822144390b99d7ecf17fca527": {
+      "exit_code": 0,
+      "summary": "840 passed, 1 skipped, 5 deselected in 3.37s"
+    },
+    "262bdf02288daf9a37b9e815b44acafd62b5c6fe": {
+      "exit_code": 0,
+      "summary": "738 passed, 22 skipped, 1 xfailed in 1.21s"
+    },
+    "3f76571d3429497c4ee4ecf5d8bc034b6f765957": {
+      "exit_code": 0,
+      "summary": "1425 passed, 1 skipped, 5 deselected in 3.36s"
+    },
+    "41597adffa9d34171a63f7511fc0f702558dd08c": {
+      "exit_code": 0,
+      "summary": "1411 passed, 1 skipped, 5 deselected in 3.30s"
+    },
+    "44fd6394b72c1186feae31e793cd1196e1024fe2": {
+      "exit_code": 0,
+      "summary": "896 passed, 22 skipped, 1 xfailed in 1.13s"
+    },
+    "565f36d5bc4a15d304337b749e113fb4477b1843": {
+      "exit_code": 0,
+      "summary": "870 passed, 22 skipped, 1 xfailed in 1.31s"
+    },
+    "5dda2aa30692e8529555f57efa7bcd203a7d5ac1": {
+      "exit_code": 0,
+      "summary": "1410 passed, 1 skipped, 5 deselected in 4.18s"
+    },
+    "6212e8fa3bf90154b891c7721f6d29737caac861": {
+      "exit_code": 0,
+      "summary": "1411 passed, 1 skipped, 5 deselected in 3.31s"
+    },
+    "66225539796d819b5114ead2fd5e4d61865ab708": {
+      "exit_code": 0,
+      "summary": "1411 passed, 1 skipped, 5 deselected in 3.38s"
+    },
+    "6d852d319acd5d97caf14037dff15ede04b37542": {
+      "exit_code": 0,
+      "summary": "853 passed, 1 skipped, 5 deselected in 3.25s"
+    },
+    "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b": {
+      "exit_code": 0,
+      "summary": "1425 passed, 1 skipped, 5 deselected in 3.35s"
+    },
+    "7b72bfb8cd3a0cec38197f6786ed583b5b3737e7": {
+      "exit_code": 0,
+      "summary": "896 passed, 22 skipped, 1 xfailed in 1.18s"
+    },
+    "884af5c20fdc95c9c7352df35c37273391464fb9": {
+      "exit_code": 0,
+      "summary": "730 passed, 22 skipped, 1 xfailed in 1.09s"
+    },
+    "8e36f2bc685dfbe43cd7503bc1c422a6ed6e05a5": {
+      "exit_code": 0,
+      "summary": "1407 passed, 1 skipped, 5 deselected in 3.25s"
+    },
+    "90538a3b4610ba49ce16c997bcfdb9101f9503be": {
+      "exit_code": 0,
+      "summary": "839 passed, 1 skipped, 5 deselected in 3.24s"
+    },
+    "9c5e989d52509498ce78a4015ebc7d9408f70c56": {
+      "exit_code": 0,
+      "summary": "593 passed, 22 skipped, 1 xfailed in 0.69s"
+    },
+    "9fd6f0ca6616d0310a3ee0b0c6ef509a97995797": {
+      "exit_code": 0,
+      "summary": "1410 passed, 1 skipped, 5 deselected in 3.35s"
+    },
+    "a1235aacb1be55dc66ddcfefbf64dec44b6ab54d": {
+      "exit_code": 0,
+      "summary": "873 passed, 22 skipped, 1 xfailed in 1.26s"
+    },
+    "a8c05427602d12842c53ce48b03b5d6b5c0c6693": {
+      "exit_code": 0,
+      "summary": "603 passed, 22 skipped, 1 xfailed in 0.80s"
+    },
+    "b63ace28d50b53e74b5260f6cb357ccfe5560133": {
+      "exit_code": 0,
+      "summary": "588 passed, 22 skipped, 1 xfailed in 0.69s"
+    },
+    "b7cf06970e40a3144eb963ff34ed7c38934afb40": {
+      "exit_code": 0,
+      "summary": "736 passed, 22 skipped, 1 xfailed in 1.25s"
+    },
+    "ba2e51215e4e619540f2a24282b84ed8a738e6fd": {
+      "exit_code": 0,
+      "summary": "1410 passed, 1 skipped, 5 deselected in 3.39s"
+    },
+    "c326df95e9e3da0425360e030413f6a3ee25fdee": {
+      "exit_code": 0,
+      "summary": "607 passed, 22 skipped, 1 xfailed in 0.76s"
+    },
+    "c88f333de440c5066ff563f784a6561f4713cf78": {
+      "exit_code": 0,
+      "summary": "896 passed, 22 skipped, 1 xfailed in 1.17s"
+    },
+    "cfa6f4ad3e0078db43f866246b483544afa33ed3": {
+      "exit_code": 0,
+      "summary": "737 passed, 22 skipped, 1 xfailed in 1.13s"
+    },
+    "d293374b6603816420a2bb8e7f4fe5a5f09cbfcc": {
+      "exit_code": 0,
+      "summary": "1410 passed, 1 skipped, 5 deselected in 3.36s"
+    },
+    "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f": {
+      "exit_code": 0,
+      "summary": "851 passed, 1 skipped, 5 deselected in 3.27s"
+    },
+    "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321": {
+      "exit_code": 0,
+      "summary": "1411 passed, 1 skipped, 5 deselected in 3.43s"
+    },
+    "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9": {
+      "exit_code": 0,
+      "summary": "896 passed, 22 skipped, 1 xfailed in 1.17s"
+    },
+    "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d": {
+      "exit_code": 0,
+      "summary": "1409 passed, 1 skipped, 5 deselected in 3.37s"
+    }
+  },
+  "test_flags": {
+    "encode/httpx": [
+      "-p",
+      "anyio.pytest_plugin",
+      "-m",
+      "not network"
+    ],
+    "pallets/click": []
+  }
+}
