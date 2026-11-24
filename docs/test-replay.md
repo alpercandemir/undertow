@@ -1,6 +1,6 @@
 # Replay a focused pytest test
 
-Use Undertow test replay to see whether the same test passes on both Git revisions. Start with a focused test that a PR adds for a customer-facing outcome such as a discount, eligibility rule, or API response. Select one exact pytest node ID from head, including the parameter ID when applicable.
+Use Undertow test replay when you need to see how the old revision handles a specific expectation added or changed by the PR. Select one exact pytest node ID from head, including the parameter ID when applicable. For Undertow-generated inputs, use [behavior replay](behavior-replay.md).
 
 ## Run locally
 
@@ -32,7 +32,7 @@ Add a separate, ephemeral job in a `pull_request` or maintainer-dispatched workf
 
 The Action puts the comparison in the job summary, uploads the reports and pytest logs, and exposes a `status` output. The result is advisory. The local CLI saves the same files in its output directory. Use fixtures suitable for sharing in assertions and logs. [GitHub's workflow security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
 
-### Post the comparison to the PR
+### Include observed values in an opted-in PR comment
 
 The replay job writes the assertion result to its Actions summary. To include a calculated value in the PR comment, record it before the assertion so it is available even when that assertion fails.
 
@@ -45,7 +45,7 @@ def test_coupon_rounds_once_on_cart_subtotal(record_property):
 
 Pytest supplies the `record_property` fixture. Undertow includes up to 12 properties per revision with the `undertow.` prefix. Labels after the prefix can be 1–55 characters. Use strings, numbers or booleans whose text is at most 160 characters. Choose values suitable for the PR audience.
 
-Run the publisher in a separate job after replay. The example below assumes the producer job is named `replay`, uses artifact names beginning with `coupon-`, and exposes the attempt that uploaded them as a job output. This keeps retries tied to the producer's artifacts. The publisher reads JSON and updates one bot comment on the current same-repository PR. The read-only replay job also works without the publisher. [Complete workflow including both jobs](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/.github/workflows/coupon-replay.yml)
+The Actions summary is the default destination for pytest replay. For a PR where an assertion transition adds context, run the publisher from a commit that supports `publish-test-replay` and set it to `'true'`. The example assumes the producer job is named `replay`, uses artifact names beginning with `coupon-`, and exposes the producer's attempt as a job output. Only base-to-head assertion transitions are eligible for a comment. Equal test outcomes and unavailable comparisons stay in Actions.
 
 ```yaml
   publish:
@@ -57,9 +57,10 @@ Run the publisher in a separate job after replay. The example below assumes the 
       actions: read
       pull-requests: write
     steps:
-      - uses: alpercandemir/undertow/actions/replay-comment@8875d27f44dc736061b5097b297e948774d4d8bd
+      - uses: alpercandemir/undertow/actions/replay-comment@<commit-with-behavior-replay>
         with:
           artifact-pattern: coupon-*-replay-*-${{ needs.replay.outputs.attempt }}
+          publish-test-replay: 'true'
 ```
 
 ## Read the result
@@ -74,4 +75,4 @@ Run the publisher in a separate job after replay. The example below assumes the 
 
 The CLI exits zero for a completed comparison and one when replay is unavailable. Invalid arguments exit two. The JSON records each commit, both statuses, and the SHA-256 of the shared test file. A replay covers only the selected assertion. A difference on a single run can warrant a rerun, especially for a test that depends on time, randomness, or external services.
 
-In the coupon showcase, a three-item checkout test failed on base at $9.03 and passed on head at $9.04. The same single-item test passed on both commits. Undertow's local source review reported zero findings for the rounding change. [Replay report on Showcase PR #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175) · [Reproduce the coupon replay](../evaluation/runtime-verification.md#replay-the-coupon-showcase)
+In an earlier trial, the three-item coupon test failed on base at $9.03 and passed on head at $9.04. Its single-item control passed on both commits. Replay uses the PR test's expectation in both runs, so this demonstrates when that expectation first holds. [Pinned historical reproduction](../evaluation/runtime-verification.md#reproduce-the-original-pytest-replay)

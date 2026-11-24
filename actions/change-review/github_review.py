@@ -52,6 +52,8 @@ def github(method, path, token, payload=None):
     )
     try:
         with build_opener(NoRedirect()).open(request, timeout=12) as response:
+            if response.status == 204:
+                return None
             return json.loads(response.read(4 * 1024 * 1024))
     except HTTPError as error:
         raise ActionError(f"GitHub returned HTTP {error.code}.") from error
@@ -125,6 +127,10 @@ def update_comment(repository, number, base, head, token, summary, marker=MARKER
     current = github("GET", f"{api_repo}/pulls/{number}", token)
     if current["base"]["sha"] != base or current["head"]["sha"] != head or current["state"] != "open":
         raise ActionError("The pull request changed while this report was being prepared.")
+    if not summary:
+        if comment_id:
+            github("DELETE", f"{api_repo}/issues/comments/{int(comment_id)}", token)
+        return
     if len(summary.encode("utf-8")) > 60_000:
         overview = summary.partition("<details>")[0]
         run_url = f"{github_url('GITHUB_SERVER_URL')}/{repository}/actions/runs/{int(os.environ['GITHUB_RUN_ID'])}"
@@ -187,8 +193,9 @@ def main():
             publish = "skipped"
         else:
             try:
-                update_comment(repository, number, base, head, token, summary)
-                publish = "published"
+                findings = report["findings"]
+                update_comment(repository, number, base, head, token, summary if findings else "")
+                publish = "published" if findings else "skipped"
             except (ActionError, KeyError, TypeError, ValueError) as error:
                 note = str(error) if isinstance(error, ActionError) else "GitHub returned an unexpected response."
                 summary += f"\n**PR comment unavailable.** {note}\n"
