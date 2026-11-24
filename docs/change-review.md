@@ -1,16 +1,14 @@
 # Business change review
 
-Undertow compares the committed source for two Git revisions. Each finding shows an input or precondition, the inferred result on each revision, and a question to resolve before merging. Source links identify the commit, path, and line range behind the finding.
+Use source review on demand to inspect supported changes in committed rules, routes and callers. Each finding shows an input or precondition, the inferred result on each revision, and a review question. Source links identify the commit, path, and line range behind the finding. [Measured source-review coverage](../evaluation/benchmark.md#november-24-results)
 
 ## GitHub Actions
 
-Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the repository's default branch. It uses Undertow `v0.5.0`. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
+Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow-source-review.yml` on the repository's default branch. Dispatch it with two full commit SHAs. For a PR, enter its merge base and exact head. The action fetches both commits into a temporary bare repository and writes a job summary and a Markdown and JSON artifact.
 
-The example uses `pull_request_target` with `contents: read` and reports in Actions. The trusted workflow reads candidate source from Git objects. Keep it separate from jobs that build or run PR code. If your repository restricts `pull_request_target`, use a `pull_request` workflow with `contents: read`. [GitHub's event security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
+The manual example uses `contents: read`. The worker reads candidate source from Git objects. Missing model access and unavailable analyses are advisory.
 
-The action checks that the PR is still open and that its base and head match the event before publishing. A write failure appears in the summary. Findings, missing model access, and unavailable analyses are advisory. On a push event, the action uses the event's before and after commits if both exist. For workflows dispatched manually, pass both `base` and `head` as full commit SHAs.
-
-For generated inputs and observed results from both revisions, run [Python behavior replay](behavior-replay.md) in a separate read-only job after your tests pass.
+For generated inputs and observed results from both revisions, use [Python behavior replay](behavior-replay.md).
 
 ## Review priority
 

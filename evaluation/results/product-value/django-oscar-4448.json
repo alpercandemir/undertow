@@ -1,0 +1,68 @@
+{
+  "default": {
+    "base": {
+      "sha": "4dc248a6382cbc26d95644925467e143fa6debcf"
+    },
+    "findings": [],
+    "head": {
+      "sha": "bc4d13869d021f21179ed8796e6d697408acd2e9"
+    },
+    "kind": "behavior",
+    "notes": [
+      "No supported changed Python function was found."
+    ],
+    "schema_version": 1,
+    "status": "unavailable"
+  },
+  "existing-test": {
+    "base": {
+      "assertion": "Decimal('9.40') != Decimal('9.35')",
+      "sha": "4dc248a6382cbc26d95644925467e143fa6debcf",
+      "status": "assertion_failed"
+    },
+    "head": {
+      "sha": "bc4d13869d021f21179ed8796e6d697408acd2e9",
+      "status": "passed"
+    },
+    "pytest_args": [
+      "--sqlite",
+      "-q"
+    ],
+    "schema_version": 1,
+    "status": "passes_on_head_only",
+    "test": "tests/integration/order/test_creator.py::TestTaxValuesForOrder::test_tax_values_with_discount",
+    "test_sha256": "523da79d19bc224d647cf4cbd38fab695e978f7f7387b3daf42bfff6f46ebc95"
+  },
+  "pull_request": "https://github.com/django-oscar/django-oscar/pull/4448",
+  "source": {
+    "analysis_limitations": [
+      "Behavior changes may still exist.",
+      "Undertow compares selected source. It did not execute either revision or run project tests.",
+      "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+    ],
+    "base": "4dc248a6382cbc26d95644925467e143fa6debcf",
+    "coverage": {
+      "changed_files": 3,
+      "ignored_files": 1,
+      "omitted_regions": 0,
+      "related_regions": 0,
+      "reviewed_files": 2,
+      "reviewed_regions": 4,
+      "shortened_lines": 0,
+      "unread_files": 0
+    },
+    "evidence": {},
+    "findings": [],
+    "head": "bc4d13869d021f21179ed8796e6d697408acd2e9",
+    "mode": "local",
+    "notes": [
+      "Excluded file changes without relevant text edits or outside the review scope (1).",
+      "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+    ],
+    "related_references": [],
+    "schema_version": 1,
+    "status": "no_findings",
+    "version": "0.5.0"
+  },
+  "undertow_revision": "74af9539a4bff90721a1dbf7f79434a05560b921"
+}

@@ -9,9 +9,9 @@
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-Undertow looks for reproducible behavior differences after CI passes. It generates inputs, executes the same scenario on two Git revisions, and gives reviewers the observed results. A reviewer can turn a confirmed finding into a standalone pytest regression test.
+Undertow compares selected Python behavior across two Git revisions after CI passes. It generates inputs for supported functions or for public API scenarios configured as probes. Reviewers can turn an observed difference into a standalone pytest test once they choose the expected behavior.
 
-[Real regression](#a-stdin-regression-that-clicks-tests-missed) · [Run after CI](#run-after-ci) · [Historical benchmark](#historical-benchmark)
+[Real regression](#a-stdin-regression-that-clicks-tests-missed) · [Run on demand](#run-on-demand) · [Historical benchmark](#historical-benchmark)
 
 ## A stdin regression that Click's tests missed
 
@@ -27,15 +27,17 @@ A small probe sets up the public CLI call and records output and exit code. This
 
 A fixed CLI option probe completed six separately selected comparisons with passing tests and reported no differences in the exercised paths. [Pilot protocol and results](evaluation/click-options-pilot.md)
 
-## Run after CI
+## Run on demand
 
-Add replay after your required test job. The example keeps observations in Actions and lets a maintainer request a PR comment after inspecting the evidence. Use your ordinary test suite and dependencies. [Workflow](docs/examples/behavior-replay.yml) · [Replay coverage and test export](docs/behavior-replay.md)
+After your normal CI passes, choose a public API scenario and run a small Python probe on the base and candidate commits. Inspect the difference and export a pytest test for the outcome you want to keep. [Local commands and test export](docs/behavior-replay.md#probe-a-public-api-and-export-a-pytest-test)
 
-The workflow pins an Undertow commit that verifies probe module origins. It runs direct-function discovery by default. To exercise a specific public API, configure a probe or run one from this checkout and export a pytest test on demand. For a broader source-only view of supported policies, routes and callers, use the source-review summary. [Probe setup](docs/behavior-replay.md#probe-a-public-api-and-export-a-pytest-test) · [Source review](docs/change-review.md)
+The GitHub Actions example runs when a maintainer dispatches it with two commits and a reviewed probe. Results go to the run summary and artifact. The showcase replays the Click regression and exports the test in Actions. [Manual workflow](docs/examples/behavior-replay.yml) · [Runnable showcase](https://github.com/alpercandemir/undertow-showcase)
 
 <a id="historical-benchmark-for-complementary-behavioral-coverage"></a>
 
 ## Historical benchmark
+
+The runtime value trial found no eligible automatic target across 21 historical comparisons. Reused probes supplied five reproducible observations, including one compatibility effect absent from the original PR description and tests. Copilot's source review already described that effect. Undertow reproduced it and generated a runnable test. [Runtime value after passing tests](evaluation/benchmark.md#runtime-product-value-after-passing-tests) · [Product assessment](evaluation/benchmark.md#product-assessment)
 
 The November 24 rerun used the Undertow v0.5.0 release worker on 20 historical Click and HTTPX PRs with 18 labeled behavior changes. Paired runtime probes reproduced the expected differences on all 16 behavior-changing PRs and on a separately scored Click stdin regression. Four controls preserved the behavior under review. [Benchmark and run records](evaluation/benchmark.md#v050-rerun) · [Runtime observations](evaluation/results/v0.5.0/runtime-observations.json)
 

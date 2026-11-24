@@ -1,66 +1,47 @@
-name: Tests and behavior replay
+name: Replay a Python API scenario
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+    inputs:
+      base:
+        description: Full comparison base SHA, usually the PR merge base
+        required: true
+      head:
+        description: Full candidate SHA whose CI passed
+        required: true
+      probe:
+        description: Path to the reviewed probe on the workflow branch
+        required: true
+      probe_modules:
+        description: Space-separated project modules loaded by the probe
+        required: true
 
 permissions:
   contents: read
 
-concurrency:
-  group: undertow-behavior-${{ github.event.pull_request.number }}-${{ github.event.action == 'labeled' && format('label-{0}', github.event.label.name) || 'ci' }}
-  cancel-in-progress: true
-
 jobs:
-  tests:
-    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'undertow-publish' }}
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
-      - name: Run the existing test suite
-        run: python3 -m unittest discover -s tests -v
-
   replay:
-    needs: tests
-    if: ${{ needs.tests.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    outputs:
-      attempt: ${{ steps.comparison.outputs.attempt }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Check out the candidate and its history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ inputs.head }}
+          path: comparison
           fetch-depth: 0
           persist-credentials: false
-      - name: Find the comparison base
-        id: comparison
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          base=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
-          printf 'base=%s\nattempt=%s\n' "$base" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+      - name: Check out the reviewed probe
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: trusted
+          persist-credentials: false
+      # Install any project dependencies needed by both revisions here.
       - uses: alpercandemir/undertow/actions/behavior-replay@d06a5e5e892a8b9cf913bdbc6813a0941ecc671d
         with:
-          base: ${{ steps.comparison.outputs.base }}
-          head: ${{ github.event.pull_request.head.sha }}
-
-  publish:
-    needs: [tests, replay]
-    if: >-
-      ${{ needs.tests.result == 'success' && needs.replay.result == 'success' &&
-          github.event.action == 'labeled' && github.event.label.name == 'undertow-publish' &&
-          github.event.pull_request.head.repo.full_name == github.repository }}
-    runs-on: ubuntu-24.04
-    permissions:
-      actions: read
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: alpercandemir/undertow/actions/replay-comment@d06a5e5e892a8b9cf913bdbc6813a0941ecc671d
-        with:
-          artifact-pattern: undertow-behavior-replay-*-${{ needs.replay.outputs.attempt }}
+          repo: comparison
+          base: ${{ inputs.base }}
+          head: ${{ inputs.head }}
+          probe: trusted/${{ inputs.probe }}
+          probe-modules: ${{ inputs.probe_modules }}

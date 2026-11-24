@@ -20,7 +20,7 @@ The runner exports both Git trees and overlays the selected test file from head 
 
 ## Run in GitHub Actions
 
-Add a separate, ephemeral job in a `pull_request` or maintainer-dispatched workflow. Give it `contents: read`, check out both commits with `persist-credentials: false`, and install the project's test dependencies before running replay. Keep the job free of secrets and outside `pull_request_target`. The snippets below assume an earlier `revisions` step exposes `base` and `head` commit IDs. Pin Undertow to a commit containing the replay Action. During development, use `./actions/test-replay` from a checkout of this repository.
+When validating a known fix across revisions, use a separate, ephemeral job in a maintainer-dispatched workflow. Give it `contents: read`, check out both commits with `persist-credentials: false`, and install the project's test dependencies before running replay. Keep the job free of secrets. The snippet assumes an earlier `revisions` step exposes `base` and `head` commit IDs. During development, use `./actions/test-replay` from a checkout of this repository.
 
 ```yaml
 - uses: alpercandemir/undertow/actions/test-replay@v0.5.0

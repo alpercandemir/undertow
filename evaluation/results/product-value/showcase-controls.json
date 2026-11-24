@@ -1,0 +1,52 @@
+{
+  "showcase-5": {
+    "schema_version": 1,
+    "kind": "behavior",
+    "status": "observed_difference",
+    "base": {
+      "sha": "7f831b0d911228ba608bfb9f9ab553933190348e"
+    },
+    "head": {
+      "sha": "1aee946a9ad10474b6971acc909fd29b6d70f261"
+    },
+    "findings": [
+      {
+        "target": "src/delivery.py::qualifies_for_free_delivery",
+        "type": "int",
+        "input": "50",
+        "base": {
+          "returned": false
+        },
+        "head": {
+          "returned": true
+        }
+      }
+    ],
+    "notes": []
+  },
+  "showcase-6": {
+    "schema_version": 1,
+    "kind": "behavior",
+    "status": "observed_difference",
+    "base": {
+      "sha": "68067acaf97cba47dfd66788cb21980612718bdc"
+    },
+    "head": {
+      "sha": "856a37f063cb9ad4cf90a76323a32009991a3568"
+    },
+    "findings": [
+      {
+        "target": "src/delivery.py::qualifies_for_free_delivery",
+        "type": "int",
+        "input": "50",
+        "base": {
+          "returned": false
+        },
+        "head": {
+          "returned": true
+        }
+      }
+    ],
+    "notes": []
+  }
+}
