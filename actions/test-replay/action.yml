@@ -1,0 +1,71 @@
+name: Undertow Test Replay
+description: Replay one selected pytest case from head on both Git revisions.
+inputs:
+  repo:
+    description: Path to a local Git repository containing both commits.
+    default: '.'
+  base:
+    description: Full comparison base commit SHA.
+    required: true
+  head:
+    description: Full candidate commit SHA.
+    required: true
+  test:
+    description: Exact repository-relative pytest node ID from head.
+    required: true
+  pytest-args:
+    description: JSON array of additional pytest arguments.
+    default: '[]'
+  timeout:
+    description: Time limit in seconds per revision.
+    default: '120'
+  artifact-name:
+    description: Prefix for the retained Markdown and JSON reports.
+    default: undertow-test-replay
+outputs:
+  status:
+    description: The comparison outcome, or unavailable.
+    value: ${{ steps.replay.outputs.status }}
+runs:
+  using: composite
+  steps:
+    - name: Replay the selected test
+      id: replay
+      shell: bash
+      env:
+        REPLAY_REPO: ${{ inputs.repo }}
+        REPLAY_BASE: ${{ inputs.base }}
+        REPLAY_HEAD: ${{ inputs.head }}
+        REPLAY_TEST: ${{ inputs.test }}
+        REPLAY_PYTEST_ARGS: ${{ inputs.pytest-args }}
+        REPLAY_TIMEOUT: ${{ inputs.timeout }}
+      run: |
+        directory="$(mktemp -d "$RUNNER_TEMP/undertow-replay.XXXXXXXX")/report"
+        if python3 -IB "$GITHUB_ACTION_PATH/replay.py" --repo "$REPLAY_REPO" \
+          --base "$REPLAY_BASE" --head "$REPLAY_HEAD" --test "$REPLAY_TEST" \
+          --pytest-args "$REPLAY_PYTEST_ARGS" --timeout="$REPLAY_TIMEOUT" --output "$directory" >/dev/null; then
+          status="$(python3 -IB -c 'import json, sys; print(json.load(open(sys.argv[1]))["status"])' "$directory/report.json")"
+        else
+          status=unavailable
+        fi
+        if [[ -f "$directory/report.json" && -f "$directory/summary.md" ]]; then
+          cat "$directory/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          printf 'directory=%s\n' "$directory" >> "$GITHUB_OUTPUT"
+        else
+          printf '## Undertow test replay\n\n**Unavailable.** Check the replay step log for details.\n' >> "$GITHUB_STEP_SUMMARY"
+        fi
+        printf 'status=%s\n' "$status" >> "$GITHUB_OUTPUT"
+
+    - name: Retain replay evidence
+      if: ${{ steps.replay.outputs.directory != '' }}
+      continue-on-error: true
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.artifact-name }}-${{ github.job }}-${{ strategy.job-index || 0 }}-${{ github.run_attempt }}
+        path: |
+          ${{ steps.replay.outputs.directory }}/report.json
+          ${{ steps.replay.outputs.directory }}/summary.md
+          ${{ steps.replay.outputs.directory }}/base.log
+          ${{ steps.replay.outputs.directory }}/head.log
+        if-no-files-found: warn
+        retention-days: 14

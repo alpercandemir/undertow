@@ -10,6 +10,8 @@ The example updates one GitHub Actions bot comment per PR. It uses `pull_request
 
 The action checks that the PR is still open and that its base and head match the event before publishing. A write failure appears in the summary. Findings, missing model access, and unavailable analyses are advisory. On a push event, the action uses the event's before and after commits if both exist. For workflows dispatched manually, pass both `base` and `head` as full commit SHAs.
 
+For observed evidence from a focused pytest case, run the [separate test replay Action](test-replay.md) on a build job.
+
 ## Review priority
 
 The summary displays up to twelve findings. Undertow reserves space for local findings and fills any remaining slots with Gemini findings in priority order. It orders the selected findings by priority, shows the first in full, and makes the others expandable. Each shows the same scenario on both revisions, the potential impact, the review question, and the evidence and its limits.
