@@ -44,7 +44,7 @@ jobs:
         run: |
           base=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
           printf 'base=%s\nattempt=%s\n' "$base" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
-      - uses: alpercandemir/undertow/actions/behavior-replay@v0.5.0
+      - uses: alpercandemir/undertow/actions/behavior-replay@d06a5e5e892a8b9cf913bdbc6813a0941ecc671d
         with:
           base: ${{ steps.comparison.outputs.base }}
           head: ${{ github.event.pull_request.head.sha }}
@@ -61,6 +61,6 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: alpercandemir/undertow/actions/replay-comment@v0.5.0
+      - uses: alpercandemir/undertow/actions/replay-comment@d06a5e5e892a8b9cf913bdbc6813a0941ecc671d
         with:
           artifact-pattern: undertow-behavior-replay-*-${{ needs.replay.outputs.attempt }}

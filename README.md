@@ -25,11 +25,13 @@ Click #2934 changed how `CliRunner` handles end of input. A later issue reported
 
 A small probe sets up the public CLI call and records output and exit code. This retrospective trial used the bug report to choose the scenario. Undertow generated the input `[1]` as one stdin line, checked that the difference reproduced, and exported the test after we selected the expected result. [Probe](evaluation/probes/click_stdin.py) · [Reproduce the comparison](evaluation/click-replay.md) · [Generated test](evaluation/results/click-probe/test_undertow_stdin.py)
 
+A fixed CLI option probe completed six separately selected comparisons with passing tests and reported no differences in the exercised paths. [Pilot protocol and results](evaluation/click-options-pilot.md)
+
 ## Run after CI
 
 Add replay after your required test job. The example keeps observations in Actions and lets a maintainer request a PR comment after inspecting the evidence. Use your ordinary test suite and dependencies. [Workflow](docs/examples/behavior-replay.yml) · [Replay coverage and test export](docs/behavior-replay.md)
 
-The workflow pins the released direct-function replay. The public API probe and test export run from this checkout. For a broader source-only view of supported policies, routes and callers, use the [source-review summary](docs/change-review.md).
+The workflow pins an Undertow commit that verifies probe module origins. It runs direct-function discovery by default. To exercise a specific public API, configure a probe or run one from this checkout and export a pytest test on demand. For a broader source-only view of supported policies, routes and callers, use the source-review summary. [Probe setup](docs/behavior-replay.md#probe-a-public-api-and-export-a-pytest-test) · [Source review](docs/change-review.md)
 
 <a id="historical-benchmark-for-complementary-behavioral-coverage"></a>
 
