@@ -46,7 +46,7 @@ To check what the shopper would see, we ran the gift checkout function on both c
 <details>
 <summary>Reproduce the source finding locally</summary>
 
-From a checkout of Undertow `v0.4.0`, run these commands with Python 3.11+ and Git. The worker reads the showcase's committed source from a bare repository. Local mode uses no model key.
+From a checkout of Undertow `v0.5.0`, run these commands with Python 3.11+ and Git. The worker reads the showcase's committed source from a bare repository. Local mode uses no model key.
 
 ```sh
 mkdir -p .undertow
@@ -95,14 +95,14 @@ We then sent the same requests to both versions with Flask's test client. The fi
 Add the example workflow at `.github/workflows/undertow.yml` on your repository's default branch. It includes the PR trigger, permissions, and this step pinned to the published release. [Copy the workflow](docs/examples/change-review.yml)
 
 ```yaml
-- uses: alpercandemir/undertow/actions/change-review@v0.4.0
+- uses: alpercandemir/undertow/actions/change-review@v0.5.0
   with:
     comment: 'true'
 ```
 
 Open or update a PR to get an Actions summary and Markdown and JSON reports. Current source review posts a bot comment when it identifies findings. The built-in rules run with Python and Git. [Example comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
 
-`v0.4.0` adds a versioned JSON report with before-and-after examples, review questions, and source evidence. Optional Gemini analysis can add findings to the report alongside the local rules. [Release notes](https://github.com/alpercandemir/undertow/releases/tag/v0.4.0) · [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
+Source findings include before-and-after examples, review questions, and links to source evidence. Optional Gemini analysis can add findings alongside the local rules. [Release notes](https://github.com/alpercandemir/undertow/releases/tag/v0.5.0) · [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
 
 ### Choose what to publish
 

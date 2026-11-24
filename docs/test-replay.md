@@ -23,7 +23,7 @@ The runner exports both Git trees and overlays the selected test file from head 
 Add a separate, ephemeral job in a `pull_request` or maintainer-dispatched workflow. Give it `contents: read`, check out both commits with `persist-credentials: false`, and install the project's test dependencies before running replay. Keep the job free of secrets and outside `pull_request_target`. The snippets below assume an earlier `revisions` step exposes `base` and `head` commit IDs. Pin Undertow to a commit containing the replay Action. During development, use `./actions/test-replay` from a checkout of this repository.
 
 ```yaml
-- uses: alpercandemir/undertow/actions/test-replay@8875d27f44dc736061b5097b297e948774d4d8bd
+- uses: alpercandemir/undertow/actions/test-replay@v0.5.0
   with:
     base: ${{ steps.revisions.outputs.base }}
     head: ${{ steps.revisions.outputs.head }}
@@ -57,7 +57,7 @@ The Actions summary is the default destination for pytest replay. For a PR where
       actions: read
       pull-requests: write
     steps:
-      - uses: alpercandemir/undertow/actions/replay-comment@d9b6220bf2238887f7d438dbc8fee1d7b17412b5
+      - uses: alpercandemir/undertow/actions/replay-comment@v0.5.0
         with:
           artifact-pattern: coupon-*-replay-*-${{ needs.replay.outputs.attempt }}
           publish-test-replay: 'true'

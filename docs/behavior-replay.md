@@ -17,7 +17,7 @@ Supply full commit IDs and choose a fresh output directory. The CLI writes `repo
 
 ## Run in GitHub Actions
 
-Use the two-job showcase workflow as a starting point. Both actions are pinned to the same Undertow commit. Keep runtime execution in the `pull_request` job with `contents: read`, an ephemeral runner, and no secrets or persistent checkout credentials. If the project needs dependencies, install them in that job. Use a separate publish job with write access only for same-repository PRs. [Copy the showcase workflow](https://github.com/alpercandemir/undertow-showcase/blob/codex/coupon-rounding-baseline/.github/workflows/coupon-replay.yml)
+Use the two-job showcase workflow as a starting point. To use the release, select `alpercandemir/undertow/actions/behavior-replay@v0.5.0` in the replay job and `alpercandemir/undertow/actions/replay-comment@v0.5.0` in the publish job. Keep runtime execution in the `pull_request` job with `contents: read`, an ephemeral runner, and no secrets or persistent checkout credentials. If the project needs dependencies, install them in that job. Use a separate publish job with write access only for same-repository PRs. [Copy the showcase workflow](https://github.com/alpercandemir/undertow-showcase/blob/codex/coupon-rounding-baseline/.github/workflows/coupon-replay.yml)
 
 The publisher updates one replay comment with the first reproduced difference per callable. If nothing is publishable for the current comparison, the existing replay comment is removed and the Actions summary remains available.
 

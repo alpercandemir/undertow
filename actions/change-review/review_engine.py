@@ -19,7 +19,7 @@ from urllib.parse import quote, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 SCHEMA_VERSION = 1
 
 
