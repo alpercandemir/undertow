@@ -1,0 +1,49 @@
+name: Gemini historical benchmark
+on:
+  push:
+    branches: [codex/gemini-v050-benchmark]
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    name: Source review (${{ matrix.configuration }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [local, gemini-3.1-flash-lite, gemini-3.8-flash]
+    env:
+      BENCHMARK_CONFIGURATION: ${{ matrix.configuration }}
+      BENCHMARK_REVISION: 7d6c9b09705b439d7a246ca5e93b38a29dcf2e8a
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Clone the public benchmark repositories
+        run: |
+          mkdir -p "$RUNNER_TEMP/corpus/pallets" "$RUNNER_TEMP/corpus/encode"
+          git clone --bare https://github.com/pallets/click.git "$RUNNER_TEMP/corpus/pallets/click.git"
+          git clone --bare https://github.com/encode/httpx.git "$RUNNER_TEMP/corpus/encode/httpx.git"
+      - name: Compare the frozen revisions
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          args=(--repos "$RUNNER_TEMP/corpus" --revision "$BENCHMARK_REVISION")
+          if [[ "$BENCHMARK_CONFIGURATION" != local ]]; then
+            args+=(--mode gemini --model "$BENCHMARK_CONFIGURATION")
+          fi
+          status=0
+          python3 -u evaluation/run.py run "${args[@]}" \
+            --output "$RUNNER_TEMP/benchmark/historical" || status=1
+          python3 -u evaluation/run.py --manifest evaluation/click-stdin-regression.json \
+            run "${args[@]}" --output "$RUNNER_TEMP/benchmark/click-stdin" || status=1
+          exit "$status"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: benchmark-${{ matrix.configuration }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/benchmark/
+          if-no-files-found: error
+          retention-days: 30
