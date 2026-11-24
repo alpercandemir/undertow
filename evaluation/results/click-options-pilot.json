@@ -1,0 +1,183 @@
+{
+  "cases": {
+    "click-options-01": {
+      "report": {
+        "base": {
+          "sha": "23780fa3efcc471137aca7c6b4624164f760a647"
+        },
+        "findings": [],
+        "head": {
+          "sha": "81a482fbfdd5a553cf4704f822ade04c3b102fbc"
+        },
+        "kind": "behavior",
+        "notes": [],
+        "probe_modules": [
+          "click.core",
+          "click.testing"
+        ],
+        "schema_version": 1,
+        "status": "no_observed_difference"
+      },
+      "seconds": 0.512
+    },
+    "click-options-02": {
+      "report": {
+        "base": {
+          "sha": "7d7183604158f064390539d83d4a19a978c6b08a"
+        },
+        "findings": [],
+        "head": {
+          "sha": "6a1c0d077311f180b356965914e2de5b9e0fdb44"
+        },
+        "kind": "behavior",
+        "notes": [],
+        "probe_modules": [
+          "click.core",
+          "click.testing"
+        ],
+        "schema_version": 1,
+        "status": "no_observed_difference"
+      },
+      "seconds": 0.623
+    },
+    "click-options-03": {
+      "report": {
+        "base": {
+          "sha": "2ed395b0b5ac4d56553ff715335f456f812cdc78"
+        },
+        "findings": [],
+        "head": {
+          "sha": "27aaed3fe5bcd6adedd6e91de234914af9859cf1"
+        },
+        "kind": "behavior",
+        "notes": [],
+        "probe_modules": [
+          "click.core",
+          "click.testing"
+        ],
+        "schema_version": 1,
+        "status": "no_observed_difference"
+      },
+      "seconds": 0.456
+    },
+    "click-options-04": {
+      "report": {
+        "base": {
+          "sha": "06f52a45782a0bd2cb9aa5f289afb68ac3b2b2e5"
+        },
+        "findings": [],
+        "head": {
+          "sha": "8d4051e9e57be1bfb5421e3eb5a93b4b42077b0c"
+        },
+        "kind": "behavior",
+        "notes": [],
+        "probe_modules": [
+          "click.core",
+          "click.testing"
+        ],
+        "schema_version": 1,
+        "status": "no_observed_difference"
+      },
+      "seconds": 0.565
+    },
+    "click-options-05": {
+      "report": {
+        "base": {
+          "sha": "a92c573f3195c9da3058eadf1735d38af186d22c"
+        },
+        "findings": [],
+        "head": {
+          "sha": "e27b307462b725722f620c69dd1d5509c032d18a"
+        },
+        "kind": "behavior",
+        "notes": [],
+        "probe_modules": [
+          "click.core",
+          "click.testing"
+        ],
+        "schema_version": 1,
+        "status": "no_observed_difference"
+      },
+      "seconds": 0.613
+    },
+    "click-options-06": {
+      "report": {
+        "base": {
+          "sha": "ea70da487b05d6bb758d472a3a9ffab4a5b7fcd5"
+        },
+        "findings": [],
+        "head": {
+          "sha": "b91bb9548a5617b1197add95e084d569f57149c3"
+        },
+        "kind": "behavior",
+        "notes": [],
+        "probe_modules": [
+          "click.core",
+          "click.testing"
+        ],
+        "schema_version": 1,
+        "status": "no_observed_difference"
+      },
+      "seconds": 0.458
+    }
+  },
+  "manifest_sha256": "1f1ae31bd6f8f6f29b0c04ceb50907ab4e0e741f9bf0d8c58e35a1883b38eb78",
+  "platform": "darwin",
+  "pytest": "8.3.5",
+  "python": "3.12.13",
+  "source_sha256": {
+    "actions/behavior-replay/discover.py": "5262bef31d0c331b7a3ca0b4b152d10bf6f611fa91e0fa1d1105954899be368b",
+    "actions/behavior-replay/run_cases.py": "05a7cf4e9e38240360d02a63cb93c16a0dfa46cfc14d9009b56671dcd74d61ba",
+    "evaluation/probes/click_options.py": "b17319bfca0d4e06d59797d88d5e90ea4c033450233cde39b79f6041030d6220"
+  },
+  "suites": {
+    "06f52a45782a0bd2cb9aa5f289afb68ac3b2b2e5": {
+      "exit_code": 0,
+      "summary": "1301 passed, 22 skipped, 1 xfailed in 1.16s"
+    },
+    "23780fa3efcc471137aca7c6b4624164f760a647": {
+      "exit_code": 0,
+      "summary": "901 passed, 22 skipped, 1 xfailed in 1.22s"
+    },
+    "27aaed3fe5bcd6adedd6e91de234914af9859cf1": {
+      "exit_code": 0,
+      "summary": "1301 passed, 22 skipped, 1 xfailed in 1.22s"
+    },
+    "2ed395b0b5ac4d56553ff715335f456f812cdc78": {
+      "exit_code": 0,
+      "summary": "1300 passed, 22 skipped, 1 xfailed in 1.20s"
+    },
+    "6a1c0d077311f180b356965914e2de5b9e0fdb44": {
+      "exit_code": 0,
+      "summary": "1300 passed, 22 skipped, 1 xfailed in 1.24s"
+    },
+    "7d7183604158f064390539d83d4a19a978c6b08a": {
+      "exit_code": 0,
+      "summary": "1284 passed, 22 skipped, 1 xfailed in 1.26s"
+    },
+    "81a482fbfdd5a553cf4704f822ade04c3b102fbc": {
+      "exit_code": 0,
+      "summary": "1284 passed, 22 skipped, 1 xfailed in 1.42s"
+    },
+    "8d4051e9e57be1bfb5421e3eb5a93b4b42077b0c": {
+      "exit_code": 0,
+      "summary": "1312 passed, 22 skipped, 1 xfailed in 1.23s"
+    },
+    "a92c573f3195c9da3058eadf1735d38af186d22c": {
+      "exit_code": 0,
+      "summary": "1312 passed, 22 skipped, 1 xfailed in 1.23s"
+    },
+    "b91bb9548a5617b1197add95e084d569f57149c3": {
+      "exit_code": 0,
+      "summary": "1313 passed, 22 skipped, 1 xfailed in 1.20s"
+    },
+    "e27b307462b725722f620c69dd1d5509c032d18a": {
+      "exit_code": 0,
+      "summary": "1312 passed, 22 skipped, 1 xfailed in 1.25s"
+    },
+    "ea70da487b05d6bb758d472a3a9ffab4a5b7fcd5": {
+      "exit_code": 0,
+      "summary": "1312 passed, 22 skipped, 1 xfailed in 1.21s"
+    }
+  }
+}
