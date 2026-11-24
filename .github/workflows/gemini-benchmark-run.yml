@@ -12,14 +12,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        configuration: [gemini-3.5-flash-lite, gemini-3.8-flash]
+        configuration: [gemini-3.1-flash-lite, gemini-3.5-flash-lite, gemini-3.8-flash]
     env:
       BENCHMARK_CONFIGURATION: ${{ matrix.configuration }}
       BENCHMARK_REVISION: 7d6c9b09705b439d7a246ca5e93b38a29dcf2e8a
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          fetch-depth: 2
+          fetch-depth: 0
           persist-credentials: false
       - name: Clone the public benchmark repositories
         run: |
