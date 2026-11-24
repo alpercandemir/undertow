@@ -1,0 +1,12 @@
+{
+  "click-2604": {
+    "bd2d08d957d31337f4ad12cefce2416c6c06bec260702413a35e4a227a5c8f00": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "Paired execution confirms my_data_command becomes my-data. The report reverses the internal order of dash conversion and suffix checking, while its public output is accurate.",
+      "verdict": "correct"
+    }
+  }
+}

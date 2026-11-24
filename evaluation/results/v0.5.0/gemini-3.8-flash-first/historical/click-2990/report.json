@@ -1,0 +1,32 @@
+{
+  "version": "0.5.0",
+  "schema_version": 1,
+  "status": "no_findings",
+  "mode": "local",
+  "base": "eaf33a957975e7d0943fad8d2b4b905b6bd98cb9",
+  "head": "7b72bfb8cd3a0cec38197f6786ed583b5b3737e7",
+  "coverage": {
+    "changed_files": 2,
+    "ignored_files": 1,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 2,
+    "reviewed_files": 1,
+    "related_regions": 2
+  },
+  "findings": [],
+  "evidence": {},
+  "related_references": [],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (1).",
+    "Gemini returned HTTP 429. Local source rules were used.",
+    "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations.",
+    "Repository reference tracing reached a search limit."
+  ],
+  "analysis_limitations": [
+    "Behavior changes may still exist.",
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ]
+}

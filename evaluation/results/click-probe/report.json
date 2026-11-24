@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "observed_difference",
+  "base": {
+    "sha": "cfa6f4ad3e0078db43f866246b483544afa33ed3"
+  },
+  "head": {
+    "sha": "262bdf02288daf9a37b9e815b44acafd62b5c6fe"
+  },
+  "findings": [
+    {
+      "target": "click_stdin.py::probe",
+      "type": "list[int]",
+      "probe_sha256": "3830e703deae70d8e58f84b53ca43190a382d09507adbe51758eb7a6b9b54dee",
+      "input": [
+        "1"
+      ],
+      "base": {
+        "returned": {
+          "exit_code": 0,
+          "output": "1\n"
+        }
+      },
+      "head": {
+        "returned": {
+          "exit_code": 1,
+          "output": "1\n\nAborted!\n"
+        }
+      }
+    }
+  ],
+  "notes": []
+}

@@ -6,11 +6,11 @@ Undertow compares the committed source for two Git revisions. Each finding shows
 
 Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the repository's default branch. It uses Undertow `v0.5.0`. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
 
-The example uses `pull_request_target` with `contents: read` and `pull-requests: write` so the trusted workflow can also report on fork PRs. Current source review updates one GitHub Actions bot comment when it has findings. Empty reports stay in Actions. The action reads candidate source from Git objects. Keep this job separate from jobs that build or run PR code. If your repository's Actions policy restricts `pull_request_target`, allow this trusted reporting workflow there or use `pull_request` with `contents: read` and remove the `comment` input for a summary-only setup. [GitHub's event security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
+The example uses `pull_request_target` with `contents: read` and reports in Actions. The trusted workflow reads candidate source from Git objects. Keep it separate from jobs that build or run PR code. If your repository restricts `pull_request_target`, use a `pull_request` workflow with `contents: read`. [GitHub's event security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
 
 The action checks that the PR is still open and that its base and head match the event before publishing. A write failure appears in the summary. Findings, missing model access, and unavailable analyses are advisory. On a push event, the action uses the event's before and after commits if both exist. For workflows dispatched manually, pass both `base` and `head` as full commit SHAs.
 
-For generated inputs and observed results from both revisions, run [Python behavior replay](behavior-replay.md) in a separate read-only job. For a specific author-supplied assertion, use [pytest replay](test-replay.md).
+For generated inputs and observed results from both revisions, run [Python behavior replay](behavior-replay.md) in a separate read-only job after your tests pass.
 
 ## Review priority
 

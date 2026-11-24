@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: undertow-change-review-${{ github.event.pull_request.number }}
@@ -24,5 +23,3 @@ jobs:
           persist-credentials: false
       - uses: ./actions/change-review
         continue-on-error: true
-        with:
-          comment: 'true'

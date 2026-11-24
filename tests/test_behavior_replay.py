@@ -5,6 +5,7 @@ from fixtures import ACTION, GitReviewTest
 
 
 SCRIPT = ACTION.parent / "behavior-replay" / "discover.py"
+EXPORT = SCRIPT.with_name("write_test.py")
 ROUNDING = """from decimal import Decimal, ROUND_HALF_UP
 
 RATE = Decimal("0.10")
@@ -18,10 +19,12 @@ def quote(prices: list[Decimal]):
 
 
 class BehaviorReplayTests(GitReviewTest):
-    def replay(self, before, after, expected_status, exit_code=0):
+    def replay(self, before, after, expected_status, exit_code=0, probe=None):
         self.comparison({"src/checkout.py": before}, {"src/checkout.py": after})
         command = [sys.executable, "-IB", str(SCRIPT), "--repo", str(self.bare), "--base", self.base,
                    "--head", self.head, "--output", str(self.output)]
+        if probe:
+            command.extend(["--probe", str(probe)])
         result = subprocess.run(command, env=self.env, text=True, capture_output=True, timeout=20)
         self.assertEqual(result.returncode, exit_code, result.stderr)
         report = self.read_report()
@@ -56,3 +59,35 @@ class BehaviorReplayTests(GitReviewTest):
                              "import nonexistent_fixture\ndef quote(value: int):\n    return value + 1\n",
                              "unavailable", exit_code=1)
         self.assertIn("head: the module could not be loaded", report["notes"][0])
+
+    def test_probe_finding_exports_the_reviewed_outcome(self):
+        probe = self.directory / "probe.py"
+        probe.write_text("from checkout import Checkout\n"
+                         "def probe(values: list[int]):\n    return Checkout().quote(values)\n",
+                         encoding="utf-8")
+        before = "class Checkout:\n    def quote(self, values):\n        return sum(values)\n"
+        report = self.replay(before, before.replace("sum(values)", "sum(values) + 1"),
+                             "observed_difference", probe=probe)
+        finding, = report["findings"]
+        self.assertEqual((finding["input"], finding["base"], finding["head"]),
+                         (["1"], {"returned": 1}, {"returned": 2}))
+        draft = self.directory / "test_probe.py"
+        command = [sys.executable, "-IB", str(EXPORT), "--report", str(self.output / "report.json"),
+                   "--probe", str(probe), "--expect", "base", "--output", str(draft)]
+        subprocess.run(command, env=self.env, check=True, timeout=20)
+        for revision, expected_exit in ((self.base, 0), (self.head, 1)):
+            self.git("checkout", "--quiet", "--detach", revision)
+            result = subprocess.run(
+                [sys.executable, "-B", "-c", "import runpy, sys; runpy.run_path(sys.argv[1])['test_undertow_regression']()",
+                 str(draft)], env={**self.env, "PYTHONPATH": str(self.worktree / "src")},
+                capture_output=True, cwd=self.worktree, timeout=20, text=True)
+            self.assertEqual(result.returncode, expected_exit, result.stderr)
+            if expected_exit:
+                self.assertIn("AssertionError", result.stderr)
+
+        with probe.open("a", encoding="utf-8") as file:
+            file.write("# changed since the finding\n")
+        result = subprocess.run([*command[:-1], str(self.directory / "wrong.py")], env=self.env,
+                                capture_output=True, timeout=20, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("differs from the one that produced this finding", result.stderr)

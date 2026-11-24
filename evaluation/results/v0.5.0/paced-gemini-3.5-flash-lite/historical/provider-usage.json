@@ -1,0 +1,130 @@
+{
+  "click-2365": [
+    {
+      "http_status": 503
+    }
+  ],
+  "click-2604": [
+    {
+      "http_status": 503
+    }
+  ],
+  "click-2680": [
+    {
+      "http_status": 200,
+      "model_version": "gemini-3.5-flash-lite",
+      "usage": {
+        "candidatesTokenCount": 422,
+        "promptTokenCount": 3030,
+        "totalTokenCount": 3452
+      }
+    }
+  ],
+  "click-2846": [
+    {
+      "http_status": 503
+    }
+  ],
+  "click-2930": [
+    {
+      "http_status": 503
+    }
+  ],
+  "click-2935": [
+    {
+      "http_status": 200,
+      "model_version": "gemini-3.5-flash-lite",
+      "usage": {
+        "candidatesTokenCount": 25,
+        "promptTokenCount": 1511,
+        "totalTokenCount": 1536
+      }
+    }
+  ],
+  "click-2972": [
+    {
+      "http_status": 503
+    }
+  ],
+  "click-2990": [
+    {
+      "http_status": 503
+    }
+  ],
+  "click-3004": [
+    {
+      "http_status": 503
+    }
+  ],
+  "click-3009": [],
+  "httpx-2998": [
+    {
+      "http_status": 503
+    }
+  ],
+  "httpx-3116": [
+    {
+      "http_status": 503
+    }
+  ],
+  "httpx-3178": [
+    {
+      "http_status": 503
+    }
+  ],
+  "httpx-3364": [
+    {
+      "http_status": 200,
+      "model_version": "gemini-3.5-flash-lite",
+      "usage": {
+        "candidatesTokenCount": 330,
+        "promptTokenCount": 1069,
+        "totalTokenCount": 1399
+      }
+    }
+  ],
+  "httpx-3367": [
+    {
+      "http_status": 200,
+      "model_version": "gemini-3.5-flash-lite",
+      "usage": {
+        "candidatesTokenCount": 259,
+        "promptTokenCount": 1531,
+        "totalTokenCount": 1790
+      }
+    }
+  ],
+  "httpx-3373": [
+    {
+      "http_status": 503
+    }
+  ],
+  "httpx-3375": [],
+  "httpx-3377": [
+    {
+      "error": "TimeoutError"
+    }
+  ],
+  "httpx-3378": [
+    {
+      "http_status": 200,
+      "model_version": "gemini-3.5-flash-lite",
+      "usage": {
+        "candidatesTokenCount": 317,
+        "promptTokenCount": 1517,
+        "totalTokenCount": 1834
+      }
+    }
+  ],
+  "httpx-3387": [
+    {
+      "http_status": 200,
+      "model_version": "gemini-3.5-flash-lite",
+      "usage": {
+        "candidatesTokenCount": 25,
+        "promptTokenCount": 9011,
+        "totalTokenCount": 9036
+      }
+    }
+  ]
+}

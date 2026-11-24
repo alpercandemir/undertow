@@ -1,10 +1,97 @@
 # Historical PR benchmark
 
-**November 20, 2026.** On the 11 PRs both model-backed reviews completed, GitHub Copilot CLI found 9 of 11 labeled behavior changes and Undertow with `gemini-3.1-flash-lite` found 8. Together their saved findings covered 10 of 11, including a Click command rename that only Undertow reported. Across all 20 PRs, the combined findings covered 16 of 18 labeled changes. Copilot CLI found 15, Undertow with Gemini found 8, and Undertow's local rules found 0.
+Compare the [November 24 v0.5.0 benchmark](#v050-rerun) with the [November 20 baseline](#measured-results-on-the-frozen-20-prs). Both use the same 20 merged Click and HTTPX PRs and 18 frozen behavior labels.
+
+## v0.5.0 rerun
+
+The [release worker](https://github.com/alpercandemir/undertow/blob/7d6c9b09705b439d7a246ca5e93b38a29dcf2e8a/actions/change-review/review_engine.py) ran against the 20 pinned PRs and the supplemental Click stdin regression. GitHub-hosted Ubuntu 24.04 ran local rules and the Gemini Developer API calls with the existing repository secret. The first pass selected the v0.5.0 default (`gemini-3.8-flash`) and the historical model (`gemini-3.1-flash-lite`). The second pass added `gemini-3.5-flash-lite`, waited 12 seconds between cases, and recorded the API response statuses and token counts outside the release worker. Worker timing excludes the wait. [First pass](https://github.com/alpercandemir/undertow/actions/runs/45436689272) · [Paced pass](https://github.com/alpercandemir/undertow/actions/runs/45437656813) · [Paced workflow and observer](https://github.com/alpercandemir/undertow/tree/3eeede21f571802091a374e8ee8451cca07c4555)
+
+Copilot CLI 1.0.114 used the same fixed prompt and read-only source tools as the November 20 baseline. Explicit Luna selection failed, so the run used account routing. Copilot served `mai-code-2-flash` for 14 PRs and `gpt-6-luna` for six. The host ran three sessions concurrently, and timing excludes source export. One valid response, HTTPX #3364, began its JSON array on the same line as a progress message. The updated parser recovered it from the saved response. [Copilot run](results/v0.5.0/copilot/historical/run.json) · [Raw response](results/v0.5.0/copilot/historical/httpx-3364/response.txt)
+
+### November 24 results
+
+Coverage across all attempts uses the 18 frozen labels. The completed-case denominator uses the labels from PRs reviewed in the requested mode. Codex provisionally graded every finding using the pinned source, upstream tests and the paired observations. Correctness covers the material behavior claim. Example accuracy requires the same concrete input and compatible outcomes on both revisions. A dash indicates an empty quality denominator. [Run records and adjudications](results/v0.5.0/)
+
+| Configuration | Completed PRs | Labels found across all attempts | Labels found on completed PRs | Correct findings | Accurate examples | Incorrect findings per scored PR / control |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Undertow local | 20 / 20 | 0 / 18 | 0 / 18 | — | — | 0 / 20 · 0 / 4 |
+| Gemini 3.8 Flash, first pass | 0 / 20 | 0 / 18 | — | — | — | — |
+| Gemini 3.8 Flash, paced | 0 / 20 | 0 / 18 | — | — | — | — |
+| Gemini 3.1 Flash-Lite, first pass | 1 / 20 | 1 / 18 | 1 / 1 | 1 / 1 | 1 / 1 | 0 / 1 · — |
+| Gemini 3.1 Flash-Lite, paced | 0 / 20 | 0 / 18 | — | — | — | — |
+| Gemini 3.5 Flash-Lite, paced | 4 / 20 | 4 / 18 | 4 / 5 | 2 / 2 | 1 / 2 | 0 / 4 · 0 / 1 |
+| GitHub Copilot CLI | 20 / 20 | 17 / 18 | 17 / 18 | 35 / 39 | 27 / 39 | 4 / 20 · 1 / 4 |
+
+Gemini 3.5 Flash-Lite found the Click #2680 callback change and the three HTTPX #3367 serialization changes. The serialization example was inaccurate because it removed the `NaN` field from the input to show a successful head body. On the same four PRs, Copilot found 5 of 5 labels, including the nested Click completion change that Gemini missed. The 3.1 Flash-Lite result reproduced the Click #2604 command rename, which the new Copilot run also reported. The union of the November 24 findings covered 17 of 18 labels. The unreported label was the final empty text chunk in HTTPX #2998. Copilot found the intermediate empty chunks from split UTF-8 instead. [Click callback report](results/v0.5.0/paced-gemini-3.5-flash-lite/historical/click-2680/report.json) · [HTTPX serialization report](results/v0.5.0/paced-gemini-3.5-flash-lite/historical/httpx-3367/report.json) · [Click rename report](results/v0.5.0/gemini-3.1-flash-lite-first/historical/click-2604/report.json)
+
+In the separate Click #2934 regression, the paired run printed `test` on both revisions and changed the exit code from 0 to 1 with an `Aborted!` message on head. Copilot reported the labeled abort. Local rules produced zero findings. All five Gemini attempts fell back after HTTP errors. [Supplemental scores](results/v0.5.0/copilot/click-stdin/adjudications.json) · [Runtime observations](results/v0.5.0/runtime-observations.json)
+
+### API availability, timing and cost
+
+Two PRs had no reviewable source regions in every Gemini pass. They made zero model calls. The table counts the final reason for each fallback on the other 18 PRs, with one reason per PR.
+
+| Gemini API pass | HTTP 429 | HTTP 503 | Request-window failures | Report validation | Median worker time across all attempts | Median when completed in Gemini mode |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 3.8 Flash, first pass | 5 | 13 | 0 | 0 | 0.540 s | — |
+| 3.8 Flash, paced | 8 | 10 | 0 | 0 | 0.440 s | — |
+| 3.1 Flash-Lite, first pass | 0 | 14 | 3 | 0 | 0.916 s | 28.218 s |
+| 3.1 Flash-Lite, paced | 0 | 17 | 1 | 0 | 2.721 s | — |
+| 3.5 Flash-Lite, paced | 0 | 11 | 1 | 2 | 3.324 s | 4.277 s |
+
+The default 3.8 Flash run measured API availability and fallback behavior, with zero completed reviews to grade. The 3.5 Flash-Lite pass received six HTTP 200 responses. The worker rejected two of those reports because a finding gave identical example outcomes. The other four reports included two findings and two empty reviews. [Paced 3.8 response metadata](results/v0.5.0/paced-gemini-3.8-flash/historical/provider-usage.json) · [3.5 response metadata](results/v0.5.0/paced-gemini-3.5-flash-lite/historical/provider-usage.json)
+
+The metered 3.5 responses used 17,669 input tokens and 1,378 output tokens. Those tokens correspond to **$0.00875** at the November 24 standard paid rates of $0.30 and $2.50 per million. The estimate includes the rejected responses. Usage for the first pass and for requests without token metadata is unknown. Copilot recorded **$0.1130** in credit-equivalent usage across 20 PRs and a 57.295 s median. Local source review had zero model calls and a 0.114 s median on the Actions runner. These are worker timings and usage estimates. The runs did not collect provider invoices or runner charges. [Gemini pricing](https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite) · [Copilot usage and billing](https://docs.github.com/en/copilot/how-tos/copilot-sdk/features/usage-and-billing)
+
+### Runtime cross-check
+
+The probes ran twice per revision in fresh Python 3.12 processes on 19 cases, including the supplemental regression. They reproduced the expected differences on all 16 behavior-changing corpus PRs and the supplement. The annotation and private-helper controls matched at runtime. The docs-only and test-only controls had identical library Git trees. The timeout probe used a mock transport to observe the client timeout extension. The import probe inspected `sys.modules` after import and client construction. [Paired observations](results/v0.5.0/runtime-observations.json) · [Probe code](runtime_probes.py)
+
+The new observations establish the selected scenarios and provide evidence for provisional, tool-visible adjudication. The corpus still represents two public Python libraries. Each model run samples a single response path per PR, with two separate passes for 3.1 and 3.8. The run includes Undertow's source selection and output validation, and the API reliability figures describe this runner and execution window.
+
+Run the additional probes after preparing the [bare repositories](competitive-pilot.md#prepare-the-repositories).
+
+```sh
+trial=.undertow/historical-runtime
+uv venv --python 3.12 "$trial/venv"
+uv pip install --python "$trial/venv/bin/python" \
+  'httpcore==1.0.9' 'anyio==4.9.0' 'idna==3.10' 'certifi==2025.4.26' \
+  'sniffio==1.3.1' 'socksio==1.0.0'
+"$trial/venv/bin/python" evaluation/runtime_trial.py --historical \
+  --repos .undertow/eval-repos --output "$trial/observations"
+```
+
+### Per-PR November 24 results
+
+The table shows labeled detections for Copilot and the Gemini pass with the most completed PRs. The first 3.1 Flash-Lite pass completed only Click #2604 and found its one label. The other three Gemini passes completed zero corpus PRs.
+
+| PR | Copilot CLI | Gemini 3.5 Flash-Lite |
+| --- | ---: | ---: |
+| [Click #2365](https://github.com/pallets/click/pull/2365) | 1 / 1 | HTTP 503 · fallback |
+| [Click #2604](https://github.com/pallets/click/pull/2604) | 1 / 1 | HTTP 503 · fallback |
+| [Click #2680](https://github.com/pallets/click/pull/2680) | 1 / 1 | 1 / 1 |
+| [Click #2846](https://github.com/pallets/click/pull/2846) | 1 / 1 | HTTP 503 · fallback |
+| [Click #2930](https://github.com/pallets/click/pull/2930) | 1 / 1 | HTTP 503 · fallback |
+| [Click #2935](https://github.com/pallets/click/pull/2935) | 1 / 1 | 0 / 1 |
+| [Click #2972](https://github.com/pallets/click/pull/2972) | 1 / 1 | HTTP 503 · fallback |
+| [Click #2990](https://github.com/pallets/click/pull/2990) | Control · 1 finding | HTTP 503 · fallback |
+| [Click #3004](https://github.com/pallets/click/pull/3004) | 1 / 1 | HTTP 503 · fallback |
+| [Click #3009](https://github.com/pallets/click/pull/3009) | Control · 0 findings | No source regions |
+| [HTTPX #2998](https://github.com/encode/httpx/pull/2998) | 0 / 1 | HTTP 503 · fallback |
+| [HTTPX #3116](https://github.com/encode/httpx/pull/3116) | 1 / 1 | HTTP 503 · fallback |
+| [HTTPX #3178](https://github.com/encode/httpx/pull/3178) | 1 / 1 | HTTP 503 · fallback |
+| [HTTPX #3364](https://github.com/encode/httpx/pull/3364) | 1 / 1 | Report validation · fallback |
+| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) | 3 / 3 | 3 / 3 |
+| [HTTPX #3373](https://github.com/encode/httpx/pull/3373) | 1 / 1 | HTTP 503 · fallback |
+| [HTTPX #3375](https://github.com/encode/httpx/pull/3375) | Control · 0 findings | No source regions |
+| [HTTPX #3377](https://github.com/encode/httpx/pull/3377) | 1 / 1 | Request window · fallback |
+| [HTTPX #3378](https://github.com/encode/httpx/pull/3378) | 1 / 1 | Report validation · fallback |
+| [HTTPX #3387](https://github.com/encode/httpx/pull/3387) | Control · 0 findings | Control · 0 findings |
 
 ## Dataset and comparison
 
-- The frozen corpus contains 20 merged public Python library PRs, 10 each from Pallets Click and Encode HTTPX. It contains seven intentional changes to public behavior, nine fixes for reported bugs, and four runtime controls covering an annotation change, docs, tests, and a code-moving private-helper refactor. It includes library policy decisions such as query replacement, allowed proxy schemes, and JSON serialization. The 18 outcomes are retrospective source and test labels. They have no independent second adjudication or paired runtime replay. The selection favors cases with clear upstream evidence and has little coverage of Undertow's numeric rules or application-specific policies. [Frozen case metadata, outcomes, and evidence](historical.json) · [Baseline methodology](README.md)
+The following records describe the November 20 source review.
+
+- The frozen corpus contains 20 merged public Python library PRs, 10 each from Pallets Click and Encode HTTPX. It contains seven intentional changes to public behavior, nine fixes for reported bugs, and four runtime controls covering an annotation change, docs, tests, and a code-moving private-helper refactor. It includes library policy decisions such as query replacement, allowed proxy schemes, and JSON serialization. The 18 outcomes are retrospective source and test labels. The November 24 runtime cross-check covers the frozen scenarios. The selection favors cases with clear upstream evidence and has little coverage of Undertow's numeric rules or application-specific policies. [Frozen case metadata, outcomes, and evidence](historical.json) · [Baseline methodology](README.md)
 - Click #2934 supplies a separately scored regression-introducing case. Its prompt EOF change also broke ordinary stdin iteration through `CliRunner`, as reported in #2939 and confirmed by the subsequent fix. The case and regression label were recorded before running either reviewer on it. The original manifest and `supported` flags remained unchanged. All 21 pinned heads were verified against GitHub's merged-PR metadata and their bases against the first Git parent. [Supplemental manifest](click-stdin-regression.json) · [Regression report](https://github.com/pallets/click/issues/2939) · [Upstream fix](https://github.com/pallets/click/pull/2940)
 - All three configurations used the same pinned base and head revisions. Copilot CLI `1.0.114` used a fixed source-review prompt and on-demand access to the exported trees and full diff. Undertow chose bounded source regions and references. All reviews ran without original PR discussions, later commits, or repository test execution. This evaluates the prompted CLI workflow. Its account default served `mai-code-2-flash` in 11 corpus runs and `gpt-6-luna` in nine. The supplement also used Luna. Explicitly selecting `mai-code-2-flash` failed before review. One run per case with mixed model routing limits repeatability, and public code may be familiar from model training. [Reproduction protocol](competitive-pilot.md)
 

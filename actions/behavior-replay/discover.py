@@ -1,4 +1,4 @@
-"""Find a reproducible behavior difference in supported Python functions."""
+"""Find a reproducible behavior difference across Python revisions."""
 
 import argparse
 import ast
@@ -25,10 +25,8 @@ MAX_FILES = 12
 MAX_TARGETS = 6
 
 
-def functions(path):
-    if path.stat().st_size > 128 * 1024:
-        return {}
-    return {node.name: node for node in ast.parse(path.read_bytes()).body
+def functions(source):
+    return {node.name: node for node in ast.parse(source).body
             if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")}
 
 
@@ -46,6 +44,17 @@ def parameter_type(function):
             and annotation.slice.id in SCALAR_TYPES):
         return f"list[{annotation.slice.id}]"
     return None
+
+
+def load_probe(path):
+    if path.suffix != ".py" or path.stat().st_size > 128 * 1024:
+        raise ValueError("Supply a Python probe of at most 128 KiB.")
+    source = path.read_bytes()
+    probe = functions(source).get("probe")
+    kind = parameter_type(probe) if probe else None
+    if not kind:
+        raise ValueError("Define probe(value) with one supported numeric or list annotation.")
+    return source, probe, kind
 
 
 def executable_body(function):
@@ -71,7 +80,10 @@ def targets(repo, base, head, snapshots, env):
         paths.append(path)
     for path in paths[:MAX_FILES]:
         try:
-            old, new = (functions(path_in_snapshot(snapshot, path)) for snapshot in snapshots)
+            files = [path_in_snapshot(snapshot, path) for snapshot in snapshots]
+            if any(file.stat().st_size > 128 * 1024 for file in files):
+                continue
+            old, new = (functions(file.read_bytes()) for file in files)
         except (OSError, SyntaxError, ValueError):
             continue
         for name, after in new.items():
@@ -168,6 +180,22 @@ def compare(snapshots, request, env, deadline):
     return None, None if compared else "no stable, comparable result"
 
 
+def requests(args, directory, snapshots, env):
+    if args.probe:
+        source, function, kind = load_probe(args.probe)
+        probe = directory / "probe.py"
+        probe.write_bytes(source)
+        yield (f"{args.probe.name}::probe",
+               {"probe": str(probe), "name": "probe", "type": kind, "inputs": cases(kind, function, function)},
+               {"probe_sha256": hashlib.sha256(source).hexdigest()})
+        return
+    selected = list(targets(args.repo, args.base, args.head, snapshots, env))[:MAX_TARGETS]
+    for path, before, after, kind in selected:
+        yield (f"{path.as_posix()}::{after.name}",
+               {"path": path.as_posix(), "name": after.name, "type": kind,
+                "inputs": cases(kind, before, after)}, {})
+
+
 def inspect(args, directory):
     env = {"PATH": os.environ.get("PATH", os.defpath), "LC_ALL": "C.UTF-8",
            "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}
@@ -176,17 +204,14 @@ def inspect(args, directory):
         git_snapshot(args.repo, sha, snapshot, env)
     findings, notes = [], []
     deadline = time.monotonic() + 45
-    selected = list(targets(args.repo, args.base, args.head, snapshots, env))[:MAX_TARGETS]
-    for path, before, after, kind in selected:
-        label = f"{path.as_posix()}::{after.name}"
+    selected = list(requests(args, directory, snapshots, env))
+    for label, request, metadata in selected:
         if time.monotonic() >= deadline:
             notes.append("The comparison reached its time limit.")
             break
-        request = {"path": path.as_posix(), "name": after.name, "type": kind,
-                   "inputs": cases(kind, before, after)}
         finding, reason = compare(snapshots, request, env, deadline)
         if finding:
-            findings.append({"target": label, "type": kind, **finding})
+            findings.append({"target": label, "type": request["type"], **metadata, **finding})
         if reason:
             notes.append(f"{label}: {reason}.")
     if findings:
@@ -242,6 +267,7 @@ def main():
     parser.add_argument("--base", required=True)
     parser.add_argument("--head", required=True)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--probe", type=Path, help="Trusted Python file defining an alternative public API scenario.")
     args = parser.parse_args()
     try:
         if not all(SHA.fullmatch(sha) for sha in (args.base, args.head)):
@@ -253,7 +279,7 @@ def main():
     try:
         with tempfile.TemporaryDirectory() as directory:
             status, findings, notes = inspect(args, Path(directory))
-    except (OSError, ValueError, tarfile.TarError, subprocess.SubprocessError):
+    except (OSError, ValueError, SyntaxError, tarfile.TarError, subprocess.SubprocessError):
         status, findings, notes = "unavailable", [], ["Could not prepare or compare the Git snapshots."]
     report = {"schema_version": 1, "kind": "behavior", "status": status,
               "base": {"sha": args.base}, "head": {"sha": args.head}, "findings": findings, "notes": notes}

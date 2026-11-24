@@ -24,22 +24,6 @@ def cell(value):
                    for c in " ".join(value.split()))
 
 
-def comparison(report, base, head):
-    before, after = report["base"], report["head"]
-    if report["schema_version"] != 1 or (before["sha"], after["sha"]) != (base, head):
-        raise ValueError("The artifact does not describe the current PR comparison.")
-    outcomes = {"passed": "Passed", "assertion_failed": "Assertion failed", "unavailable": "Unavailable"}
-    lines = [f"<code>{cell(report['test'])}</code>", "", "| Test result | Base | PR head |",
-             "| --- | --- | --- |",
-             f"| Assertion | {outcomes[before['status']]} | {outcomes[after['status']]} |"]
-    left, right = before.get("observations", {}), after.get("observations", {})
-    if not isinstance(left, dict) or not isinstance(right, dict) or max(len(left), len(right)) > 12:
-        raise ValueError("Invalid replay observations.")
-    for key in dict.fromkeys([*left, *right]):
-        lines.append(f"| {cell(key)} | {cell(left.get(key, 'Unrecorded'))} | {cell(right.get(key, 'Unrecorded'))} |")
-    return "\n".join(lines)
-
-
 def value_cell(value):
     return cell(value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, sort_keys=True))
 
@@ -71,30 +55,23 @@ def behavior(finding):
     return "\n".join(lines)
 
 
-def sections_for(report, base, head, covered, publish_test_replay):
+def sections_for(report, base, head, covered):
+    if report.get("kind") != "behavior":
+        return []
     if report["schema_version"] != 1 or (report["base"]["sha"], report["head"]["sha"]) != (base, head):
         raise ValueError("The artifact does not describe the current PR comparison.")
-    if report.get("kind") == "behavior":
-        if report["status"] != "observed_difference":
-            return []
-        findings = report["findings"]
-        if not isinstance(findings, list) or not 1 <= len(findings) <= 6:
-            raise ValueError("Invalid behavior findings.")
-        sections = []
-        for finding in findings:
-            key = fingerprint(finding)
-            if key not in covered:
-                sections.append(behavior(finding))
-                covered.add(key)
-        return sections
-    if publish_test_replay:
-        statuses = report["base"]["status"], report["head"]["status"]
-        if statuses == ("assertion_failed", "passed"):
-            return ["**New or changed expectation met on PR head.**\n\n" + comparison(report, base, head)]
-        if statuses == ("passed", "assertion_failed"):
-            return ["**Possible regression. The selected assertion failed on PR head.**\n\n"
-                    + comparison(report, base, head)]
-    return []
+    if report["status"] != "observed_difference":
+        return []
+    findings = report["findings"]
+    if not isinstance(findings, list) or not 1 <= len(findings) <= 6:
+        raise ValueError("Invalid behavior findings.")
+    sections = []
+    for finding in findings:
+        key = fingerprint(finding)
+        if key not in covered:
+            sections.append(behavior(finding))
+            covered.add(key)
+    return sections
 
 
 def main():
@@ -111,7 +88,6 @@ def main():
     if any(not EVIDENCE_ID.fullmatch(value) for value in covered):
         raise ValueError("Covered evidence must contain only behavior evidence IDs.")
     covered.update(re.findall(r"<!-- undertow-covered: ([0-9a-f]{64}) -->", pull.get("body") or ""))
-    publish_test_replay = os.environ.get("PUBLISH_TEST_REPLAY") == "true"
     root = Path(os.environ["REPORT_DIR"]).resolve()
     reports = sorted(root.glob("*/report.json"))
     if not 1 <= len(reports) <= 12:
@@ -120,8 +96,7 @@ def main():
     for path in reports:
         if path.resolve() != path or path.stat().st_size > 131072:
             raise ValueError("Invalid replay artifact.")
-        sections.extend(sections_for(json.loads(path.read_text(encoding="utf-8")), merge_base, head,
-                                     covered, publish_test_replay))
+        sections.extend(sections_for(json.loads(path.read_text(encoding="utf-8")), merge_base, head, covered))
     run_url = f"{api.github_url('GITHUB_SERVER_URL')}/{repo}/actions/runs/{int(os.environ['GITHUB_RUN_ID'])}"
     body = "\n\n".join(["## Undertow behavior replay", *sections,
                         f"Base `{merge_base[:7]}` · PR head `{head[:7]}` · [Run summary and evidence]({run_url})"]) if sections else ""

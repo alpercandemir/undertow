@@ -1,0 +1,79 @@
+I’m tracing the diff against both source trees and will report only externally visible behavior changes.
+
+The diff collapses a merge operation into URL construction, so I’m checking overlapping and empty query cases in both implementations.
+
+I’ve isolated the relevant branches; no additional source files appear changed by the diff.[
+  {
+    "claim": "Supplying params to a Request now replaces an existing URL query instead of merging into it.",
+    "input": "httpx.Request(\"GET\", \"https://example.org/?a=123\", params={\"b\": \"456\"})",
+    "before": "The URL is https://example.org/?a=123&b=456.",
+    "after": "The URL is https://example.org/?b=456.",
+    "question": "Is params intended to augment the URL's existing query, or replace it? This may be an intentional policy change or a compatibility regression.",
+    "sources": [
+      {
+        "side": "base",
+        "path": "httpx/_models.py",
+        "line": 331
+      },
+      {
+        "side": "base",
+        "path": "httpx/_models.py",
+        "line": 332
+      },
+      {
+        "side": "base",
+        "path": "httpx/_urls.py",
+        "line": 367
+      },
+      {
+        "side": "base",
+        "path": "httpx/_urls.py",
+        "line": 596
+      },
+      {
+        "side": "head",
+        "path": "httpx/_models.py",
+        "line": 331
+      },
+      {
+        "side": "head",
+        "path": "httpx/_urls.py",
+        "line": 107
+      },
+      {
+        "side": "head",
+        "path": "httpx/_urls.py",
+        "line": 114
+      }
+    ]
+  },
+  {
+    "claim": "Passing an explicitly empty params value now removes an existing URL query.",
+    "input": "httpx.Request(\"GET\", \"https://example.org/?a=123\", params={})",
+    "before": "The existing query remains: https://example.org/?a=123.",
+    "after": "The query is removed: https://example.org/.",
+    "question": "Should an empty params argument act as a no-op or clear the URL query? The constructor explicitly normalizes empty params to no query.",
+    "sources": [
+      {
+        "side": "base",
+        "path": "httpx/_models.py",
+        "line": 332
+      },
+      {
+        "side": "base",
+        "path": "httpx/_urls.py",
+        "line": 596
+      },
+      {
+        "side": "head",
+        "path": "httpx/_models.py",
+        "line": 331
+      },
+      {
+        "side": "head",
+        "path": "httpx/_urls.py",
+        "line": 114
+      }
+    ]
+  }
+]

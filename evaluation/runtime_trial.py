@@ -13,7 +13,7 @@ import tempfile
 import time
 
 from run import ENGINE, ROOT, engine_environment, finding_ids, read, run_case, write
-from runtime_probes import PROBES
+from runtime_probes import TRIAL_CASES
 
 
 HERE = Path(__file__).resolve().parent
@@ -89,22 +89,48 @@ def trial_case(case_id, cases, repos, showcase_repo, output, env):
     return result
 
 
+def historical_case(case, repos, env):
+    case_id = case["id"]
+    repo = repos / (case["repository"] + ".git")
+    result = {"source_url": case["source_url"]}
+    source_subtree = {"click-3009": "src/click", "httpx-3375": "httpx"}.get(case_id)
+    for side in ("base", "head"):
+        sha = case[side]
+        if source_subtree:
+            tree = subprocess.check_output(["git", "-C", str(repo), "rev-parse", f"{sha}:{source_subtree}"],
+                                           env=env, text=True, stderr=subprocess.PIPE, timeout=5).strip()
+            observed = {"source_subtree": source_subtree, "tree": tree}
+        else:
+            observed = observe(case_id, repo, sha, {}, env)
+        result[side] = {"sha": sha, "observed": observed}
+    result["comparison"] = "same" if result["base"]["observed"] == result["head"]["observed"] else "different"
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repos", type=Path, required=True, help="Local benchmark bare repositories.")
-    parser.add_argument("--showcase-repo", type=Path, required=True, help="Local showcase bare repository.")
+    scope = parser.add_mutually_exclusive_group(required=True)
+    scope.add_argument("--showcase-repo", type=Path, help="Run the verification trial including the showcase repository.")
+    scope.add_argument("--historical", action="store_true", help="Run the frozen corpus and supplemental regression probes.")
     parser.add_argument("--output", type=Path, required=True, help="Directory for new trial results.")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     cases = {case["id"]: case for case in read(HERE / "historical.json")["cases"]}
+    if args.historical:
+        cases.update({case["id"]: case for case in read(HERE / "click-stdin-regression.json")["cases"]})
     env = engine_environment("local", None)
     repos = args.repos.resolve()
-    showcase_repo = args.showcase_repo.resolve()
+    showcase_repo = args.showcase_repo.resolve() if args.showcase_repo else None
+    case_ids = cases if args.historical else TRIAL_CASES
     results = {}
-    for case_id in PROBES:
+    for case_id in case_ids:
         started = time.monotonic()
         try:
-            result = trial_case(case_id, cases, repos, showcase_repo, args.output, env)
+            if args.historical:
+                result = historical_case(cases[case_id], repos, env)
+            else:
+                result = trial_case(case_id, cases, repos, showcase_repo, args.output, env)
         except (OSError, ValueError, subprocess.SubprocessError, tarfile.TarError) as error:
             stderr = getattr(error, "stderr", None)
             if isinstance(stderr, bytes):

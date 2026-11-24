@@ -37,6 +37,23 @@ python3 evaluation/run.py --manifest evaluation/click-stdin-regression.json \
 
 For Gemini cost, reconcile all requests and retries from a dedicated project billing export or record provider `usageMetadata` separately. Apply the dated rates for the actual model and tier to billable input, cached input and output, including thinking tokens where billed. The existing worker reports do not capture token usage. [Gemini Developer API pricing](https://ai.google.dev/gemini-api/docs/pricing)
 
+### Repeat the v0.5.0 run
+
+Use the v0.5.0 release commit for the November 24 local and Gemini configurations. The hosted paced pass used a 12-second wait between cases and an observer outside the worker to save HTTP status and token metadata. [v0.5.0 results](benchmark.md#v050-rerun) · [Paced workflow and observer](https://github.com/alpercandemir/undertow/tree/3eeede21f571802091a374e8ee8451cca07c4555)
+
+```sh
+revision=7d6c9b09705b439d7a246ca5e93b38a29dcf2e8a
+python3 evaluation/run.py run --repos .undertow/eval-repos \
+  --output .undertow/v050-local --revision "$revision"
+
+for model in gemini-3.8-flash gemini-3.5-flash-lite gemini-3.1-flash-lite; do
+  python3 evaluation/run.py run --repos .undertow/eval-repos \
+    --output ".undertow/v050-$model" --revision "$revision" --mode gemini --model "$model"
+done
+```
+
+Use `--manifest evaluation/click-stdin-regression.json` before `run` and a fresh output directory for the supplemental regression. The saved [v0.5.0 run records](results/v0.5.0/) can be scored directly with the commands in the [README](../README.md#historical-benchmark).
+
 ## GitHub Copilot CLI
 
 Use an authenticated Copilot CLI account with sufficient access and credits. The tested CLI was `1.0.114`. Install it in an ignored directory if needed. The recorded pilot used the account default because explicit selection of the served model was unavailable. The run records preserve the actual model per case. Pass `--model` to pin an available model on a future run and record any resulting difference in configuration.

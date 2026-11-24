@@ -13,6 +13,9 @@ inputs:
   artifact-name:
     description: Prefix for the retained Markdown and JSON reports.
     default: undertow-behavior
+  probe:
+    description: Optional trusted Python probe for a public API scenario.
+    default: ''
 outputs:
   status:
     description: observed_difference, no_observed_difference, or unavailable.
@@ -28,10 +31,15 @@ runs:
         REPLAY_REPO: ${{ inputs.repo }}
         REPLAY_BASE: ${{ inputs.base }}
         REPLAY_HEAD: ${{ inputs.head }}
+        REPLAY_PROBE: ${{ inputs.probe }}
       run: |
         directory="$(mktemp -d "$RUNNER_TEMP/undertow-behavior.XXXXXXXX")/report"
+        probe=()
+        if [[ -n "$REPLAY_PROBE" ]]; then
+          probe=(--probe "$REPLAY_PROBE")
+        fi
         if python3 -IB "$GITHUB_ACTION_PATH/discover.py" --repo "$REPLAY_REPO" \
-          --base "$REPLAY_BASE" --head "$REPLAY_HEAD" --output "$directory" >/dev/null; then
+          --base "$REPLAY_BASE" --head "$REPLAY_HEAD" --output "$directory" "${probe[@]}" >/dev/null; then
           status="$(python3 -IB -c 'import json, sys; print(json.load(open(sys.argv[1]))["status"])' "$directory/report.json")"
         else
           status=unavailable

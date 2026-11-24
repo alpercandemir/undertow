@@ -1,0 +1,23 @@
+{
+  "cases": {
+    "click-2934": {
+      "example_ids": [],
+      "finding_ids": [],
+      "mode": "local",
+      "model": null,
+      "reviewed_regions": 2,
+      "seconds": 2.77,
+      "status": "no_findings",
+      "version": "0.5.0"
+    }
+  },
+  "git": "git version 2.56.1",
+  "manifest_sha256": "27a79847c20895cc4af9acffe49983d62d18ee709b71a92e7e73ad3dae1c2d35",
+  "platform": "linux",
+  "python": "3.12.3",
+  "requested_mode": "gemini",
+  "requested_model": "gemini-3.5-flash-lite",
+  "schema": 1,
+  "undertow_commit": "7d6c9b09705b439d7a246ca5e93b38a29dcf2e8a",
+  "worker_sha256": "fa39022fa97045c1dab0145597afa7c593d461fec34bf979a8dbaa6fca876545"
+}

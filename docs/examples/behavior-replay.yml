@@ -1,0 +1,66 @@
+name: Tests and behavior replay
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: undertow-behavior-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'undertow-publish' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Run the existing test suite
+        run: python3 -m unittest discover -s tests -v
+
+  replay:
+    needs: tests
+    if: ${{ needs.tests.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      attempt: ${{ steps.comparison.outputs.attempt }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Find the comparison base
+        id: comparison
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          base=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          printf 'base=%s\nattempt=%s\n' "$base" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+      - uses: alpercandemir/undertow/actions/behavior-replay@v0.5.0
+        with:
+          base: ${{ steps.comparison.outputs.base }}
+          head: ${{ github.event.pull_request.head.sha }}
+
+  publish:
+    needs: [tests, replay]
+    if: >-
+      ${{ needs.tests.result == 'success' && needs.replay.result == 'success' &&
+          github.event.action == 'labeled' && github.event.label.name == 'undertow-publish' &&
+          github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: alpercandemir/undertow/actions/replay-comment@v0.5.0
+        with:
+          artifact-pattern: undertow-behavior-replay-*-${{ needs.replay.outputs.attempt }}

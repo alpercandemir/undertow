@@ -1,0 +1,112 @@
+{
+  "version": "0.5.0",
+  "schema_version": 1,
+  "status": "findings",
+  "mode": "gemini",
+  "base": "b63ace28d50b53e74b5260f6cb357ccfe5560133",
+  "head": "9c5e989d52509498ce78a4015ebc7d9408f70c56",
+  "coverage": {
+    "changed_files": 4,
+    "ignored_files": 3,
+    "unread_files": 0,
+    "omitted_regions": 0,
+    "shortened_lines": 0,
+    "reviewed_regions": 2,
+    "reviewed_files": 1,
+    "related_regions": 1
+  },
+  "findings": [
+    {
+      "priority_reason": "The command naming logic now automatically strips specific suffixes from function names, which changes the CLI command name for existing functions that include these suffixes and do not explicitly define a command name.",
+      "title": "Automated command name stripping for specific suffixes",
+      "flow": "Command registration via @click.command decorator",
+      "before": "The command name was derived directly from the function name by replacing underscores with dashes.",
+      "after": "The command name is derived from the function name, but common suffixes like '_command' and '_group' are automatically stripped before underscore-to-dash conversion.",
+      "scenario": "concrete_input",
+      "example_before": "@click.command() def my_data_command(): pass # results in 'my-data-command'",
+      "example_after": "@click.command() def my_data_command(): pass # results in 'my-data'",
+      "potential_impact": "Existing CLI tools that rely on the previous naming convention may see their command names break or change unexpectedly after an upgrade, potentially causing issues for users or scripts expecting the longer names.",
+      "review_question": "Do any existing commands in the repository rely on the '_command', '_cmd', '_group', or '_grp' suffixes to maintain their specific CLI identity?",
+      "priority": "P2",
+      "evidence": [
+        "D1",
+        "D2"
+      ],
+      "id": "F1",
+      "analysis_mode": "gemini",
+      "classification": "behavioral_difference",
+      "compatibility_risk": "changed_outcome",
+      "example": {
+        "input": "concrete_input",
+        "precondition": null,
+        "base_outcome": "@click.command() def my_data_command(): pass # results in 'my-data-command'",
+        "head_outcome": "@click.command() def my_data_command(): pass # results in 'my-data'"
+      },
+      "evidence_level": "source_inferred",
+      "analysis_limitations": [
+        "Gemini inferred this example from selected excerpts. Reachability and downstream consequences are unverified."
+      ]
+    }
+  ],
+  "evidence": {
+    "D1": {
+      "base": {
+        "path": "src/click/decorators.py",
+        "start": 181,
+        "end": 196
+      },
+      "head": {
+        "path": "src/click/decorators.py",
+        "start": 181,
+        "end": 200
+      }
+    },
+    "D2": {
+      "base": {
+        "path": "src/click/decorators.py",
+        "start": 239,
+        "end": 244
+      },
+      "head": {
+        "path": "src/click/decorators.py",
+        "start": 243,
+        "end": 252
+      }
+    },
+    "R1": {
+      "base": {
+        "path": "src/click/decorators.py",
+        "start": 245,
+        "end": 253
+      },
+      "head": {
+        "path": "src/click/decorators.py",
+        "start": 253,
+        "end": 261
+      }
+    }
+  },
+  "related_references": [
+    {
+      "symbol": "decorator",
+      "caller": null,
+      "hop": 1,
+      "evidence": "R1",
+      "relationship": "candidate",
+      "target_path": "src/click/decorators.py",
+      "relationship_by_revision": {
+        "base": "candidate",
+        "head": "candidate"
+      }
+    }
+  ],
+  "notes": [
+    "Excluded file changes without relevant text edits or outside the review scope (3).",
+    "Local analysis covers simple numeric conditions, selected same-file constants, literal returns and HTTP route declarations."
+  ],
+  "analysis_limitations": [
+    "Undertow compares selected source. It did not execute either revision or run project tests.",
+    "Coverage is bounded by file and context limits and by what the analysis can infer from source."
+  ],
+  "model": "gemini-3.1-flash-lite"
+}

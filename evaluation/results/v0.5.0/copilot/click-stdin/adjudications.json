@@ -1,0 +1,30 @@
+{
+  "click-2934": {
+    "02d78e99b5777ebc5da83e723e9613d200f22bd89e95fa9c2d87aae1bf518d91": {
+      "additional_outcomes": [
+        "prompt-early-eof"
+      ],
+      "changes": [],
+      "concrete": true,
+      "reason": "Empty stdin previously supplied an empty string to repeated prompt reads. The new EOFError aborts the prompt, and the three-prompt case describes that difference.",
+      "verdict": "correct"
+    },
+    "28bdaa1881f9d55b09a3af6251cff5602bde8ed027edf700b120b241939dd33c": {
+      "changes": [
+        "1"
+      ],
+      "concrete": true,
+      "reason": "The paired stdin probe and upstream regression confirm successful iteration on base and the Aborted! output on head.",
+      "verdict": "correct"
+    },
+    "d93d17fbc717f12a1f4265e4a827246f7d6c0183fcc32a84d3b5ed5002d5a975": {
+      "additional_outcomes": [
+        "eof-prompt-default"
+      ],
+      "changes": [],
+      "concrete": true,
+      "reason": "The pinned prompt implementation previously used the empty response to select its default. The changed runner raises EOFError before the default choice.",
+      "verdict": "correct"
+    }
+  }
+}
