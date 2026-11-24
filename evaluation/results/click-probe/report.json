@@ -30,5 +30,8 @@
       }
     }
   ],
-  "notes": []
+  "notes": [],
+  "probe_modules": [
+    "click.testing"
+  ]
 }

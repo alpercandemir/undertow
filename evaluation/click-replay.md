@@ -54,7 +54,7 @@ done
 
 "$trial/venv/bin/python" -IB actions/behavior-replay/discover.py \
   --repo "$trial/click.git" --base "$base" --head "$head" \
-  --probe evaluation/probes/click_stdin.py --output "$trial/replay"
+  --probe evaluation/probes/click_stdin.py --probe-module click.testing --output "$trial/replay"
 "$trial/venv/bin/python" -IB actions/behavior-replay/write_test.py \
   --report "$trial/replay/report.json" --probe evaluation/probes/click_stdin.py \
   --expect base --output "$trial/test_undertow_stdin.py"

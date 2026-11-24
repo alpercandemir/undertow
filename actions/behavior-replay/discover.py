@@ -6,6 +6,7 @@ from decimal import Decimal
 import hashlib
 import html
 import json
+import keyword
 import os
 from pathlib import Path
 import signal
@@ -140,6 +141,9 @@ def observe(snapshot, request, env, deadline):
             values = json.loads(result_path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             values = None
+        if isinstance(values, dict) and values.get("unverified_probe_module") in request.get("modules", []):
+            module = values["unverified_probe_module"]
+            return None, f"probe module {module!r} was not loaded from the Git snapshot"
         if not isinstance(values, list) or len(values) != len(request["inputs"]):
             return None, "the probe did not produce comparable results"
         return values, None
@@ -161,6 +165,7 @@ def compare(snapshots, request, env, deadline):
         runs.append((first, second))
 
     compared = False
+    rejected = None
     for value, base, base_repeat, head, head_repeat in zip(request["inputs"], *runs[0], *runs[1], strict=True):
         if (base is None or head is None or not same(base, base_repeat) or not same(head, head_repeat)
                 or ("raised" in base and "raised" in head)):
@@ -173,11 +178,14 @@ def compare(snapshots, request, env, deadline):
         isolated_head, head_reason = observe(snapshots[1], isolated, env, deadline)
         if base_reason or head_reason:
             side, reason = ("base", base_reason) if base_reason else ("head", head_reason)
-            return None, f"{side}: {reason}"
+            rejected = f"{side}: {reason}"
+            if time.monotonic() >= deadline:
+                break
+            continue
         if same(isolated_base, [base]) and same(isolated_head, [head]):
             return {"input": value, "base": base, "head": head}, None
-        return None, "the difference did not reproduce with the input alone"
-    return None, None if compared else "no stable, comparable result"
+        rejected = "the difference did not reproduce with the input alone"
+    return None, rejected or (None if compared else "no stable, comparable result")
 
 
 def requests(args, directory, snapshots, env):
@@ -186,7 +194,8 @@ def requests(args, directory, snapshots, env):
         probe = directory / "probe.py"
         probe.write_bytes(source)
         yield (f"{args.probe.name}::probe",
-               {"probe": str(probe), "name": "probe", "type": kind, "inputs": cases(kind, function, function)},
+               {"probe": str(probe), "modules": args.probe_module, "name": "probe", "type": kind,
+                "inputs": cases(kind, function, function)},
                {"probe_sha256": hashlib.sha256(source).hexdigest()})
         return
     selected = list(targets(args.repo, args.base, args.head, snapshots, env))[:MAX_TARGETS]
@@ -268,10 +277,18 @@ def main():
     parser.add_argument("--head", required=True)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--probe", type=Path, help="Trusted Python file defining an alternative public API scenario.")
+    parser.add_argument("--probe-module", action="append", default=[], metavar="MODULE",
+                        help="Import name of a project module the probe uses. Repeat as needed.")
     args = parser.parse_args()
     try:
         if not all(SHA.fullmatch(sha) for sha in (args.base, args.head)):
             raise ValueError("Use full Git commit SHAs.")
+        if bool(args.probe) != bool(args.probe_module):
+            raise ValueError("Use --probe with at least one --probe-module.")
+        if any(not part.isidentifier() or keyword.iskeyword(part)
+               for name in args.probe_module for part in name.split(".")):
+            raise ValueError("Use dotted Python import names for --probe-module.")
+        args.probe_module = list(dict.fromkeys(args.probe_module))
         args.output.mkdir(parents=True)
     except (OSError, ValueError) as error:
         parser.error(str(error))
@@ -283,6 +300,8 @@ def main():
         status, findings, notes = "unavailable", [], ["Could not prepare or compare the Git snapshots."]
     report = {"schema_version": 1, "kind": "behavior", "status": status,
               "base": {"sha": args.base}, "head": {"sha": args.head}, "findings": findings, "notes": notes}
+    if args.probe:
+        report["probe_modules"] = args.probe_module
     markdown = summary(report)
     (args.output / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (args.output / "summary.md").write_text(markdown, encoding="utf-8")

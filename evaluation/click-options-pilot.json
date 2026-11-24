@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "kind": "historical",
+  "cases": [
+    {
+      "id": "click-options-01",
+      "repository": "pallets/click",
+      "source_url": "https://github.com/pallets/click",
+      "base": "23780fa3efcc471137aca7c6b4624164f760a647",
+      "head": "81a482fbfdd5a553cf4704f822ade04c3b102fbc",
+      "classification": "unverified",
+      "changes": []
+    },
+    {
+      "id": "click-options-02",
+      "repository": "pallets/click",
+      "source_url": "https://github.com/pallets/click",
+      "base": "7d7183604158f064390539d83d4a19a978c6b08a",
+      "head": "6a1c0d077311f180b356965914e2de5b9e0fdb44",
+      "classification": "unverified",
+      "changes": []
+    },
+    {
+      "id": "click-options-03",
+      "repository": "pallets/click",
+      "source_url": "https://github.com/pallets/click",
+      "base": "2ed395b0b5ac4d56553ff715335f456f812cdc78",
+      "head": "27aaed3fe5bcd6adedd6e91de234914af9859cf1",
+      "classification": "unverified",
+      "changes": []
+    },
+    {
+      "id": "click-options-04",
+      "repository": "pallets/click",
+      "source_url": "https://github.com/pallets/click",
+      "base": "06f52a45782a0bd2cb9aa5f289afb68ac3b2b2e5",
+      "head": "8d4051e9e57be1bfb5421e3eb5a93b4b42077b0c",
+      "classification": "unverified",
+      "changes": []
+    },
+    {
+      "id": "click-options-05",
+      "repository": "pallets/click",
+      "source_url": "https://github.com/pallets/click",
+      "base": "a92c573f3195c9da3058eadf1735d38af186d22c",
+      "head": "e27b307462b725722f620c69dd1d5509c032d18a",
+      "classification": "unverified",
+      "changes": []
+    },
+    {
+      "id": "click-options-06",
+      "repository": "pallets/click",
+      "source_url": "https://github.com/pallets/click",
+      "base": "ea70da487b05d6bb758d472a3a9ffab4a5b7fcd5",
+      "head": "b91bb9548a5617b1197add95e084d569f57149c3",
+      "classification": "unverified",
+      "changes": []
+    }
+  ]
+}

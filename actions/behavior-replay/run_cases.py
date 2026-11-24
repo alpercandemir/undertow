@@ -55,6 +55,12 @@ def load_function(request, root):
     return getattr(module, request["name"])
 
 
+def loaded_from_snapshot(name, root):
+    module = sys.modules.get(name)
+    filename = getattr(module, "__file__", None)
+    return isinstance(filename, str) and Path(filename).resolve().is_relative_to(root)
+
+
 def main():
     request_path, result_path = map(Path, sys.argv[1:])
     request = json.loads(request_path.read_text(encoding="utf-8"))
@@ -67,7 +73,14 @@ def main():
         arguments = [[convert(item) for item in value] for value in request["inputs"]]
     else:
         arguments = list(map(CONVERT[kind], request["inputs"]))
-    results = [invoke(function, argument, json_only="probe" in request) for argument in arguments]
+    modules = request.get("modules", [])
+    results = []
+    for argument in arguments:
+        results.append(invoke(function, argument, json_only=bool(modules)))
+        for name in modules:
+            if not loaded_from_snapshot(name, root):
+                result_path.write_text(json.dumps({"unverified_probe_module": name}), encoding="utf-8")
+                return
     result_path.write_text(json.dumps(results, sort_keys=True), encoding="utf-8")
 
 

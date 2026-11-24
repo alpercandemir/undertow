@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: undertow-behavior-${{ github.event.pull_request.number }}
+  group: undertow-behavior-${{ github.event.pull_request.number }}-${{ github.event.action == 'labeled' && format('label-{0}', github.event.label.name) || 'ci' }}
   cancel-in-progress: true
 
 jobs:

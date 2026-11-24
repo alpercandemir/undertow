@@ -17,12 +17,12 @@ Supply full commit IDs and choose a fresh output directory. The CLI writes `repo
 
 ## Probe a public API and export a pytest test
 
-Use `--probe` from this checkout when the behavior spans several functions or requires a public entry point such as a CLI. The trusted probe defines one `probe(value)` function with a supported type annotation. It sets up the call and returns a small JSON value that captures the observable behavior. Use one self-contained file and import project code through the public API. Undertow snapshots that file and supplies the inputs on both revisions. [Click probe](../evaluation/probes/click_stdin.py)
+Use `--probe` from this checkout when the behavior spans several functions or requires a public entry point such as a CLI. The trusted probe defines one `probe(value)` function with a supported type annotation. It sets up the call and returns a small JSON value that captures the observable behavior. Use one self-contained file and name the project modules it exercises with `--probe-module`. Repeat the flag for multiple modules. Undertow uses the flat and `src/` import roots and verifies that each declared module is loaded from the corresponding Git snapshot. Use concrete modules such as `click.testing` for packages with namespace-only parents. [Click probe](../evaluation/probes/click_stdin.py)
 
 ```sh
 python3 -IB actions/behavior-replay/discover.py \
   --repo /path/to/project --base "$BASE_SHA" --head "$HEAD_SHA" \
-  --probe path/to/probe.py --output .undertow/probe-run
+  --probe path/to/probe.py --probe-module myproject.cli --output .undertow/probe-run
 
 python3 -IB actions/behavior-replay/write_test.py \
   --report .undertow/probe-run/report.json --probe path/to/probe.py \
@@ -41,6 +41,6 @@ Review the evidence before requesting a comment. A green check establishes that 
 
 The built-in search covers changed top-level Python functions with one positional argument annotated `int`, `float`, `Decimal`, or a list of one of these types. It looks at modified modules in a flat or conventional `src/` layout. A supplied probe uses the same input generator with its annotated argument and drives the public API chosen by the probe author. The search tries numeric boundaries from the tested function and small numeric samples, including repeated list values. Automatic discovery examines at most twelve modified modules and six eligible functions per run.
 
-For a finding, the generated input must produce stable outcomes in fresh processes and the difference must reproduce with that input alone. Supported results include small scalars, arrays, and dictionaries. A return becoming an exception is reported as a new exception for that input. Import failures, timeouts, and cases without comparable results are explained in the Actions summary. Finishing without a finding means no difference was observed for the inputs attempted.
+For a finding, the generated input must produce stable outcomes in fresh processes and the difference must reproduce with that input alone. Replay continues through later candidates after a difference fails isolation, within its time budget. Supported results include small scalars, arrays, and dictionaries. A return becoming an exception is reported as a new exception for that input. Import failures, timeouts, and cases without comparable results are explained in the Actions summary.
 
 Use [source review](change-review.md) for a wider source-only view of edited rules and callers.

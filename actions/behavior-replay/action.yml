@@ -16,6 +16,9 @@ inputs:
   probe:
     description: Optional trusted Python probe for a public API scenario.
     default: ''
+  probe-modules:
+    description: Space-separated import names of project modules used by the probe.
+    default: ''
 outputs:
   status:
     description: observed_difference, no_observed_difference, or unavailable.
@@ -32,12 +35,17 @@ runs:
         REPLAY_BASE: ${{ inputs.base }}
         REPLAY_HEAD: ${{ inputs.head }}
         REPLAY_PROBE: ${{ inputs.probe }}
+        REPLAY_PROBE_MODULES: ${{ inputs.probe-modules }}
       run: |
         directory="$(mktemp -d "$RUNNER_TEMP/undertow-behavior.XXXXXXXX")/report"
         probe=()
         if [[ -n "$REPLAY_PROBE" ]]; then
           probe=(--probe "$REPLAY_PROBE")
         fi
+        read -ra modules <<< "$REPLAY_PROBE_MODULES"
+        for module in "${modules[@]}"; do
+          probe+=(--probe-module "$module")
+        done
         if python3 -IB "$GITHUB_ACTION_PATH/discover.py" --repo "$REPLAY_REPO" \
           --base "$REPLAY_BASE" --head "$REPLAY_HEAD" --output "$directory" "${probe[@]}" >/dev/null; then
           status="$(python3 -IB -c 'import json, sys; print(json.load(open(sys.argv[1]))["status"])' "$directory/report.json")"
