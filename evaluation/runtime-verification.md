@@ -17,7 +17,7 @@ Undertow supplied the $50 input from its local source report. The trial called t
 | Comparison | What the runs showed |
 | --- | --- |
 | [Showcase #6](https://github.com/alpercandemir/undertow-showcase/pull/6) | The Flask test client observed all ten reported changes. A day-30 return with a receipt moved from pending to expired. A day-7 refund without a receipt moved from rejected to manual review. The gift quote started returning HTTP 200 with a $50 total, and the bulk quote moved from HTTP 200 to 404. |
-| [Showcase #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133488076) | A 10% coupon on three $3.35 items went from a $1.02 discount to $1.01. The amount due went from $9.03 to $9.04. The PR's three-item pytest case failed on base and passed on head. The single-item control passed on both and Undertow local reported zero findings. |
+| [Showcase #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175) | A 10% coupon on three $3.35 items went from a $1.02 discount to $1.01. The amount due went from $9.03 to $9.04. The PR's three-item pytest case failed on base and passed on head. The single-item control passed on both and Undertow local reported zero findings. |
 | [Click #2604](https://github.com/pallets/click/pull/2604) | The inferred command name matched both runs. The generated name changed from `my-sync-command` to `my-sync`. |
 | [Click #2846](https://github.com/pallets/click/pull/2846) | The Zsh formatter escaped `a:b` when help text was present. With help text absent, the colon stayed unescaped. The saved example omitted the leading `plain` line of the formatted output. |
 | [Click #2972](https://github.com/pallets/click/pull/2972) | Both missing and invalid option errors dropped the stray environment-variable hint. The invalid-option message included quotes around the option name on both revisions. |
@@ -66,7 +66,7 @@ for test in test_coupon_rounds_once_on_cart_subtotal test_single_item_coupon_tot
   "$trial/venv/bin/python" actions/test-replay/replay.py \
     --repo "$trial/repos/showcase.git" \
     --base 2c5360029094e1eaee1fc14a7b6be835895731fb \
-    --head b19ee2d64fe1688045be6fc5d813f92b9f795997 \
+    --head 269992db47d4baa63769192495ccbf23103735ef \
     --test "tests/test_coupon_checkout.py::$test" \
     --pytest-args '["-q"]' --output "$trial/$test"
 done

@@ -23,7 +23,7 @@ The runner exports both Git trees and overlays the selected test file from head 
 Add a separate, ephemeral job in a `pull_request` or maintainer-dispatched workflow. Give it `contents: read`, check out both commits with `persist-credentials: false`, and install the project's test dependencies before running replay. Keep the job free of secrets and outside `pull_request_target`. The snippets below assume an earlier `revisions` step exposes `base` and `head` commit IDs. Pin Undertow to a commit containing the replay Action. During development, use `./actions/test-replay` from a checkout of this repository.
 
 ```yaml
-- uses: alpercandemir/undertow/actions/test-replay@<commit-with-test-replay>
+- uses: alpercandemir/undertow/actions/test-replay@8875d27f44dc736061b5097b297e948774d4d8bd
   with:
     base: ${{ steps.revisions.outputs.base }}
     head: ${{ steps.revisions.outputs.head }}
@@ -31,6 +31,36 @@ Add a separate, ephemeral job in a `pull_request` or maintainer-dispatched workf
 ```
 
 The Action puts the comparison in the job summary, uploads the reports and pytest logs, and exposes a `status` output. The result is advisory. The local CLI saves the same files in its output directory. Use fixtures suitable for sharing in assertions and logs. [GitHub's workflow security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
+
+### Post the comparison to the PR
+
+The replay job writes the assertion result to its Actions summary. To include a calculated value in the PR comment, record it before the assertion so it is available even when that assertion fails.
+
+```python
+def test_coupon_rounds_once_on_cart_subtotal(record_property):
+    quote = quote_coupon_cart([Decimal("3.35")] * 3)
+    record_property("undertow.Amount due", f"${quote['amount_due']}")
+    assert quote["amount_due"] == Decimal("9.04")
+```
+
+Pytest supplies the `record_property` fixture. Undertow includes up to 12 properties per revision with the `undertow.` prefix. Labels after the prefix can be 1–55 characters. Use strings, numbers or booleans whose text is at most 160 characters. Choose values suitable for the PR audience.
+
+Run the publisher in a separate job after replay. The example below assumes the producer job is named `replay`, uses artifact names beginning with `coupon-`, and exposes the attempt that uploaded them as a job output. This keeps retries tied to the producer's artifacts. The publisher reads JSON and updates one bot comment on the current same-repository PR. The read-only replay job also works without the publisher. [Complete workflow including both jobs](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/.github/workflows/coupon-replay.yml)
+
+```yaml
+  publish:
+    needs: replay
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: alpercandemir/undertow/actions/replay-comment@8875d27f44dc736061b5097b297e948774d4d8bd
+        with:
+          artifact-pattern: coupon-*-replay-*-${{ needs.replay.outputs.attempt }}
+```
 
 ## Read the result
 
@@ -44,4 +74,4 @@ The Action puts the comparison in the job summary, uploads the reports and pytes
 
 The CLI exits zero for a completed comparison and one when replay is unavailable. Invalid arguments exit two. The JSON records each commit, both statuses, and the SHA-256 of the shared test file. A replay covers only the selected assertion. A difference on a single run can warrant a rerun, especially for a test that depends on time, randomness, or external services.
 
-In the coupon showcase, a three-item checkout test failed on base at $9.03 and passed on head at $9.04. The same single-item test passed on both commits. Undertow's local source review reported zero findings for the rounding change. [Replay report on Showcase PR #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133488076) · [Reproduce the coupon replay](../evaluation/runtime-verification.md#replay-the-coupon-showcase)
+In the coupon showcase, a three-item checkout test failed on base at $9.03 and passed on head at $9.04. The same single-item test passed on both commits. Undertow's local source review reported zero findings for the rounding change. [Replay report on Showcase PR #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175) · [Reproduce the coupon replay](../evaluation/runtime-verification.md#replay-the-coupon-showcase)

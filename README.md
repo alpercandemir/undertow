@@ -3,50 +3,48 @@
 </p>
 
 <h1 align="center">Undertow</h1>
-<p align="center"><strong>See what a pull request changes for customers</strong></p>
 
 <p align="center">
   <a href="https://github.com/alpercandemir/undertow/releases/latest"><img src="https://img.shields.io/github/v/release/alpercandemir/undertow?label=release&amp;color=2563eb" alt="Latest release"></a>
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-Undertow helps a reviewer answer “Who gets a different result if we merge this?” Its GitHub Action reads the code change and posts its findings in the PR conversation. With test replay enabled, the reviewer can also see how a selected pytest case behaved on the old and new code in the Actions summary.
+Undertow posts GitHub pull request comments about behavior changes. Its source review reads the diff and shows inputs for which a rule changes. For a Python project, you can also select a pytest case and have the bot show what the same test observed before and after the change.
 
-[Follow a PR from diff to result](#follow-a-pr-from-diff-to-result) · [See the $50 shipping rule](#same-cart-different-total) · [Install the Action](#get-a-report-on-your-next-pr) · [Historical benchmark](#historical-benchmark-for-complementary-behavioral-coverage)
+[Coupon rounding](#follow-a-pr-from-diff-to-result) · [Free shipping at $50](#same-cart-different-total) · [Returns and refunds](#try-a-product-review) · [Workflow setup](#get-a-report-on-your-next-pr)
 
 ## Follow a PR from diff to result
 
-**Three $3.35 items, one 10% coupon. Why did checkout go from $9.03 to $9.04?** Follow Showcase PR #7 through the same screens a reviewer opens on GitHub.
+**Coupon rounding.** A shopper has three $3.35 items and a 10% coupon. The old checkout rounds each item's discount to $0.34, for a total discount of $1.02. The PR rounds once on the $10.05 subtotal, giving a $1.01 discount. A reviewer opening **Conversation → Undertow test replay** sees what each checkout calculated. [Read the bot’s comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175)
 
-1. **Files changed — the author changes a pricing rule.** The old checkout rounds the coupon on each item to $0.34, giving a $1.02 discount. The PR applies the coupon once to the $10.05 subtotal, giving a $1.01 discount. The author adds a test expecting $9.04 due and selects it in the replay workflow. [Open the diff](https://github.com/alpercandemir/undertow-showcase/pull/7/files) · [See the two selected tests](https://github.com/alpercandemir/undertow-showcase/blob/9aeb5a24087306648480f6905c0642568b31ccc6/.github/workflows/coupon-replay.yml)
-2. **Conversation — `github-actions[bot]` posts the source review.** On this PR its local rules reported zero findings. On the shipping PR the same bot identified the exact cart that changed eligibility. [Coupon bot comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133483426) · [Shipping bot comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
-3. **Checks → Coupon checkout replay — the reviewer opens the run summary.** On a PR update, GitHub Actions runs each selected test from the PR against the base commit and the PR head. The summary includes the failed assertion. The run also retains the JSON reports and pytest logs as artifacts. [Open the replay run and summary](https://github.com/alpercandemir/undertow-showcase/actions/runs/45411278122)
+| Recorded by the same test | Before the PR | With the PR |
+| --- | ---: | ---: |
+| Three items · coupon discount | $1.02 | $1.01 |
+| Three items · amount due | **$9.03** | **$9.04** |
+| One item · amount due | $3.01 | $3.01 |
 
-| Same test from the PR | Base checkout | PR checkout |
-| --- | --- | --- |
-| Three items, expect **$9.04** due | **Failed** · charged $9.03 | **Passed** · charged $9.04 |
-| One item, expect **$3.01** due | Passed · charged $3.01 | Passed · charged $3.01 |
-
-The replay job is advisory, so open the summary for the test verdict. Here the base assertion shows the extra cent the customer pays after the change. The earlier coupon table under `alpercandemir` in Conversation is a maintainer’s manually posted summary of a local replay. The automated replay publishes its results in the run summary linked above. [Maintainer’s original comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133488076)
+1. **The PR author supplies the scenario.** The three-item test calls checkout, records the returned amounts, then asserts that $9.04 is due. A second test covers a single item. The workflow selects both tests by name. [Tests](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/tests/test_coupon_checkout.py) · [Workflow](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/.github/workflows/coupon-replay.yml)
+2. **GitHub Actions runs the comparison.** Undertow takes the test file from the PR and runs each selected case against the common ancestor and the PR head. The three-item assertion fails on the old calculation and passes on the new one. The single-item assertion passes on both. [Run summary and logs](https://github.com/alpercandemir/undertow-showcase/actions/runs/45417256463)
+3. **The bot updates the PR conversation.** The replay comment shows each assertion result and the values the test recorded. A separate source-review comment reports zero findings on this diff. The rounding difference is visible because the checkout test exercised it. [Replay comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175) · [Source-review comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133483426)
 
 ## Same cart, different total
 
-A one-character change makes a **$50 gift cart go from $57 to $50**.
+The shipping PR changes the free-delivery rule by one character.
 
 ```diff
 -    if order_total > 50:
 +    if order_total >= 50:
 ```
 
-Undertow picks **exactly $50** from the diff. Its source report links the eligibility rule to the shipping fee and gift checkout calculation. The table shows the totals we observed when we ran those functions on both commits. [PR comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019) · [Execution results](evaluation/runtime-verification.md#what-a-reviewer-would-see)
+The bot picks the boundary input, `order_total = 50`, and shows that `qualifies_for_free_delivery` changes from `False` to `True`. Its comment also links to `shipping_fee` and `gift_checkout_total`, two places a reviewer can follow that decision. [Read the shipping bot comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+
+To check what the shopper would see, we ran the gift checkout function on both commits. At exactly $50, the $7 shipping fee disappears. The adjacent carts provide a control. [Reproduce the checkout totals](evaluation/runtime-verification.md#what-a-reviewer-would-see)
 
 | Cart subtotal | Checkout total before | Checkout total after |
 | --- | ---: | ---: |
 | $49 | $56 | $56 |
 | **$50** | **$57** | **$50** |
 | $51 | $51 | $51 |
-
-> Should a gift order qualify for free delivery the moment it reaches $50?
 
 <details>
 <summary>Reproduce the source finding locally</summary>
@@ -70,15 +68,19 @@ Open `report.json` in the same output directory for the input, both inferred out
 
 </details>
 
-## Try a product review
+<a id="try-a-product-review"></a>
 
-A storefront release cuts the return window from 30 days to 14, changes how refunds without a receipt are handled, and removes an API route. The PR comment points to the rules and route declarations. We also sent the same requests to both versions with Flask's test client. [Storefront PR comment](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058) · [Execution results](evaluation/runtime-verification.md#observations)
+## Returns, refunds and a removed endpoint
 
-| Same request | Before | After | What to decide |
-| --- | --- | --- | --- |
-| **Return on day 30 with a receipt** | Pending | Expired | Which return window applies to orders already placed? |
-| **Refund on day 7 without a receipt** | Rejected | Manual review | Who handles the new requests in the queue? |
-| **Request a bulk quote** | HTTP 200 | HTTP 404 | Which integrations still use this endpoint? |
+The storefront PR shortens the return window from 30 days to 14. The bot highlights day 30, identifies the refund status change for a missing receipt, and flags the removed `POST /bulk-quotes` route. A reviewer can open each finding to see the old and new source lines. [Read the storefront bot comment](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058)
+
+We then sent the same requests to both versions with Flask's test client. The first two rows show why the input matters. A receipt cannot rescue an expired return, while a missing receipt on day 7 now sends the request to a reviewer. [Runtime observations](evaluation/runtime-verification.md#observations)
+
+| Request | Before | After |
+| --- | --- | --- |
+| `POST /refunds` · day 30, receipt attached | `PENDING` | `EXPIRED` |
+| `POST /refunds` · day 7, no receipt | `REJECTED` | `MANUAL_REVIEW` |
+| `POST /bulk-quotes` · `{"totals":[50]}` | HTTP 200 · `{"shipping":[7]}` | HTTP 404 |
 
 <details>
 <summary>See all ten storefront findings</summary>
@@ -107,7 +109,9 @@ Open or update a PR to get one source-review bot comment, an Actions summary, an
 
 ### Replay a PR test on both revisions
 
-For a Python project, add a separate replay job to your PR workflow. Install the project’s test dependencies, give the job both commits, and select a pytest case by its node ID (for example, `tests/test_coupon_checkout.py::test_coupon_rounds_once_on_cart_subtotal`). On each PR update, reviewers can open **Checks** to reach the comparison. The showcase workflow below is pinned to a commit that includes replay. [Working workflow from Showcase PR #7](https://github.com/alpercandemir/undertow-showcase/blob/9aeb5a24087306648480f6905c0642568b31ccc6/.github/workflows/coupon-replay.yml) · [Setup and local CLI](docs/test-replay.md)
+Add a read-only test job, install your project’s dependencies, and select a case such as `tests/test_coupon_checkout.py::test_coupon_rounds_once_on_cart_subtotal`. Use pytest’s `record_property` before the assertion to include an observed value, for example `record_property("undertow.Amount due", f"${quote['amount_due']}")`. Tests without these properties still report whether their assertions passed.
+
+Add the publisher job from the showcase workflow to put the comparison in **Conversation** on same-repository PRs. Reviewers can follow the link in that comment to the run summary and logs. The example pins both replay actions to a commit that includes them. [Copy the working replay workflow](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/.github/workflows/coupon-replay.yml) · [Setup and local CLI](docs/test-replay.md)
 
 ## Supported changes
 
@@ -120,9 +124,11 @@ For a Python project, add a separate replay job to your PR workflow. Install the
 
 The Action reads Git source. Optional Gemini analysis sends selected source excerpts to Google to interpret related edits. Both modes produce source-based findings. See the guide for supported patterns, evidence labels, and coverage limits. [Analysis and configuration](docs/change-review.md) · [Controlled test cases](evaluation/README.md#controlled-fixtures-and-known-limitations)
 
-## Historical benchmark for complementary behavioral coverage
+<a id="historical-benchmark-for-complementary-behavioral-coverage"></a>
 
-We ran Undertow with Gemini and GitHub Copilot CLI independently on 20 historical Click and HTTPX PRs to see which behavior changes each review surfaced. The Copilot results come from the CLI with a fixed review prompt. [Full benchmark](evaluation/benchmark.md)
+## Historical benchmark
+
+We reviewed 20 historical Click and HTTPX PRs with Undertow and GitHub Copilot CLI. These are retrospective runs with saved reports in this repository. The upstream PRs provide the original code changes. [Full benchmark](evaluation/benchmark.md)
 
 | PRs evaluated | Labeled changes found by Undertow + GitHub Copilot CLI | Additional labeled changes from Undertow |
 | --- | ---: | ---: |
@@ -137,11 +143,11 @@ The corpus contains ten Click PRs and ten HTTPX PRs with 18 labeled behavior cha
 
 Undertow with Gemini completed 11 of 20 PRs. Seven fell back to local rules and two had no reviewable source regions. On the 11 shared PRs, **1 of 10** before/after examples from Undertow with Gemini and **12 of 18** from Copilot CLI were accurate. The combined scores measure detection coverage. [Run results](evaluation/benchmark.md#measured-results-on-the-frozen-20-prs) · [Example scoring](evaluation/benchmark.md#comparison-on-the-same-11-prs)
 
-| From the benchmark | Before → after | Result |
+| Historical PR | What we observed on the two revisions | How the review compared |
 | --- | --- | --- |
-| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) · JSON validation | A request body with NaN was serialized → serialization raises an error. | Both model-backed reviews identified all three labeled JSON changes in this PR. |
-| [HTTPX #3387](https://github.com/encode/httpx/pull/3387) · Refactor control | Helpers move while header and response handling stays the same. | Gemini reported a private-helper move as a finding. Local rules and Copilot issued no findings. |
-| [Click #2934](https://github.com/pallets/click/pull/2934) · Supplemental regression | A command reading a line from standard input exits normally → aborts at end of input. | Gemini identified the iterator exception change. Copilot connected it to the command abort. Scored separately. |
+| [HTTPX #3367](https://github.com/encode/httpx/pull/3367) | Building a request with `{"key":"á"}` changed the encoded body from `{"key": "\u00e1"}` to `{"key":"á"}`. A number set to positive infinity produced an `Infinity` token before and raised `ValueError` afterward. | Both model-backed reviews flagged the three labeled serialization changes. |
+| [HTTPX #3387](https://github.com/encode/httpx/pull/3387) | A repeated header yielded the values `one` and `two` on both revisions. A response’s `next` link resolved to the same URL. | Undertow with Gemini flagged a private helper move. The two public examples retained their behavior. |
+| [Click #2934](https://github.com/pallets/click/pull/2934) | A command iterating over standard input printed `test` and exited with code 0 before. With the same input it printed the line, then `Aborted!` and exited with code 1. | Gemini identified the iterator exception change. Copilot connected it to the abort. This case was scored separately. |
 
 [Browse all 20 benchmark PRs](evaluation/benchmark.md#per-pr-results)
 
