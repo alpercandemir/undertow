@@ -55,6 +55,16 @@ class CommentTests(TestCase):
                     github_review.update_comment(REPOSITORY, PR, BASE, HEAD, TOKEN, "Review")
                 self.assertEqual([item.args[0] for item in github.call_args_list], ["GET", "GET"])
 
+    def test_empty_report_only_removes_the_previous_owned_comment(self):
+        previous = {"id": 56, "user": {"login": "github-actions[bot]"}, "body": f"{MARKER}\nOld report"}
+        unrelated = {"id": 57, "user": {"login": "contributor"}, "body": f"{MARKER}\nDiscussion"}
+        for entries, expected in (([unrelated], ["GET", "GET"]), ([previous], ["GET", "GET", "DELETE"])):
+            with self.subTest(entries=entries), patch.object(github_review, "github", side_effect=[
+                entries, open_pr(BASE, HEAD), None,
+            ]) as github:
+                github_review.update_comment(REPOSITORY, PR, BASE, HEAD, TOKEN, "")
+            self.assertEqual([item.args[0] for item in github.call_args_list], expected)
+
 
 class ActionTest(GitReviewTest):
     def test_action_analyzes_git_objects_without_running_candidate_code(self):

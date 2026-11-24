@@ -1,0 +1,54 @@
+name: Undertow Behavior Replay
+description: Generate inputs for changed Python functions and compare their behavior at two revisions.
+inputs:
+  repo:
+    description: Local Git repository containing both commits.
+    default: '.'
+  base:
+    description: Full comparison base commit SHA, usually the PR merge base.
+    required: true
+  head:
+    description: Full candidate commit SHA.
+    required: true
+  artifact-name:
+    description: Prefix for the retained Markdown and JSON reports.
+    default: undertow-behavior
+outputs:
+  status:
+    description: observed_difference, no_observed_difference, or unavailable.
+    value: ${{ steps.replay.outputs.status }}
+runs:
+  using: composite
+  steps:
+    - name: Find and replay behavior differences
+      id: replay
+      if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+      shell: bash
+      env:
+        REPLAY_REPO: ${{ inputs.repo }}
+        REPLAY_BASE: ${{ inputs.base }}
+        REPLAY_HEAD: ${{ inputs.head }}
+      run: |
+        directory="$(mktemp -d "$RUNNER_TEMP/undertow-behavior.XXXXXXXX")/report"
+        if python3 -IB "$GITHUB_ACTION_PATH/discover.py" --repo "$REPLAY_REPO" \
+          --base "$REPLAY_BASE" --head "$REPLAY_HEAD" --output "$directory" >/dev/null; then
+          status="$(python3 -IB -c 'import json, sys; print(json.load(open(sys.argv[1]))["status"])' "$directory/report.json")"
+        else
+          status=unavailable
+        fi
+        if [[ -f "$directory/report.json" && -f "$directory/summary.md" ]]; then
+          cat "$directory/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          printf 'directory=%s\n' "$directory" >> "$GITHUB_OUTPUT"
+        else
+          printf '## Undertow behavior replay\n\n**Comparison unavailable.** Check the replay step log.\n' >> "$GITHUB_STEP_SUMMARY"
+        fi
+        printf 'status=%s\n' "$status" >> "$GITHUB_OUTPUT"
+
+    - name: Retain behavior evidence
+      if: ${{ steps.replay.outputs.directory != '' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.artifact-name }}-${{ github.job }}-${{ strategy.job-index || 0 }}-${{ github.run_attempt }}
+        path: ${{ steps.replay.outputs.directory }}
+        if-no-files-found: error
+        retention-days: 14

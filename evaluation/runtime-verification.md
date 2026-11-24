@@ -17,7 +17,7 @@ Undertow supplied the $50 input from its local source report. The trial called t
 | Comparison | What the runs showed |
 | --- | --- |
 | [Showcase #6](https://github.com/alpercandemir/undertow-showcase/pull/6) | The Flask test client observed all ten reported changes. A day-30 return with a receipt moved from pending to expired. A day-7 refund without a receipt moved from rejected to manual review. The gift quote started returning HTTP 200 with a $50 total, and the bulk quote moved from HTTP 200 to 404. |
-| [Showcase #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175) | A 10% coupon on three $3.35 items went from a $1.02 discount to $1.01. The amount due went from $9.03 to $9.04. The PR's three-item pytest case failed on base and passed on head. The single-item control passed on both and Undertow local reported zero findings. |
+| Showcase #7 at its original head | A 10% coupon on three $3.35 items went from a $1.02 discount to $1.01. The amount due went from $9.03 to $9.04. The PR's three-item pytest case failed on base and passed on head. The single-item control passed on both and Undertow local reported zero findings. |
 | [Click #2604](https://github.com/pallets/click/pull/2604) | The inferred command name matched both runs. The generated name changed from `my-sync-command` to `my-sync`. |
 | [Click #2846](https://github.com/pallets/click/pull/2846) | The Zsh formatter escaped `a:b` when help text was present. With help text absent, the colon stayed unescaped. The saved example omitted the leading `plain` line of the formatted output. |
 | [Click #2972](https://github.com/pallets/click/pull/2972) | Both missing and invalid option errors dropped the stray environment-variable hint. The invalid-option message included quotes around the option name on both revisions. |
@@ -29,7 +29,7 @@ The shipping and storefront PRs and six library PRs used small, hand-written pro
 
 The pilot used four numeric inputs from the storefront report and the $50 input from the shipping report. The probes encode the endpoints, the missing scenario details and all library inputs. The streaming probe came from the upstream regression test. The coupon scenarios and expected outcomes came from tests added by the showcase PR. These runs measure what a paired execution can establish once it has a runnable case. They leave open how often Undertow can find or translate such a case, and whether reviewers would act on the report. No maintainers reviewed these results in the pilot.
 
-The coupon replay uses the test's fixtures and assertions to carry the intended customer outcome into the review. A repository can opt in when a PR adds a focused behavior test and include the result alongside source-based findings.
+In the updated coupon showcase, Undertow generates its own inputs. The first reproduced difference was two $1.05 items. The amount due went from $1.88 to $1.89 as the coupon discount went from $0.22 to $0.21. This demonstrates one supported input shape. The shipping and storefront observations above still come from the hand-written experiment. [Updated coupon report](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175) · [Behavior replay setup](../docs/behavior-replay.md)
 
 ## Reproduce
 
@@ -55,9 +55,9 @@ uv pip install --python "$trial/venv/bin/python" \
 
 `observations.json` records the exact commits, saved finding fingerprints and both outcomes. The two fresh source reports sit alongside it. A failed or inconsistent replay makes the runner exit nonzero.
 
-### Replay the coupon showcase
+### Reproduce the original pytest replay
 
-With the showcase clone and environment above, install pytest 8 and select both cases in separate runs. The comparison base is the showcase fixture commit with per-item rounding. [PR diff](https://github.com/alpercandemir/undertow-showcase/pull/7/files)
+With the showcase clone and environment above, install pytest 8 and select both cases in separate runs. The comparison base is the showcase fixture commit with per-item rounding. The head below pins the historical version with the author-written tests. [Original test file](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/tests/test_coupon_checkout.py)
 
 ```sh
 uv pip install --python "$trial/venv/bin/python" 'pytest==8.3.5'

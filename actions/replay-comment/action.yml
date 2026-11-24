@@ -1,9 +1,15 @@
 name: Undertow Replay Comment
-description: Publish replay observations from this pull request's workflow run.
+description: Publish new behavior observations from this pull request's workflow run.
 inputs:
   artifact-pattern:
     description: Glob matching the replay artifacts to include from this workflow run.
     required: true
+  covered-evidence:
+    description: Space-separated IDs of exact behavior observations already shown by CI.
+    default: ''
+  publish-test-replay:
+    description: Include assertion transitions from explicitly selected pytest cases.
+    default: 'false'
 runs:
   using: composite
   steps:
@@ -20,4 +26,6 @@ runs:
       env:
         REPORT_DIR: ${{ steps.dest.outputs.path }}
         UNDERTOW_GITHUB_TOKEN: ${{ github.token }}
+        COVERED_EVIDENCE: ${{ inputs.covered-evidence }}
+        PUBLISH_TEST_REPLAY: ${{ inputs.publish-test-replay }}
       run: python3 -I "$GITHUB_ACTION_PATH/publish.py"

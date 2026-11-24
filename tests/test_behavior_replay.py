@@ -1,0 +1,58 @@
+import subprocess
+import sys
+
+from fixtures import ACTION, GitReviewTest
+
+
+SCRIPT = ACTION.parent / "behavior-replay" / "discover.py"
+ROUNDING = """from decimal import Decimal, ROUND_HALF_UP
+
+RATE = Decimal("0.10")
+CENT = Decimal("0.01")
+
+def quote(prices: list[Decimal]):
+    subtotal = sum(prices)
+    discount = sum((price * RATE).quantize(CENT, rounding=ROUND_HALF_UP) for price in prices)
+    return {"discount": discount, "amount_due": subtotal - discount}
+"""
+
+
+class BehaviorReplayTests(GitReviewTest):
+    def replay(self, before, after, expected_status, exit_code=0):
+        self.comparison({"src/checkout.py": before}, {"src/checkout.py": after})
+        command = [sys.executable, "-IB", str(SCRIPT), "--repo", str(self.bare), "--base", self.base,
+                   "--head", self.head, "--output", str(self.output)]
+        result = subprocess.run(command, env=self.env, text=True, capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, exit_code, result.stderr)
+        report = self.read_report()
+        self.assertEqual(report["status"], expected_status, report)
+        return report
+
+    def test_discovers_a_rounding_difference_without_tests_or_pytest(self):
+        after = ROUNDING.replace("sum((price * RATE).quantize(CENT, rounding=ROUND_HALF_UP) for price in prices)",
+                                 "(subtotal * RATE).quantize(CENT, rounding=ROUND_HALF_UP)")
+        report = self.replay(ROUNDING, after, "observed_difference")
+        finding, = report["findings"]
+        self.assertEqual(finding["target"], "src/checkout.py::quote")
+        self.assertEqual(finding["input"], ["1.05", "1.05"])
+        self.assertEqual(finding["base"]["returned"], {"discount": "0.22", "amount_due": "1.88"})
+        self.assertEqual(finding["head"]["returned"], {"discount": "0.21", "amount_due": "1.89"})
+
+    def test_behavior_preserving_refactor_produces_no_finding(self):
+        report = self.replay("def quote(value: int):\n    return value + 1\n",
+                             "def quote(value: int):\n    return 1 + value\n", "no_observed_difference")
+        self.assertEqual(report["findings"], [])
+
+    def test_new_exception_and_import_failure_are_different_outcomes(self):
+        report = self.replay("def quote(value: int):\n    return value\n",
+                             "def quote(value: int):\n    if value == 500:\n        raise ValueError\n    return value\n",
+                             "observed_difference")
+        finding, = report["findings"]
+        self.assertEqual((finding["input"], finding["base"], finding["head"]),
+                         ("500", {"returned": 500}, {"raised": "ValueError"}))
+
+    def test_import_failure_is_unavailable(self):
+        report = self.replay("def quote(value: int):\n    return value\n",
+                             "import nonexistent_fixture\ndef quote(value: int):\n    return value + 1\n",
+                             "unavailable", exit_code=1)
+        self.assertIn("head: the module could not be loaded", report["notes"][0])

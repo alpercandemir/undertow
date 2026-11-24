@@ -9,23 +9,20 @@
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-Undertow posts GitHub pull request comments about behavior changes. Its source review reads the diff and shows inputs for which a rule changes. For a Python project, you can also select a pytest case and have the bot show what the same test observed before and after the change.
+Undertow reviews behavior changes in GitHub pull requests. Source review explains supported rule changes from the diff. Opt-in Python behavior replay generates its own inputs and runs them on both commits to find a reproducible difference.
 
 [Coupon rounding](#follow-a-pr-from-diff-to-result) · [Free shipping at $50](#same-cart-different-total) · [Returns and refunds](#try-a-product-review) · [Workflow setup](#get-a-report-on-your-next-pr)
 
 ## Follow a PR from diff to result
 
-**Coupon rounding.** A shopper has three $3.35 items and a 10% coupon. The old checkout rounds each item's discount to $0.34, for a total discount of $1.02. The PR rounds once on the $10.05 subtotal, giving a $1.01 discount. A reviewer opening **Conversation → Undertow test replay** sees what each checkout calculated. [Read the bot’s comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175)
+**Coupon rounding.** The PR moves 10% coupon rounding from each item to the basket subtotal. Undertow finds the changed checkout function, generates baskets of different sizes and prices, then runs the same calls against the base and PR head. It found that **two $1.05 items** produce a one-cent change in the amount due. The PR supplies the rounding policy. Undertow supplies the basket and observes the amounts. [Read the bot’s comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175)
 
-| Recorded by the same test | Before the PR | With the PR |
+| Two $1.05 items | Before the PR | With the PR |
 | --- | ---: | ---: |
-| Three items · coupon discount | $1.02 | $1.01 |
-| Three items · amount due | **$9.03** | **$9.04** |
-| One item · amount due | $3.01 | $3.01 |
+| Coupon discount | $0.22 | $0.21 |
+| Amount due | **$1.88** | **$1.89** |
 
-1. **The PR author supplies the scenario.** The three-item test calls checkout, records the returned amounts, then asserts that $9.04 is due. A second test covers a single item. The workflow selects both tests by name. [Tests](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/tests/test_coupon_checkout.py) · [Workflow](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/.github/workflows/coupon-replay.yml)
-2. **GitHub Actions runs the comparison.** Undertow takes the test file from the PR and runs each selected case against the common ancestor and the PR head. The three-item assertion fails on the old calculation and passes on the new one. The single-item assertion passes on both. [Run summary and logs](https://github.com/alpercandemir/undertow-showcase/actions/runs/45417256463)
-3. **The bot updates the PR conversation.** The replay comment shows each assertion result and the values the test recorded. A separate source-review comment reports zero findings on this diff. The rounding difference is visible because the checkout test exercised it. [Replay comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7134796175) · [Source-review comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133483426)
+The workflow needs no pytest cases, expected amounts, or model API key. A reviewer can turn the reported call into a permanent regression test after deciding which outcome the policy requires. [Run behavior replay](docs/behavior-replay.md)
 
 ## Same cart, different total
 
@@ -36,7 +33,7 @@ The shipping PR changes the free-delivery rule by one character.
 +    if order_total >= 50:
 ```
 
-The bot picks the boundary input, `order_total = 50`, and shows that `qualifies_for_free_delivery` changes from `False` to `True`. Its comment also links to `shipping_fee` and `gift_checkout_total`, two places a reviewer can follow that decision. [Read the shipping bot comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+The source review identifies the boundary `order_total = 50` and traces the rule to standard shipping and gift checkout. The PR already states that $50 orders now qualify, so the additional review context is where that decision reaches callers. [Read the shipping bot comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
 
 To check what the shopper would see, we ran the gift checkout function on both commits. At exactly $50, the $7 shipping fee disappears. The adjacent carts provide a control. [Reproduce the checkout totals](evaluation/runtime-verification.md#what-a-reviewer-would-see)
 
@@ -49,7 +46,7 @@ To check what the shopper would see, we ran the gift checkout function on both c
 <details>
 <summary>Reproduce the source finding locally</summary>
 
-From a checkout of Undertow `v0.4.0`, run these commands with Python 3.11+ and Git. The worker reads the showcase's committed source from a bare repository. Local mode uses no model key.
+From a checkout of Undertow `v0.5.0`, run these commands with Python 3.11+ and Git. The worker reads the showcase's committed source from a bare repository. Local mode uses no model key.
 
 ```sh
 mkdir -p .undertow
@@ -95,23 +92,23 @@ We then sent the same requests to both versions with Flask's test client. The fi
 
 ## Get a report on your next PR
 
-Add the example workflow at `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, permissions, and this step pinned to the published release. [Copy the workflow](docs/examples/change-review.yml)
+Add the example workflow at `.github/workflows/undertow.yml` on your repository's default branch. It includes the PR trigger, permissions, and this step pinned to the published release. [Copy the workflow](docs/examples/change-review.yml)
 
 ```yaml
-- uses: alpercandemir/undertow/actions/change-review@v0.4.0
+- uses: alpercandemir/undertow/actions/change-review@v0.5.0
   with:
     comment: 'true'
 ```
 
-Open or update a PR to get one source-review bot comment, an Actions summary, and Markdown and JSON reports. The built-in source review runs with Python and Git. [Example comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+Open or update a PR to get an Actions summary and Markdown and JSON reports. Current source review posts a bot comment when it identifies findings. The built-in rules run with Python and Git. [Example comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
 
-`v0.4.0` adds a versioned JSON report with before-and-after examples, review questions, and source evidence. Optional Gemini analysis can add findings to the report alongside the local rules. [Release notes](https://github.com/alpercandemir/undertow/releases/tag/v0.4.0) · [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
+Source findings include before-and-after examples, review questions, and links to source evidence. Optional Gemini analysis can add findings alongside the local rules. [Release notes](https://github.com/alpercandemir/undertow/releases/tag/v0.5.0) · [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
 
-### Replay a PR test on both revisions
+### Choose what to publish
 
-Add a read-only test job, install your project’s dependencies, and select a case such as `tests/test_coupon_checkout.py::test_coupon_rounds_once_on_cart_subtotal`. Use pytest’s `record_property` before the assertion to include an observed value, for example `record_property("undertow.Amount due", f"${quote['amount_due']}")`. Tests without these properties still report whether their assertions passed.
+Behavior replay publishes the generated call and its reproducible difference. If a PR description or an existing CI job already shows the exact evidence, mark its ID as covered to keep the duplication out of the conversation. No difference and unavailable comparisons stay in Actions. [Behavior replay setup](docs/behavior-replay.md)
 
-Add the publisher job from the showcase workflow to put the comparison in **Conversation** on same-repository PRs. Reviewers can follow the link in that comment to the run summary and logs. The example pins both replay actions to a commit that includes them. [Copy the working replay workflow](https://github.com/alpercandemir/undertow-showcase/blob/269992db47d4baa63769192495ccbf23103735ef/.github/workflows/coupon-replay.yml) · [Setup and local CLI](docs/test-replay.md)
+Use focused pytest replay when you need to check a specific expectation against the old revision. Results go to the Actions summary by default. [Pytest replay setup](docs/test-replay.md)
 
 ## Supported changes
 
@@ -122,7 +119,7 @@ Add the publisher job from the showcase workflow to put the comparison in **Conv
 | An HTTP route is added or removed | The finding identifies the method and path, and distinguishes declarations on different routers. |
 | Other code calls the edited rule | The trace follows callers for up to three steps and labels resolved calls and possible name matches. |
 
-The Action reads Git source. Optional Gemini analysis sends selected source excerpts to Google to interpret related edits. Both modes produce source-based findings. See the guide for supported patterns, evidence labels, and coverage limits. [Analysis and configuration](docs/change-review.md) · [Controlled test cases](evaluation/README.md#controlled-fixtures-and-known-limitations)
+The source-review Action reads Git source. Optional Gemini analysis sends selected source excerpts to Google to interpret related edits. Both modes produce source-based findings. Python behavior replay covers a bounded set of changed functions with numeric inputs. [Source analysis and configuration](docs/change-review.md) · [Runtime coverage](docs/behavior-replay.md#coverage)
 
 <a id="historical-benchmark-for-complementary-behavioral-coverage"></a>
 
