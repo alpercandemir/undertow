@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "observed_difference",
+  "base": {
+    "sha": "c05ee849f68c9d074f96d72b614705783e53cd29"
+  },
+  "head": {
+    "sha": "4de32ed3c8501a768f2de598b690dd26a5cec3f4"
+  },
+  "findings": [
+    {
+      "target": "probe.py::probe",
+      "type": "int",
+      "probe_sha256": "a1f4e4596cc1868bb40282f36b16ae6ed98ac17a43d4b726514803d3d1a10b4a",
+      "input": "1",
+      "base": {
+        "returned": {
+          "acknowledged": [
+            1,
+            3
+          ],
+          "delivered": [
+            "INV-101",
+            "INV-102",
+            "INV-103",
+            "INV-104"
+          ],
+          "final_checkpoint": 104,
+          "first_checkpoint": 101
+        }
+      },
+      "head": {
+        "returned": {
+          "acknowledged": [
+            1,
+            0
+          ],
+          "delivered": [
+            "INV-101"
+          ],
+          "final_checkpoint": 104,
+          "first_checkpoint": 104
+        }
+      }
+    }
+  ],
+  "notes": [],
+  "probe_modules": [
+    "invoice_export"
+  ]
+}

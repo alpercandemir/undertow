@@ -1,0 +1,18 @@
+--- a/refunds.py
++++ b/refunds.py
+@@ -33,10 +33,14 @@
+         return [event.refund_id for event in self._refunds[payment_id].values()]
+
+
++def refund_key(event: RefundWebhook) -> str:
++    return f"{event.payment_id}:{event.amount_cents}"
++
++
+ class RefundHandler:
+     def __init__(self, ledger: PaymentLedger):
+         self._ledger = ledger
+
+     def handle(self, event: RefundWebhook) -> str:
+-        posted = self._ledger.post_refund(event, event.refund_id)
++        posted = self._ledger.post_refund(event, refund_key(event))
+         return "applied" if posted else "duplicate"

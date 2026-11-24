@@ -9,23 +9,29 @@
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-Undertow compares selected Python behavior across two Git revisions after CI passes. It generates inputs for supported functions or for public API scenarios configured as probes. Reviewers can turn an observed difference into a standalone pytest test once they choose the expected behavior.
+Undertow runs the same generated inputs on two Python revisions after CI passes. It reports an input that changes an observable outcome and turns it into a standalone pytest test once a reviewer chooses the expected result.
 
-[Real regression](#a-stdin-regression-that-clicks-tests-missed) · [Run on demand](#run-on-demand) · [Historical benchmark](#historical-benchmark)
+[Regression examples](#three-regressions-that-pass-the-existing-suite) · [Run on demand](#run-on-demand) · [Historical benchmark](#historical-benchmark)
 
-## A stdin regression that Click's tests missed
+## Three regressions that pass the existing suite
 
-Click #2934 changed how `CliRunner` handles end of input. A later issue reported that a command reading standard input as a file started aborting. We reran the existing pytest suites on the base, PR and fixed commits. All three passed locally. [Original PR](https://github.com/pallets/click/pull/2934) · [Bug report](https://github.com/pallets/click/issues/2939) · [Upstream fix](https://github.com/pallets/click/pull/2940)
+These runnable examples use synthetic data and deliberately introduced regressions. Each compares two Git commits with the same existing tests.
 
-| Check | Before the PR | With the PR | Upstream fix |
-| --- | --- | --- | --- |
-| Each revision's existing pytest suite | 737 passed | 738 passed | 1,284 passed |
-| Undertow's generated input | Reads one line, exits 0 | Reads the line, prints `Aborted!`, exits 1 | Reads the line, exits 0 |
-| Generated pytest regression test | Passes | Fails | Passes |
+| What changed | Input Undertow found and what happened | Reproduce or inspect |
+| --- | --- | --- |
+| **A $40 refund disappears.** A webhook refactor deduplicates by payment and amount. | `[1, 1]` creates two separate one-item refunds on a $120 payment, with a retry of the first webhook in between. The base records both refunds. The candidate treats the second as another retry and records **$40 instead of $80**. | [Patch](evaluation/replay-examples/refunds/candidate.patch) · [Report](evaluation/replay-examples/results/refunds/report.json) · [New test](evaluation/replay-examples/results/refunds/regression.py) |
+| **Three invoices are skipped after a restart.** An exporter saves the end of a batch as its checkpoint. | `1` lets the finance inbox acknowledge only the first of four invoices before the worker restarts. The base resumes at the second invoice. The candidate reports the same final checkpoint as the base, with **one invoice delivered instead of four**. | [Patch](evaluation/replay-examples/invoice-export/candidate.patch) · [Report](evaluation/replay-examples/results/invoice-export/report.json) · [New test](evaluation/replay-examples/results/invoice-export/regression.py) |
+| **A ferry disappears an hour before departure.** The board starts filtering by port-local time. | `10` minutes after the board opens, the port clock reads 01:30 BST. The 01:30 GMT sailing is still an hour away. The base shows it and the candidate drops it from the board. | [Patch](evaluation/replay-examples/departure-board/candidate.patch) · [Report](evaluation/replay-examples/results/departure-board/report.json) · [New test](evaluation/replay-examples/results/departure-board/regression.py) |
 
-A small probe sets up the public CLI call and records output and exit code. This retrospective trial used the bug report to choose the scenario. Undertow generated the input `[1]` as one stdin line, checked that the difference reproduced, and exported the test after we selected the expected result. [Probe](evaluation/probes/click_stdin.py) · [Reproduce the comparison](evaluation/click-replay.md) · [Generated test](evaluation/results/click-probe/test_undertow_stdin.py)
+All 13 existing tests passed on both sides. They covered webhook redelivery, full batch acknowledgement and ordinary departure dates. Each exported test passed on its base commit and was the sole failure on its candidate. [Recorded test results](evaluation/replay-examples/results/verification.json)
 
-A fixed CLI option probe completed six separately selected comparisons with passing tests and reported no differences in the exercised paths. [Pilot protocol and results](evaluation/click-options-pilot.md)
+Each probe defines the workflow and records what a caller can observe. Undertow supplies the input, runs both revisions and repeats the distinguishing case on its own. We selected the base outcome as the contract for each generated test. [Refund probe](evaluation/replay-examples/refunds/probe.py) · [Export probe](evaluation/replay-examples/invoice-export/probe.py) · [Departure probe](evaluation/replay-examples/departure-board/probe.py)
+
+Run all three locally with Git, Python 3.11+, pytest and IANA time-zone data. The runner creates the two commits for each scenario, verifies that their original tests pass, and checks the exported test against both.
+
+```sh
+python3 evaluation/replay-examples/run.py --output .undertow/replay-examples
+```
 
 ## Run on demand
 
@@ -37,9 +43,13 @@ The GitHub Actions example runs when a maintainer dispatches it with two commits
 
 ## Historical benchmark
 
+In merged HTTPX PR #3364, both revisions passed 1,425 existing tests in the local non-network run. A request with empty `params` kept an existing URL query on base and cleared it on head. Undertow reproduced the difference and exported a test for the reviewed new behavior. A later upstream PR added an equivalent assertion. [Original PR](https://github.com/encode/httpx/pull/3364) · [Trial results](evaluation/benchmark.md#what-the-probes-added) · [Upstream test](https://github.com/encode/httpx/pull/3440)
+
 The runtime value trial found no eligible automatic target across 21 historical comparisons. Reused probes supplied five reproducible observations, including one compatibility effect absent from the original PR description and tests. Copilot's source review already described that effect. Undertow reproduced it and generated a runnable test. [Runtime value after passing tests](evaluation/benchmark.md#runtime-product-value-after-passing-tests) · [Product assessment](evaluation/benchmark.md#product-assessment)
 
 The November 24 rerun used the Undertow v0.5.0 release worker on 20 historical Click and HTTPX PRs with 18 labeled behavior changes. Paired runtime probes reproduced the expected differences on all 16 behavior-changing PRs and on a separately scored Click stdin regression. Four controls preserved the behavior under review. [Benchmark and run records](evaluation/benchmark.md#v050-rerun) · [Runtime observations](evaluation/results/v0.5.0/runtime-observations.json)
+
+The Click stdin trial used a reported regression to select the probe. Click's existing suites passed on the base, regression and fix. The generated test failed on the regression alone. A separate six-comparison Click option pilot observed no differences in the paths it exercised. [Click stdin trial](evaluation/click-replay.md) · [Option pilot](evaluation/click-options-pilot.md)
 
 | Source review | PRs completed in requested mode | Labeled changes found across 20 PRs | Accurate examples |
 | --- | ---: | ---: | ---: |

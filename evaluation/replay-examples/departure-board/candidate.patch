@@ -1,0 +1,16 @@
+--- a/departure_board.py
++++ b/departure_board.py
+@@ -15,11 +15,11 @@
+         self._port_timezone = port_timezone
+
+     def upcoming(self, as_of: datetime) -> list[dict[str, str]]:
+-        cutoff = as_of.astimezone(UTC)
++        cutoff = as_of.astimezone(self._port_timezone)
+         return [
+             self._row(crossing)
+             for crossing in self._crossings
+-            if crossing.leaves_at.astimezone(UTC) > cutoff
++            if crossing.leaves_at.astimezone(self._port_timezone) > cutoff
+         ]
+
+     def _row(self, crossing: Crossing) -> dict[str, str]:

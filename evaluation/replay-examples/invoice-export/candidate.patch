@@ -1,0 +1,12 @@
+--- a/invoice_export.py
++++ b/invoice_export.py
+@@ -39,7 +39,8 @@
+         if not batch:
+             return 0
+
++        page_end = batch[-1].sequence
+         acknowledged = self._inbox.send(batch)
+         if acknowledged:
+-            self._checkpoint.sequence = batch[acknowledged - 1].sequence
++            self._checkpoint.sequence = page_end
+         return acknowledged

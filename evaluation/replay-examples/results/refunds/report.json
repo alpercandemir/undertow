@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "observed_difference",
+  "base": {
+    "sha": "d997cf89afd6ada17dafa4fc75ca661eb5176dea"
+  },
+  "head": {
+    "sha": "cb9d98f7405812aa385b886b1a7482dbd131436b"
+  },
+  "findings": [
+    {
+      "target": "probe.py::probe",
+      "type": "list[int]",
+      "probe_sha256": "87abd8035af65886d863537668ba6e3ca5387a144550715cd53880401c5a7388",
+      "input": [
+        "1",
+        "1"
+      ],
+      "base": {
+        "returned": {
+          "refund_ids": [
+            "refund-1",
+            "refund-2"
+          ],
+          "refunded_cents": 8000,
+          "statuses": [
+            "applied",
+            "duplicate",
+            "applied"
+          ]
+        }
+      },
+      "head": {
+        "returned": {
+          "refund_ids": [
+            "refund-1"
+          ],
+          "refunded_cents": 4000,
+          "statuses": [
+            "applied",
+            "duplicate",
+            "duplicate"
+          ]
+        }
+      }
+    }
+  ],
+  "notes": [],
+  "probe_modules": [
+    "refunds"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "observed_difference",
+  "base": {
+    "sha": "7c05c18f3eb13b4749de259bc46117c8886b7dc8"
+  },
+  "head": {
+    "sha": "fc531255f6c7cfa37d63ec1c2a0fcb5daf7cc826"
+  },
+  "findings": [
+    {
+      "target": "probe.py::probe",
+      "type": "int",
+      "probe_sha256": "81feaa983c4784922ccd03c8099307d1afa2f988e8f155bfe9440c01eeb1d368",
+      "input": "10",
+      "base": {
+        "returned": {
+          "displayed_crossings": [
+            "F71",
+            "F72"
+          ],
+          "local_time": "01:30 BST"
+        }
+      },
+      "head": {
+        "returned": {
+          "displayed_crossings": [
+            "F72"
+          ],
+          "local_time": "01:30 BST"
+        }
+      }
+    }
+  ],
+  "notes": [],
+  "probe_modules": [
+    "departure_board"
+  ]
+}

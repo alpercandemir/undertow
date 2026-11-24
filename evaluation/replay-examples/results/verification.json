@@ -1,0 +1,74 @@
+{
+  "refunds": {
+    "existing_suite": {
+      "base": {
+        "passed": 5,
+        "failed": []
+      },
+      "head": {
+        "passed": 5,
+        "failed": []
+      }
+    },
+    "with_exported_test": {
+      "base": {
+        "passed": 6,
+        "failed": []
+      },
+      "head": {
+        "passed": 5,
+        "failed": [
+          "test_undertow_regression"
+        ]
+      }
+    }
+  },
+  "invoice-export": {
+    "existing_suite": {
+      "base": {
+        "passed": 4,
+        "failed": []
+      },
+      "head": {
+        "passed": 4,
+        "failed": []
+      }
+    },
+    "with_exported_test": {
+      "base": {
+        "passed": 5,
+        "failed": []
+      },
+      "head": {
+        "passed": 4,
+        "failed": [
+          "test_undertow_regression"
+        ]
+      }
+    }
+  },
+  "departure-board": {
+    "existing_suite": {
+      "base": {
+        "passed": 4,
+        "failed": []
+      },
+      "head": {
+        "passed": 4,
+        "failed": []
+      }
+    },
+    "with_exported_test": {
+      "base": {
+        "passed": 5,
+        "failed": []
+      },
+      "head": {
+        "passed": 4,
+        "failed": [
+          "test_undertow_regression"
+        ]
+      }
+    }
+  }
+}
