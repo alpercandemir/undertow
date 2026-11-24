@@ -2,6 +2,8 @@
 
 The [benchmark results](benchmark.md) compare Undertow local, Undertow with Gemini, and Copilot CLI on the same revision pairs, with per-finding judgments and saved run records. The [competitive pilot instructions](competitive-pilot.md) cover reproduction and independent assessment.
 
+The [runtime verification trial](runtime-verification.md) replays selected findings against both Git revisions and records the observed outcomes.
+
 ## v0.3.0 historical baseline
 
 On November 20, 2026, the released worker at `cbf43c4b7174c306c9f24bf4f3ebcb5d400a48a6` ran in credential-free local mode on 20 merged public PRs. The [case manifest](historical.json) pins the actual merge commit and its first parent for each PR, including squash merges. It contains 10 Click PRs and 10 HTTPX PRs, with nine bug fixes, seven intentional changes and four runtime behavior controls. The sample was selected for clear upstream evidence and includes a private-helper refactor, an annotation-only change and documentation/test controls. [Click changes](https://click.palletsprojects.com/en/stable/changes/) · [HTTPX changelog](https://github.com/encode/httpx/blob/master/CHANGELOG.md)

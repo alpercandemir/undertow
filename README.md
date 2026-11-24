@@ -10,27 +10,31 @@
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-Undertow reviews a pull request and shows which customer or client could get a different outcome. Its GitHub comment gives you a scenario to check, the before and after outcomes inferred from source, and links to the code behind them.
+Undertow brings concrete customer and API scenarios into a pull request review. The **source review** identifies a specific input whose outcome may change and links to the code on both commits. **Test replay** runs a pytest case you select against both commits so you can see what actually happens.
 
-Use Undertow alongside reviewers such as GitHub Copilot to look for changes in observable behavior.
-
-[Try a product review](#try-a-product-review) · [Historical benchmark](#historical-benchmark-for-complementary-behavioral-coverage) · [Install the Action](#get-a-report-on-your-next-pr) · [Supported changes](#supported-changes)
+[See the $50 cart](#same-cart-different-total) · [Replay a PR test](#replay-a-pr-test-on-both-revisions) · [Storefront examples](#try-a-product-review) · [Install the Action](#get-a-report-on-your-next-pr) · [Historical benchmark](#historical-benchmark-for-complementary-behavioral-coverage)
 
 ## Same cart, different total
 
-A PR changes the free-shipping rule from **over $50** to **$50 or more**. The report singles out the customer with exactly $50 in their cart. At $49 and $51, the two revisions agree.
+A one-character change makes a **$50 gift cart go from $57 to $50**.
 
-| At a $50 subtotal | Before | After |
+```diff
+-    if order_total > 50:
++    if order_total >= 50:
+```
+
+Undertow picks **exactly $50** from the diff. Its source report links the eligibility rule to the shipping fee and gift checkout calculation. The table shows the totals we observed when we ran those functions on both commits. [PR comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019) · [Execution results](evaluation/runtime-verification.md#what-a-reviewer-would-see)
+
+| Cart subtotal | Checkout total before | Checkout total after |
 | --- | ---: | ---: |
-| Shipping fee | $7 | $0 |
-| Gift checkout total | **$57** | **$50** |
+| $49 | $56 | $56 |
+| **$50** | **$57** | **$50** |
+| $51 | $51 | $51 |
 
-**Review question** · Should a gift order qualify for free delivery the moment it reaches $50?
-
-The bot comment shows the change in shipping eligibility. The dollar amounts follow from the shipping and checkout code linked in that comment. [Read the actual PR comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+> Should a gift order qualify for free delivery the moment it reaches $50?
 
 <details>
-<summary>Reproduce the $50 finding locally with Python and Git</summary>
+<summary>Reproduce the source finding locally</summary>
 
 From a checkout of Undertow `v0.4.0`, run these commands with Python 3.11+ and Git. The worker reads the showcase's committed source from a bare repository. Local mode uses no model key.
 
@@ -51,16 +55,32 @@ Open `report.json` in the same output directory for the input, both inferred out
 
 </details>
 
+## Replay a PR test on both revisions
+
+**Why does the same basket cost one cent more?** Apply a 10% coupon to three $3.35 items. The old checkout rounds the discount on each item to $0.34 and adds them up. The PR rounds 10% of the $10.05 subtotal once, to $1.01.
+
+| Checkout result | Base · round per item | PR · round on subtotal |
+| --- | ---: | ---: |
+| Coupon discount | $1.02 | $1.01 |
+| Amount due | **$9.03** | **$9.04** |
+| Same test, expecting $9.04 due | Failed | Passed |
+
+The PR adds the test. Undertow takes that same test file and runs it against the old and new checkout code. A single $3.35 item still costs $3.01 on both commits and its test passes on both. The local source review produced zero findings for the rounding change. [Replay report on Showcase PR #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133488076)
+
+Choose one pytest case to try opt-in replay from this checkout. You can run it locally or in a separate GitHub Actions job. [Run a replay](docs/test-replay.md) · [Reproduce the coupon example](evaluation/runtime-verification.md#replay-the-coupon-showcase)
+
 ## Try a product review
 
-Two showcase PRs cover **10 distinct scenarios**. The shipping example above isolates one rule. The storefront release below shows what happens when several rules change together. Pick a customer scenario, then expand its finding in the PR comment. [Open the storefront report](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058)
+A storefront release cuts the return window from 30 days to 14, changes how refunds without a receipt are handled, and removes an API route. The PR comment points to the rules and route declarations. We also sent the same requests to both versions with Flask's test client. [Storefront PR comment](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058) · [Execution results](evaluation/runtime-verification.md#observations)
 
-| Scenario | Before → after | What to decide |
-| --- | --- | --- |
-| **Return on day 30** | Eligible → return window expired | Which return window applies to orders already placed? |
-| **Refund without a receipt** | Rejected → manual review | Who handles the requests that enter the queue? |
-| **Gift quote for a $50 cart** | No gift-quote route declared → new gift-quote route | Which clients should get access at launch? |
-| **Bulk quotes** | Route declared → declaration removed | Which integrations still need time to migrate? |
+| Same request | Before | After | What to decide |
+| --- | --- | --- | --- |
+| **Return on day 30 with a receipt** | Pending | Expired | Which return window applies to orders already placed? |
+| **Refund on day 7 without a receipt** | Rejected | Manual review | Who handles the new requests in the queue? |
+| **Request a bulk quote** | HTTP 200 | HTTP 404 | Which integrations still use this endpoint? |
+
+<details>
+<summary>See all ten storefront findings</summary>
 
 <p align="center">
   <a href="https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058">
@@ -68,21 +88,7 @@ Two showcase PRs cover **10 distinct scenarios**. The shipping example above iso
   </a>
 </p>
 
-<details>
-<summary>Explore six more scenarios from the same release</summary>
-
-| What to try | Before → after | Product question |
-| --- | --- | --- |
-| Choose a 12-month payment plan | Eligible → ineligible | When should checkout stop offering 12 months? |
-| Quote a $50 cart | $7 shipping → free shipping | Should an order for exactly $50 qualify? |
-| Ask for an express dispatch estimate | 2 days → 1 day | Can fulfillment meet the new estimate? |
-| Earn points on a $50 order | 50 → 150 points | When should the new earn rate take effect? |
-| Retry after three failed delivery attempts | Ineligible → eligible | How many attempts should support allow? |
-| Check whether an item can be backordered | Disabled → enabled | What availability should checkout show? |
-
 </details>
-
-The report infers outcomes from Git revisions. Shipping and rewards amounts follow the calculations in the caller. Route findings identify declarations. The actual HTTP response depends on the handler and deployment. [Storefront source at the reported revision](https://github.com/alpercandemir/undertow-showcase/blob/856a37f063cb9ad4cf90a76323a32009991a3568/src/storefront.py)
 
 ## Get a report on your next PR
 
@@ -94,7 +100,7 @@ Add the example workflow at `.github/workflows/undertow.yml` on your base branch
     comment: 'true'
 ```
 
-Open or update a PR. The workflow writes an Actions summary, saves Markdown and JSON reports, and updates one bot comment.
+Open or update a PR to get one bot comment, an Actions summary, and Markdown and JSON reports. The built-in source review runs with Python and Git. [Example comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
 
 `v0.4.0` adds a versioned JSON report with before-and-after examples, review questions, and source evidence. Optional Gemini analysis can add findings to the report alongside the local rules. [Release notes](https://github.com/alpercandemir/undertow/releases/tag/v0.4.0) · [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
 
