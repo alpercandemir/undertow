@@ -10,9 +10,24 @@
   <a href="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml"><img src="https://github.com/alpercandemir/undertow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 </p>
 
-Undertow brings concrete customer and API scenarios into a pull request review. The **source review** identifies a specific input whose outcome may change and links to the code on both commits. **Test replay** runs a pytest case you select against both commits so you can see what actually happens.
+Undertow helps a reviewer answer “Who gets a different result if we merge this?” Its GitHub Action reads the code change and posts its findings in the PR conversation. With test replay enabled, the reviewer can also see how a selected pytest case behaved on the old and new code in the Actions summary.
 
-[See the $50 cart](#same-cart-different-total) · [Replay a PR test](#replay-a-pr-test-on-both-revisions) · [Storefront examples](#try-a-product-review) · [Install the Action](#get-a-report-on-your-next-pr) · [Historical benchmark](#historical-benchmark-for-complementary-behavioral-coverage)
+[Follow a PR from diff to result](#follow-a-pr-from-diff-to-result) · [See the $50 shipping rule](#same-cart-different-total) · [Install the Action](#get-a-report-on-your-next-pr) · [Historical benchmark](#historical-benchmark-for-complementary-behavioral-coverage)
+
+## Follow a PR from diff to result
+
+**Three $3.35 items, one 10% coupon. Why did checkout go from $9.03 to $9.04?** Follow Showcase PR #7 through the same screens a reviewer opens on GitHub.
+
+1. **Files changed — the author changes a pricing rule.** The old checkout rounds the coupon on each item to $0.34, giving a $1.02 discount. The PR applies the coupon once to the $10.05 subtotal, giving a $1.01 discount. The author adds a test expecting $9.04 due and selects it in the replay workflow. [Open the diff](https://github.com/alpercandemir/undertow-showcase/pull/7/files) · [See the two selected tests](https://github.com/alpercandemir/undertow-showcase/blob/9aeb5a24087306648480f6905c0642568b31ccc6/.github/workflows/coupon-replay.yml)
+2. **Conversation — `github-actions[bot]` posts the source review.** On this PR its local rules reported zero findings. On the shipping PR the same bot identified the exact cart that changed eligibility. [Coupon bot comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133483426) · [Shipping bot comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+3. **Checks → Coupon checkout replay — the reviewer opens the run summary.** On a PR update, GitHub Actions runs each selected test from the PR against the base commit and the PR head. The summary includes the failed assertion. The run also retains the JSON reports and pytest logs as artifacts. [Open the replay run and summary](https://github.com/alpercandemir/undertow-showcase/actions/runs/45411278122)
+
+| Same test from the PR | Base checkout | PR checkout |
+| --- | --- | --- |
+| Three items, expect **$9.04** due | **Failed** · charged $9.03 | **Passed** · charged $9.04 |
+| One item, expect **$3.01** due | Passed · charged $3.01 | Passed · charged $3.01 |
+
+The replay job is advisory, so open the summary for the test verdict. Here the base assertion shows the extra cent the customer pays after the change. The earlier coupon table under `alpercandemir` in Conversation is a maintainer’s manually posted summary of a local replay. The automated replay publishes its results in the run summary linked above. [Maintainer’s original comment](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133488076)
 
 ## Same cart, different total
 
@@ -55,20 +70,6 @@ Open `report.json` in the same output directory for the input, both inferred out
 
 </details>
 
-## Replay a PR test on both revisions
-
-**Why does the same basket cost one cent more?** Apply a 10% coupon to three $3.35 items. The old checkout rounds the discount on each item to $0.34 and adds them up. The PR rounds 10% of the $10.05 subtotal once, to $1.01.
-
-| Checkout result | Base · round per item | PR · round on subtotal |
-| --- | ---: | ---: |
-| Coupon discount | $1.02 | $1.01 |
-| Amount due | **$9.03** | **$9.04** |
-| Same test, expecting $9.04 due | Failed | Passed |
-
-The PR adds the test. Undertow takes that same test file and runs it against the old and new checkout code. A single $3.35 item still costs $3.01 on both commits and its test passes on both. The local source review produced zero findings for the rounding change. [Replay report on Showcase PR #7](https://github.com/alpercandemir/undertow-showcase/pull/7#issuecomment-7133488076)
-
-Choose one pytest case to try opt-in replay from this checkout. You can run it locally or in a separate GitHub Actions job. [Run a replay](docs/test-replay.md) · [Reproduce the coupon example](evaluation/runtime-verification.md#replay-the-coupon-showcase)
-
 ## Try a product review
 
 A storefront release cuts the return window from 30 days to 14, changes how refunds without a receipt are handled, and removes an API route. The PR comment points to the rules and route declarations. We also sent the same requests to both versions with Flask's test client. [Storefront PR comment](https://github.com/alpercandemir/undertow-showcase/pull/6#issuecomment-7039643058) · [Execution results](evaluation/runtime-verification.md#observations)
@@ -100,9 +101,13 @@ Add the example workflow at `.github/workflows/undertow.yml` on your base branch
     comment: 'true'
 ```
 
-Open or update a PR to get one bot comment, an Actions summary, and Markdown and JSON reports. The built-in source review runs with Python and Git. [Example comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
+Open or update a PR to get one source-review bot comment, an Actions summary, and Markdown and JSON reports. The built-in source review runs with Python and Git. [Example comment](https://github.com/alpercandemir/undertow-showcase/pull/5#issuecomment-7037780019)
 
 `v0.4.0` adds a versioned JSON report with before-and-after examples, review questions, and source evidence. Optional Gemini analysis can add findings to the report alongside the local rules. [Release notes](https://github.com/alpercandemir/undertow/releases/tag/v0.4.0) · [Markdown example](docs/examples/summary.md) · [JSON example](docs/examples/report.json)
+
+### Replay a PR test on both revisions
+
+For a Python project, add a separate replay job to your PR workflow. Install the project’s test dependencies, give the job both commits, and select a pytest case by its node ID (for example, `tests/test_coupon_checkout.py::test_coupon_rounds_once_on_cart_subtotal`). On each PR update, reviewers can open **Checks** to reach the comparison. The showcase workflow below is pinned to a commit that includes replay. [Working workflow from Showcase PR #7](https://github.com/alpercandemir/undertow-showcase/blob/9aeb5a24087306648480f6905c0642568b31ccc6/.github/workflows/coupon-replay.yml) · [Setup and local CLI](docs/test-replay.md)
 
 ## Supported changes
 
