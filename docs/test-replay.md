@@ -57,7 +57,7 @@ The Actions summary is the default destination for pytest replay. For a PR where
       actions: read
       pull-requests: write
     steps:
-      - uses: alpercandemir/undertow/actions/replay-comment@<commit-with-behavior-replay>
+      - uses: alpercandemir/undertow/actions/replay-comment@d9b6220bf2238887f7d438dbc8fee1d7b17412b5
         with:
           artifact-pattern: coupon-*-replay-*-${{ needs.replay.outputs.attempt }}
           publish-test-replay: 'true'

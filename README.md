@@ -92,7 +92,7 @@ We then sent the same requests to both versions with Flask's test client. The fi
 
 ## Get a report on your next PR
 
-Add the example workflow at `.github/workflows/undertow.yml` on your base branch. It includes the PR trigger, permissions, and this step pinned to the published release. [Copy the workflow](docs/examples/change-review.yml)
+Add the example workflow at `.github/workflows/undertow.yml` on your repository's default branch. It includes the PR trigger, permissions, and this step pinned to the published release. [Copy the workflow](docs/examples/change-review.yml)
 
 ```yaml
 - uses: alpercandemir/undertow/actions/change-review@v0.4.0

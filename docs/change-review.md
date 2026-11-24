@@ -4,7 +4,7 @@ Undertow compares the committed source for two Git revisions. Each finding shows
 
 ## GitHub Actions
 
-Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the base branch. It uses Undertow `v0.4.0`. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
+Copy the [workflow](examples/change-review.yml) into `.github/workflows/undertow.yml` on the repository's default branch. It uses Undertow `v0.4.0`. You can pin the corresponding full commit SHA for immutable action selection. The action fetches the event commits into a temporary bare Git repository. It compares the PR's merge base to its exact head and writes the result to the job summary and to a Markdown and JSON artifact.
 
 The example uses `pull_request_target` with `contents: read` and `pull-requests: write` so the trusted workflow can also report on fork PRs. Current source review updates one GitHub Actions bot comment when it has findings. Empty reports stay in Actions. The action reads candidate source from Git objects. Keep this job separate from jobs that build or run PR code. If your repository's Actions policy restricts `pull_request_target`, allow this trusted reporting workflow there or use `pull_request` with `contents: read` and remove the `comment` input for a summary-only setup. [GitHub's event security guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
 
