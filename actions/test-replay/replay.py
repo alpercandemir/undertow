@@ -65,10 +65,11 @@ def phase_outcome(record, node_id, exit_code):
         return {"status": "unavailable", "reason": "Expected one completed test with successful setup and teardown."}
 
     call = phases[1]
+    observed = {"observations": call["observations"]} if call.get("observations") else {}
     if call["outcome"] == "passed" and exit_code == 0:
-        return {"status": "passed"}
+        return {"status": "passed", **observed}
     if call["outcome"] == "assertion_failed" and exit_code == 1:
-        return {"status": "assertion_failed", "assertion": call["assertion"]}
+        return {"status": "assertion_failed", "assertion": call["assertion"], **observed}
     return {"status": "unavailable", "reason": f"Test call reported {call['outcome']} with pytest exit code {exit_code}."}
 
 

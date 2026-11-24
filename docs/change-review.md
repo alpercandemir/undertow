@@ -10,7 +10,7 @@ The example updates one GitHub Actions bot comment per PR. It uses `pull_request
 
 The action checks that the PR is still open and that its base and head match the event before publishing. A write failure appears in the summary. Findings, missing model access, and unavailable analyses are advisory. On a push event, the action uses the event's before and after commits if both exist. For workflows dispatched manually, pass both `base` and `head` as full commit SHAs.
 
-For observed evidence from a focused pytest case, run the [separate test replay Action](test-replay.md) on a build job.
+For observed evidence from a focused pytest case, run the [separate test replay Action](test-replay.md) on a read-only build job. An optional publisher adds the measured values and test verdicts to a separate comment in the PR conversation.
 
 ## Review priority
 

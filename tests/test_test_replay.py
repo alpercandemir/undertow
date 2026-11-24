@@ -66,7 +66,8 @@ class ReplayIntegrationTests(unittest.TestCase):
         head = self.commit({"src/cart.py": "shipping = 0\n", "tests/test_cart.py": """
             from cart import shipping
 
-            def test_cart():
+            def test_cart(record_property):
+                record_property("undertow.Shipping", str(shipping))
                 assert shipping == 0
             """})
         code, report = self.run_replay(base, head, "tests/test_cart.py::test_cart")
@@ -74,6 +75,8 @@ class ReplayIntegrationTests(unittest.TestCase):
         self.assertEqual(report["status"], "passes_on_head_only")
         self.assertIn("7 == 0", report["base"]["assertion"])
         self.assertEqual(report["head"]["status"], "passed")
+        self.assertEqual(report["base"]["observations"], {"Shipping": "7"})
+        self.assertEqual(report["head"]["observations"], {"Shipping": "0"})
         self.assertEqual(self.git("status", "--porcelain"), "")
 
     def test_supports_new_test_and_exact_parameter(self):
