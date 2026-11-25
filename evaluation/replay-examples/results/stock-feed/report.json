@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "observed_difference",
+  "base": {
+    "sha": "293d807ef6584228490e7ac3b26c908bfe5fbad4"
+  },
+  "head": {
+    "sha": "53146ce775b1ffdb811b1460387d5f12d70ea3d5"
+  },
+  "findings": [
+    {
+      "target": "probe.py::probe",
+      "type": "int",
+      "probe_sha256": "396a6b7c41575a64a1979c4c040fc98512e44d0fabd82b87e330fc25320e72e7",
+      "input": "2",
+      "base": {
+        "returned": {
+          "feed": {
+            "available": 0
+          },
+          "listing": "Sold out"
+        }
+      },
+      "head": {
+        "returned": {
+          "feed": {
+            "available": false
+          },
+          "listing": "Check availability"
+        }
+      }
+    }
+  ],
+  "notes": [],
+  "probe_modules": [
+    "stock_feed"
+  ]
+}

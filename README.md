@@ -11,7 +11,20 @@
 
 Undertow runs the same generated inputs on two Python revisions after CI passes. It reports an input that changes an observable outcome and turns it into a standalone pytest test once a reviewer chooses the expected result.
 
-[Regression examples](#three-regressions-that-pass-the-existing-suite) · [Run on demand](#run-on-demand) · [Historical benchmark](#historical-benchmark)
+[Worked examples](#which-behavior-should-the-test-keep) · [Run the examples](#run-the-examples) · [Run on demand](#run-on-demand) · [Historical benchmark](#historical-benchmark)
+
+## Which behavior should the test keep?
+
+These two runnable examples use synthetic data. Each change passes its four existing tests on both Git revisions. Undertow supplies a distinguishing input. The reviewer chooses which outcome belongs in the test.
+
+| Scenario and input | Base | Candidate | Exported test |
+| --- | --- | --- | --- |
+| Two units in stock, both reserved. What does the customer see? | `{"available": 0}` → **Sold out** | `{"available": false}` → **Check availability** | `--expect base` passes on base and fails on candidate. |
+| A $10 booking credit, split across three groups of one ticket each. How much reaches the receipt? | $3.33 + $3.33 + $3.33 = **$9.99** | $3.34 + $3.33 + $3.33 = **$10.00** | `--expect head` fails on base and passes on candidate. |
+
+**Stock feed.** A refactor guards the available count with `remaining > 0 and remaining`. At zero, Python returns `False`. The existing API test still passes because Python considers `False == 0`, and the listing test uses a hand-written numeric response. The probe feeds the actual API response to the listing, which expects an integer. Keeping the base result protects what a buyer sees when the last unit is reserved. [Patch](evaluation/replay-examples/stock-feed/candidate.patch) · [Existing tests](evaluation/replay-examples/stock-feed/source/existing_tests.py) · [Probe](evaluation/replay-examples/stock-feed/probe.py) · [Replay report](evaluation/replay-examples/results/stock-feed/report.json) · [Exported test](evaluation/replay-examples/results/stock-feed/regression.py)
+
+**Booking credit.** The old allocator rounds each group's share down to a whole cent. The existing proportional-split test divides evenly. Undertow tries `[1, 1, 1]`, three $25 tickets grouped separately, and exposes the missing cent. The candidate distributes leftover cents by fractional share, with receipt order breaking ties. Keeping the candidate result makes the full $10 credit and its distribution part of the contract. [Patch](evaluation/replay-examples/credit-split/candidate.patch) · [Existing tests](evaluation/replay-examples/credit-split/source/existing_tests.py) · [Probe](evaluation/replay-examples/credit-split/probe.py) · [Replay report](evaluation/replay-examples/results/credit-split/report.json) · [Exported test](evaluation/replay-examples/results/credit-split/regression.py)
 
 ## Three regressions that pass the existing suite
 
@@ -27,13 +40,17 @@ All 13 existing tests passed on both sides. They covered webhook redelivery, ful
 
 Each probe defines the workflow and records what a caller can observe. Undertow supplies the input, runs both revisions and repeats the distinguishing case on its own. We selected the base outcome as the contract for each generated test. [Refund probe](evaluation/replay-examples/refunds/probe.py) · [Export probe](evaluation/replay-examples/invoice-export/probe.py) · [Departure probe](evaluation/replay-examples/departure-board/probe.py)
 
-Run all three locally with Git, Python 3.11+, pytest and IANA time-zone data. The runner creates the two commits for each scenario, verifies that their original tests pass, and checks the exported test against both.
+### Run the examples
+
+Run all five locally with Git, Python 3.11+, pytest and IANA time-zone data. Choose a fresh output directory. The runner creates both commits for each scenario, runs the original suite, exports the reviewed expectation and checks the test on each revision. Open `verification.json` in the output directory for the pass/fail counts. [Recorded results](evaluation/replay-examples/results/verification.json)
 
 ```sh
 python3 evaluation/replay-examples/run.py --output .undertow/replay-examples
 ```
 
 ## Run on demand
+
+Undertow also has a manual pilot for changes to its own pytest exporter. Its probe checks whether a generated assertion can tell integer zero from boolean false. The pilot records what the reviewer planned to do before seeing replay and whether the evidence led to a test, fix, or contract decision. The worked examples above are outside its ten live reviews. [Pilot protocol and case log](evaluation/pytest-export-pilot.md) · [Manual pilot on GitHub Actions](https://github.com/alpercandemir/undertow/actions/workflows/pytest-export-pilot.yml)
 
 After your normal CI passes, choose a public API scenario and run a small Python probe on the base and candidate commits. Inspect the difference and export a pytest test for the outcome you want to keep. [Local commands and test export](docs/behavior-replay.md#probe-a-public-api-and-export-a-pytest-test)
 
