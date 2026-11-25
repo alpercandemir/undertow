@@ -1,0 +1,8 @@
+{
+  "expect": "head",
+  "verified": true,
+  "base_sha": "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b",
+  "head_sha": "3f76571d3429497c4ee4ecf5d8bc034b6f765957",
+  "base": "fail",
+  "head": "pass"
+}

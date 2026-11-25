@@ -1,3 +1,4 @@
+import json
 import subprocess
 import sys
 
@@ -6,6 +7,7 @@ from fixtures import ACTION, GitReviewTest
 
 SCRIPT = ACTION.parent / "behavior-replay" / "discover.py"
 EXPORT = SCRIPT.with_name("write_test.py")
+REVIEW = SCRIPT.with_name("review.py")
 ROUNDING = """from decimal import Decimal, ROUND_HALF_UP
 
 RATE = Decimal("0.10")
@@ -19,6 +21,72 @@ def quote(prices: list[Decimal]):
 
 
 class BehaviorReplayTests(GitReviewTest):
+    def branch_review(self, probe, choice):
+        return subprocess.run(
+            [sys.executable, "-IB", str(REVIEW), "--repo", self.worktree, "--against", "main",
+             "--head", "topic", "--probe", probe, "--probe-module", "checkout", "--output", self.output,
+             "--expect", choice], input="head\n", text=True, capture_output=True, env=self.env, timeout=30)
+
+    def test_named_case_reviews_the_merge_base_and_verifies_the_chosen_test(self):
+        base = self.commit({"src/checkout.py": "def url(params):\n    return '/?a=1'\n"}, "Base")
+        self.git("switch", "-qc", "topic")
+        head = self.commit({"src/checkout.py": "def url(params):\n    return '/' if params == {} else '/?a=1'\n"},
+                           "Clear the query")
+        self.git("switch", "-q", "main")
+        self.commit({"src/checkout.py": "def url(params):\n    return '/other'\n"}, "Independent change")
+        probe = self.directory / "query.py"
+        probe.write_text('from checkout import url\nCASES = {"unspecified": None, "empty params": {}}\n'
+                         'def probe(params):\n    return url(params)\n')
+        run = self.branch_review(probe, "ask")
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        self.assertIn("Case: empty params\nInput: probe({})", run.stdout)
+        report = json.loads((self.output / "replay/report.json").read_bytes())
+        self.assertEqual(report["base"]["sha"], base)
+        self.assertEqual(report["head"]["sha"], head)
+        self.assertEqual(report["findings"][0]["input"], {})
+        self.assertIn("probe({})", (self.output / "test_undertow_regression.py").read_text())
+        verification = json.loads((self.output / "verification.json").read_bytes())
+        self.assertEqual((verification["verified"], verification["base"], verification["head"]), (True, "fail", "pass"))
+        self.assertEqual(self.git("branch", "--show-current"), "main")
+
+    def test_rejects_invalid_named_cases(self):
+        probe = self.directory / "probe.py"
+        probe.write_text('CASES = {"empty": {}, "empty": []}\ndef probe(value):\n    return value\n')
+        report = self.replay("x = 1", "x = 2", "unavailable", exit_code=1, probe=(probe, "checkout"))
+        self.assertIn("unique", report["notes"][0])
+
+    def test_existing_numeric_probe_can_keep_its_own_cases_lookup(self):
+        probe = self.directory / "probe.py"
+        probe.write_text("from checkout import quote\nCASES = {1: 'empty'}\n"
+                         "def probe(value: int):\n    return quote(CASES.get(value))\n")
+        report = self.replay("def quote(value):\n    return value\n",
+                             "def quote(value):\n    return value and 'changed'\n",
+                             "observed_difference", probe=(probe, "checkout"))
+        self.assertEqual(report["findings"][0]["input"], "1")
+
+    def test_review_verifies_a_return_becoming_an_exception(self):
+        self.commit({"checkout.py": "def quote(value):\n    return 10\n"}, "Base")
+        self.git("switch", "-qc", "topic")
+        self.commit({"checkout.py": "def quote(value):\n    raise ValueError('invalid')\n"}, "Reject")
+        probe = self.directory / "probe.py"
+        probe.write_text("from checkout import quote\ndef probe(value: int):\n    return quote(value)\n")
+        run = self.branch_review(probe, "base")
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        self.assertIn("pytest: base pass · head fail", run.stdout)
+
+    def test_verification_rejects_an_unrelated_failure_under_pytest(self):
+        self.commit({"checkout.py": "def quote(value):\n    return value\n"}, "Base")
+        self.git("switch", "-qc", "topic")
+        self.commit({"checkout.py": "import sys\ndef quote(value):\n"
+                     "    if 'pytest' in sys.modules:\n        raise AssertionError('unrelated')\n"
+                     "    return value + 1\n"}, "Head")
+        probe = self.directory / "probe.py"
+        probe.write_text("from checkout import quote\ndef probe(value: int):\n    return quote(value)\n")
+        run = self.branch_review(probe, "base")
+        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+        self.assertIn("pytest: base pass · head unavailable", run.stdout)
+        self.assertFalse((self.output / "test_undertow_regression.py").exists())
+
     def replay(self, before, after, expected_status, exit_code=0, probe=None, path="src/checkout.py"):
         self.comparison({path: before}, {path: after})
         command = [sys.executable, "-IB", str(SCRIPT), "--repo", str(self.bare), "--base", self.base,

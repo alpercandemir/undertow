@@ -68,7 +68,9 @@ def main():
     sys.path[:0] = [str(root / "src"), str(root)]
     function = load_function(request, root)
     kind = request["type"]
-    if kind.startswith("list["):
+    if kind == "json":
+        arguments = request["inputs"]
+    elif kind.startswith("list["):
         convert = CONVERT[kind[5:-1]]
         arguments = [[convert(item) for item in value] for value in request["inputs"]]
     else:

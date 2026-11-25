@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "observed_difference",
+  "base": {
+    "sha": "6f9b50990dad9645a6f9dc0e1eb90af0a6474c3b"
+  },
+  "head": {
+    "sha": "3f76571d3429497c4ee4ecf5d8bc034b6f765957"
+  },
+  "findings": [
+    {
+      "target": "httpx_query_params.py::probe",
+      "type": "json",
+      "probe_sha256": "f7c38dba1eb3c342e7f0d0fe312e8a2f4eecc63e3b82d73933806f844246648f",
+      "input": {},
+      "base": {
+        "returned": "https://example.invalid/?a=1"
+      },
+      "head": {
+        "returned": "https://example.invalid/"
+      },
+      "case": "Empty query parameters"
+    }
+  ],
+  "notes": [],
+  "probe_modules": [
+    "httpx._models"
+  ]
+}
