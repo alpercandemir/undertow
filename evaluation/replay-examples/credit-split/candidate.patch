@@ -1,0 +1,13 @@
+--- a/credit_split.py
++++ b/credit_split.py
+@@ -7,2 +7,9 @@
+         raise ValueError("Credit must be between zero and the booking total")
+-    return [credit_cents * amount // total for amount in subtotals]
++    shares = [credit_cents * amount // total for amount in subtotals]
++    unallocated = credit_cents - sum(shares)
++    # Largest fractional shares get the extra cents. Ties follow receipt order.
++    remainders = [(credit_cents * amount) % total for amount in subtotals]
++    order = sorted(range(len(shares)), key=remainders.__getitem__, reverse=True)
++    for index in order[:unallocated]:
++        shares[index] += 1
++    return shares

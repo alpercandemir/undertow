@@ -1,4 +1,4 @@
-"""Replay the README's seeded regressions in small, reproducible Git repositories."""
+"""Replay the README's behavior changes in small, reproducible Git repositories."""
 
 import argparse
 import json
@@ -13,9 +13,11 @@ from xml.etree import ElementTree
 EXAMPLES = Path(__file__).resolve().parent
 REPLAY = EXAMPLES.parents[1] / "actions" / "behavior-replay"
 CANDIDATES = {
-    "refunds": "Normalize refund webhook deduplication",
-    "invoice-export": "Use the page end as the export checkpoint",
-    "departure-board": "Filter crossings using port-local time",
+    "refunds": ("Normalize refund webhook deduplication", "base"),
+    "invoice-export": ("Use the page end as the export checkpoint", "base"),
+    "departure-board": ("Filter crossings using port-local time", "base"),
+    "stock-feed": ("Guard the available count before publishing stock", "base"),
+    "credit-split": ("Distribute the full credit across booking groups", "head"),
 }
 GIT_ENV = {
     "PATH": os.environ.get("PATH", os.defpath),
@@ -57,7 +59,7 @@ def run_pytest(project, xml_path, *files, expected_failures=()):
     return {"passed": len(cases) - len(failures), "failed": list(failures)}
 
 
-def replay_case(case, candidate_message, output):
+def replay_case(case, candidate_message, expected_side, output):
     fixture = EXAMPLES / case
     output.mkdir()
     project = output / "project"
@@ -87,7 +89,7 @@ def replay_case(case, candidate_message, output):
     )
     subprocess.run(
         [sys.executable, "-IB", REPLAY / "write_test.py", "--report", report, "--probe", probe,
-         "--expect", "base", "--output", test],
+         "--expect", expected_side, "--output", test],
         check=True, timeout=30,
     )
 
@@ -96,9 +98,9 @@ def replay_case(case, candidate_message, output):
         git(project, "checkout", "-q", "--detach", revision)
         expanded[side] = run_pytest(
             project, output / f"{side}-expanded.xml", "existing_tests.py", test,
-            expected_failures=("test_undertow_regression",) if side == "head" else (),
+            expected_failures=() if side == expected_side else ("test_undertow_regression",),
         )
-        if expanded[side]["passed"] != existing[side]["passed"] + int(side == "base"):
+        if expanded[side]["passed"] != existing[side]["passed"] + int(side == expected_side):
             raise RuntimeError(f"Unexpected change to the test count for {case} on {side}")
     return {"existing_suite": existing, "with_exported_test": expanded}
 
@@ -110,9 +112,9 @@ def main():
     output = args.output.resolve()
     output.mkdir(parents=True)
     results = {}
-    for case, message in CANDIDATES.items():
+    for case, (message, expected_side) in CANDIDATES.items():
         print(f"\n{case}", flush=True)
-        results[case] = replay_case(case, message, output / case)
+        results[case] = replay_case(case, message, expected_side, output / case)
     (output / "verification.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
 
 

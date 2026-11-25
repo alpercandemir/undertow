@@ -1,0 +1,8 @@
+--- a/stock_feed.py
++++ b/stock_feed.py
+@@ -4,3 +4,4 @@
+ def inventory_response(on_hand: int, reserved: int) -> str:
+-    available = max(on_hand - reserved, 0)
++    remaining = on_hand - reserved
++    available = remaining > 0 and remaining
+     return json.dumps({"available": available})

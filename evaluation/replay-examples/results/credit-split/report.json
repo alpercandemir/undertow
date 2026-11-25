@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "behavior",
+  "status": "observed_difference",
+  "base": {
+    "sha": "121fc7115ad4a4e7b9f386988df225f7416caf75"
+  },
+  "head": {
+    "sha": "b0b14356da61ddf1524d91575f4a4cdb661ccf9f"
+  },
+  "findings": [
+    {
+      "target": "probe.py::probe",
+      "type": "list[int]",
+      "probe_sha256": "d311797d8fd8bdaba879c6f9e71ac52bfbf06e61b8809e724a90f27741edcee4",
+      "input": [
+        "1",
+        "1",
+        "1"
+      ],
+      "base": {
+        "returned": {
+          "credits_by_group_cents": [
+            333,
+            333,
+            333
+          ],
+          "total_credit_cents": 999
+        }
+      },
+      "head": {
+        "returned": {
+          "credits_by_group_cents": [
+            334,
+            333,
+            333
+          ],
+          "total_credit_cents": 1000
+        }
+      }
+    }
+  ],
+  "notes": [],
+  "probe_modules": [
+    "credit_split"
+  ]
+}
