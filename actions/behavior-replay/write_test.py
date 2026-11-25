@@ -27,27 +27,35 @@ def input_literal(kind, value):
     raise ValueError("The report contains a non-finite input.")
 
 
-def render(source, kind, finding, expected_side):
+def render(source, kind, finding, expected_side, examples=None):
     if kind != finding["type"] or hashlib.sha256(source).hexdigest() != finding.get("probe_sha256"):
         raise ValueError("The supplied probe differs from the one that produced this finding.")
-    argument = input_literal(kind, finding["input"])
+    if kind == "json":
+        name = finding.get("case")
+        if name not in examples or json.dumps(examples[name], sort_keys=True) != json.dumps(finding["input"], sort_keys=True):
+            raise ValueError("The named input differs from the case in the supplied probe.")
+        argument = ascii(examples[name])
+    else:
+        argument = input_literal(kind, finding["input"])
     outcome = finding[expected_side]
     lines = ["", "", "", "def test_undertow_regression():"]
-    if "raised" in outcome:
-        lines.append("    import pytest")
-    else:
-        lines.append("    import json")
+    lines.append("    import json")
     if "Decimal" in kind:
         lines.append("    from decimal import Decimal")
     lines.append("")
-    if "raised" in outcome:
-        lines.extend(["    with pytest.raises(Exception) as caught:", f"        probe({argument})",
-                      f"    assert type(caught.value).__name__ == {ascii(outcome['raised'])}"])
+    if any("raised" in finding[side] for side in ("base", "head")):
+        if "raised" in outcome:
+            expected = {"raised": outcome["raised"]}
+        else:
+            expected = {"returned": serializable(outcome["returned"], json_only=True)}
+        lines.extend([f"    expected = {ascii(expected)}", "    try:",
+                      f"        observed = {{'returned': probe({argument})}}",
+                      "    except Exception as error:", "        observed = {'raised': type(error).__name__}"])
     else:
         expected = serializable(outcome["returned"], json_only=True)
-        lines.extend([f"    expected = {ascii(expected)}", f"    observed = probe({argument})",
-                      "    assert json.dumps(observed, sort_keys=True, allow_nan=False) == json.dumps(",
-                      "        expected, sort_keys=True", "    )"])
+        lines.extend([f"    expected = {ascii(expected)}", f"    observed = probe({argument})"])
+    lines.extend(["    assert json.dumps(observed, sort_keys=True, allow_nan=False) == json.dumps(",
+                  "        expected, sort_keys=True", "    )"])
     return source.rstrip() + ("\n".join(lines) + "\n").encode("ascii")
 
 
@@ -69,8 +77,8 @@ def main():
             findings = [finding for finding in findings if fingerprint(finding) == args.finding]
         if len(findings) != 1:
             raise ValueError("Select exactly one finding with --finding.")
-        source, _, kind = load_probe(args.probe)
-        test = render(source, kind, findings[0], args.expect)
+        source, _, kind, examples = load_probe(args.probe)
+        test = render(source, kind, findings[0], args.expect, examples)
         compile(test, str(args.output), "exec")
         with args.output.open("xb") as output:
             output.write(test)

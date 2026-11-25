@@ -49,13 +49,16 @@ def run_pytest(project, xml_path, *files, expected_failures=()):
         [sys.executable, "-B", "-m", "pytest", "-q", "-p", "no:cacheprovider",
          "--junitxml", xml_path, *files],
         cwd=project, env=TEST_ENV, timeout=60, check=False,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
     )
+    if not xml_path.exists():
+        raise RuntimeError(f"Pytest did not produce {xml_path}\n{result.stdout}")
     cases = ElementTree.parse(xml_path).findall(".//testcase")
     failures = tuple(case.get("name") for case in cases if case.find("failure") is not None)
     if (not cases or result.returncode != int(bool(expected_failures))
             or failures != expected_failures
             or any(case.find("error") is not None or case.find("skipped") is not None for case in cases)):
-        raise RuntimeError(f"Unexpected pytest results in {xml_path}")
+        raise RuntimeError(f"Unexpected pytest results in {xml_path}\n{result.stdout}")
     return {"passed": len(cases) - len(failures), "failed": list(failures)}
 
 
@@ -108,13 +111,22 @@ def replay_case(case, candidate_message, expected_side, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path, help="A new output directory")
+    parser.add_argument("--case", choices=CANDIDATES, help="Run just one example (default: all five).")
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True)
     results = {}
     for case, (message, expected_side) in CANDIDATES.items():
+        if args.case and case != args.case:
+            continue
         print(f"\n{case}", flush=True)
         results[case] = replay_case(case, message, expected_side, output / case)
+        existing = results[case]["existing_suite"]
+        expanded = results[case]["with_exported_test"]
+        print(f"Existing tests: base {existing['base']['passed']} passed · head {existing['head']['passed']} passed")
+        for side in ("base", "head"):
+            outcome = "FAIL" if expanded[side]["failed"] else "PASS"
+            print(f"Exported test on {side}: {outcome}")
     (output / "verification.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
 
 

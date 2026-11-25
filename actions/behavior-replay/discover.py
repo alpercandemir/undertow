@@ -34,8 +34,7 @@ def functions(source):
 def parameter_type(function):
     args = function.args
     positional = args.posonlyargs + args.args
-    if (len(positional) != 1 or args.vararg or args.kwonlyargs or args.kwarg
-            or function.decorator_list):
+    if not single_argument(function):
         return None
     annotation = positional[0].annotation
     if isinstance(annotation, ast.Name) and annotation.id in SCALAR_TYPES:
@@ -47,15 +46,55 @@ def parameter_type(function):
     return None
 
 
+def single_argument(function):
+    args = function.args
+    return (len(args.posonlyargs + args.args) == 1 and not args.vararg and not args.kwonlyargs
+            and not args.kwarg and not function.decorator_list)
+
+
+def named_cases(tree):
+    declarations = [node.value for node in tree.body if isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(isinstance(target, ast.Name) and target.id == "CASES"
+                            for target in (node.targets if isinstance(node, ast.Assign) else [node.target]))]
+    if not declarations:
+        return None
+    if len(declarations) != 1 or not isinstance(declarations[0], ast.Dict):
+        raise ValueError("Define CASES once as a literal dictionary of names and JSON inputs.")
+    table = declarations[0]
+    if not 1 <= len(table.keys) <= 40:
+        raise ValueError("Supply between 1 and 40 named cases.")
+    examples = {}
+    for key, value in zip(table.keys, table.values):
+        if not isinstance(key, ast.Constant) or not isinstance(key.value, str):
+            raise ValueError("Each case needs a literal string name.")
+        name = key.value
+        if not name.strip() or not name.isprintable() or len(name) > 80 or name in examples:
+            raise ValueError("Use unique, printable case names of 1 to 80 characters.")
+        try:
+            argument = ast.literal_eval(value)
+            encoded = json.dumps(argument, allow_nan=False)
+            if json.loads(encoded) != argument:
+                raise ValueError
+        except (ValueError, TypeError, OverflowError) as error:
+            raise ValueError(f"Case {name!r} needs a literal JSON input.") from error
+        examples[name] = argument
+    return examples
+
+
 def load_probe(path):
     if path.suffix != ".py" or path.stat().st_size > 128 * 1024:
         raise ValueError("Supply a Python probe of at most 128 KiB.")
     source = path.read_bytes()
-    probe = functions(source).get("probe")
+    tree = ast.parse(source)
+    probe = next((node for node in reversed(tree.body)
+                  if isinstance(node, ast.FunctionDef) and node.name == "probe"), None)
     kind = parameter_type(probe) if probe else None
-    if not kind:
-        raise ValueError("Define probe(value) with one supported numeric or list annotation.")
-    return source, probe, kind
+    if kind:
+        return source, probe, kind, None
+    examples = named_cases(tree)
+    if probe and single_argument(probe) and examples is not None:
+        return source, probe, "json", examples
+    raise ValueError("Define probe(value) with a CASES dictionary or a supported numeric or list annotation.")
 
 
 def executable_body(function):
@@ -166,7 +205,8 @@ def compare(snapshots, request, env, deadline):
 
     compared = False
     rejected = None
-    for value, base, base_repeat, head, head_repeat in zip(request["inputs"], *runs[0], *runs[1], strict=True):
+    observations = zip(request["inputs"], *runs[0], *runs[1], strict=True)
+    for index, (value, base, base_repeat, head, head_repeat) in enumerate(observations):
         if (base is None or head is None or not same(base, base_repeat) or not same(head, head_repeat)
                 or ("raised" in base and "raised" in head)):
             continue
@@ -183,19 +223,23 @@ def compare(snapshots, request, env, deadline):
                 break
             continue
         if same(isolated_base, [base]) and same(isolated_head, [head]):
-            return {"input": value, "base": base, "head": head}, None
+            finding = {"input": value, "base": base, "head": head}
+            if "case_names" in request:
+                finding["case"] = request["case_names"][index]
+            return finding, None
         rejected = "the difference did not reproduce with the input alone"
     return None, rejected or (None if compared else "no stable, comparable result")
 
 
 def requests(args, directory, snapshots, env):
     if args.probe:
-        source, function, kind = load_probe(args.probe)
+        source, function, kind, examples = load_probe(args.probe)
         probe = directory / "probe.py"
         probe.write_bytes(source)
+        inputs = ({"inputs": list(examples.values()), "case_names": list(examples)} if examples is not None
+                  else {"inputs": cases(kind, function, function)})
         yield (f"{args.probe.name}::probe",
-               {"probe": str(probe), "modules": args.probe_module, "name": "probe", "type": kind,
-                "inputs": cases(kind, function, function)},
+               {"probe": str(probe), "modules": args.probe_module, "name": "probe", "type": kind, **inputs},
                {"probe_sha256": hashlib.sha256(source).hexdigest()})
         return
     selected = list(targets(args.repo, args.base, args.head, snapshots, env))[:MAX_TARGETS]
@@ -242,7 +286,9 @@ def invocation(finding):
     name = finding["target"].rsplit("::", 1)[1]
     kind = finding["type"]
     argument = finding["input"]
-    if isinstance(argument, list):
+    if kind == "json":
+        argument = ascii(argument)
+    elif isinstance(argument, list):
         argument = "[" + ", ".join(literal(kind[5:-1], value) for value in argument) + "]"
     else:
         argument = literal(kind, argument)
@@ -256,12 +302,14 @@ def literal(kind, value):
 def summary(report):
     labels = {
         "observed_difference": "Behavior difference observed",
-        "no_observed_difference": "No difference observed for the generated inputs",
+        "no_observed_difference": "No difference observed for the compared inputs",
         "unavailable": "Comparison unavailable",
     }
     lines = ["## Undertow behavior replay", "", f"**{labels[report['status']]}.**", "",
              f"Base `{report['base']['sha'][:7]}` · PR head `{report['head']['sha'][:7]}`", ""]
     for finding in report["findings"]:
+        if "case" in finding:
+            lines.append(f"Case · <code>{html.escape(finding['case'])}</code>")
         lines.extend([f"<code>{html.escape(invocation(finding))}</code>",
                       f"- Base · <code>{html.escape(json.dumps(finding['base']))}</code>",
                       f"- PR head · <code>{html.escape(json.dumps(finding['head']))}</code>",
@@ -296,7 +344,9 @@ def main():
     try:
         with tempfile.TemporaryDirectory() as directory:
             status, findings, notes = inspect(args, Path(directory))
-    except (OSError, ValueError, SyntaxError, tarfile.TarError, subprocess.SubprocessError):
+    except (ValueError, SyntaxError) as error:
+        status, findings, notes = "unavailable", [], [str(error)]
+    except (OSError, tarfile.TarError, subprocess.SubprocessError):
         status, findings, notes = "unavailable", [], ["Could not prepare or compare the Git snapshots."]
     report = {"schema_version": 1, "kind": "behavior", "status": status,
               "base": {"sha": args.base}, "head": {"sha": args.head}, "findings": findings, "notes": notes}

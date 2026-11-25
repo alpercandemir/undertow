@@ -1,4 +1,4 @@
-# Replay generated Python inputs
+# Replay a Python workflow on two Git revisions
 
 Behavior replay compares the same generated input on two Git revisions. After CI passes, choose a public API scenario to investigate. The report records the reproducing input and both observed results. A reviewer decides which behavior the contract calls for. [Click stdin regression](../evaluation/click-replay.md)
 
@@ -6,7 +6,27 @@ Behavior replay compares the same generated input on two Git revisions. After CI
 
 Use a current Python 3.11+ on Linux or macOS, Git, and the dependencies needed to run the scenario on both revisions. Use trusted revisions. The CLI exports both commits to temporary directories and executes the selected modules. For a PR, use its merge base and exact head.
 
-A trusted, self-contained probe defines one `probe(value)` function with a supported type annotation. It sets up the call and returns a small JSON value that captures the observable behavior. Name the project modules it exercises with `--probe-module`. Repeat the flag for multiple modules. Undertow uses the flat and `src/` import roots and verifies that each declared module is loaded from the corresponding Git snapshot. Use concrete modules such as `click.testing` for packages with namespace-only parents. [Click probe](../evaluation/probes/click_stdin.py)
+For a branch review, install pytest 8+ in the same Python environment. From the Undertow checkout, run the following command with the path to the target repository and your probe.
+
+```sh
+python3 -IB actions/behavior-replay/review.py \
+  --repo /path/to/project --against main --head my-feature \
+  --probe path/to/probe.py --probe-module myproject.api --expect ask
+```
+
+`--head` defaults to the target repository's committed HEAD. Both refs must be available locally. The command resolves them once and compares the candidate to the merge base. It prints the first reproducible input and both outcomes. At the prompt, choose `base`, `head`, or `skip`. For a scripted run, pass `--expect base` or `--expect head`. With no expectation, an interactive terminal prompts and a noninteractive run keeps the report.
+
+Each run uses a fresh directory under `.undertow/` in the caller’s working directory. You can supply a new directory with `--output`. The `replay/` subdirectory contains the JSON evidence and Markdown summary. When you choose a side, Undertow runs the same standalone test on both snapshots. It saves `test_undertow_regression.py` if the chosen side passes and the other side fails at the generated assertion with the observed result. The per-side pytest logs and `verification.json` record the checks. A failed verification exits nonzero. The test can then run in your suite independently of Undertow.
+
+### Choose inputs
+
+A trusted, self-contained probe takes one positional argument and returns a small JSON value. For named inputs, declare `CASES` as a top-level dictionary literal in the probe file. Each key is a unique, printable name (1–80 characters). Each value is one JSON-compatible Python literal, such as `None`, `{}`, a string, or a nested list. Supply 1–40 cases, in the order you want reviewed. Reports and exported tests use the actual value. [HTTPX example](../evaluation/probes/httpx_query_params.py)
+
+For generated inputs, annotate the argument as `int`, `float`, `Decimal` or a list of one of those types. These annotations retain their original generated-input behavior, including for older probes that use a private lookup called `CASES`. For named cases, leave the argument unannotated or give it a different annotation. Name the project modules the probe exercises with `--probe-module`. Repeat the flag for multiple modules. Undertow checks that each declared module actually loaded from that revision. Use concrete modules such as `click.testing` for packages with namespace-only parents. [Click example](../evaluation/probes/click_stdin.py)
+
+### Compare exact commits or export a saved report
+
+The lower-level commands accept full commit SHAs and a fresh output directory. They also work with saved reports and numeric probes from earlier runs.
 
 ```sh
 python3 -IB actions/behavior-replay/discover.py \
@@ -30,6 +50,6 @@ The workflow stores the Markdown summary and JSON evidence in Actions. Download 
 
 ## Coverage
 
-A probe takes one positional argument annotated `int`, `float`, `Decimal`, or a list of one of these types. The input generator tries small numeric samples and repeated list values. To try direct-function discovery on a specific diff, omit the probe flags. Direct discovery examines at most twelve modified modules and six eligible functions in a flat or conventional `src/` layout, and also tries literal numeric comparison boundaries.
+The input generator tries small numeric samples and repeated list values. To try direct-function discovery on a specific diff, omit the probe flags when running `discover.py`. Direct discovery examines at most twelve modified modules and six eligible functions in a flat or conventional `src/` layout, and also tries literal numeric comparison boundaries.
 
 For a finding, the generated input must produce stable outcomes in fresh processes and the difference must reproduce with that input alone. Replay continues through later candidates after a difference fails isolation, within its time budget. Supported results include small scalars, arrays, and dictionaries. A return becoming an exception is reported as a new exception for that input. Import failures, timeouts, and cases without comparable results are explained in the Actions summary.
