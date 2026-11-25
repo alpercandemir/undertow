@@ -38,7 +38,7 @@ jobs:
           path: trusted
           persist-credentials: false
       # Install any project dependencies needed by both revisions here.
-      - uses: alpercandemir/undertow/actions/behavior-replay@d06a5e5e892a8b9cf913bdbc6813a0941ecc671d
+      - uses: alpercandemir/undertow/actions/behavior-replay@8f76fae9b1c57f59338cc24b6576e0e25cf2fdb6
         with:
           repo: comparison
           base: ${{ inputs.base }}
